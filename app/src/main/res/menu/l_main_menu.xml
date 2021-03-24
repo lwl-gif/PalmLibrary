@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/menu_Personal"
+
+            android:title="    个人信息"/>
+        <item
+            android:id="@+id/menu_Setting"
+
+            android:title="    相关设置"/>
+        <item
+            android:id="@+id/menu_AddReader"
+
+            android:title="    添加读者"/>
+        <item
+            android:id="@+id/menu_AddBook"
+
+            android:title="    新书入库"/>
+        <item
+            android:id="@+id/menu_Scan"
+
+            android:title="    扫一扫"/>
+        <item
+            android:id="@+id/menu_Feedback"
+
+            android:title="    反馈建议"/>
+        <item
+            android:id="@+id/menu_AboutUs"
+            android:actionLayout="@layout/drawer_head_portrait"
+            android:title="    关于我们"/>
+    </group>
+</menu>

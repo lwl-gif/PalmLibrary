@@ -1,0 +1,89 @@
+<resources>
+    <string name="app_name">掌上图书馆</string>
+    <string name="welcome">欢迎使用移动图书管理系统</string>
+    <string name="welcome1">掌上图书馆带您享受极致阅读体验</string>
+    <string name="register">注册新用户</string>
+    <string name="forget">修改密码</string>
+    <string name="next">下一步</string>
+    <string name="username">账号</string>
+    <string name="password">密码</string>
+
+    <string name="submit">提交</string>
+    <string name="editAndUpdate">编辑/修改</string>
+    <string name="save">保存</string>
+    <string name="title">标题</string>
+    <string name="reserve">一键预约</string>
+    <string name="back">返回</string>
+    <!--                                         -->
+    <string name="personalInfo">个人信息</string>
+    <string name="reader_manage">读者管理</string>
+    <string name="apply">挂失及处罚处理</string>
+    <string name="book_manage">图书管理</string>
+    <string name="notice">公告栏</string>
+    <string name="keyword">请输入关键字</string>
+    <string name="clickToSelect">点击检索</string>
+
+    <!--                                          -->
+    <string name="bookHot">热度:</string>
+    <string name="bookState">状态:</string>
+    <string name="bookId">No.</string>
+    <string name="bookName">名称:</string>
+    <string name="bookAuthor">作者:</string>
+    <string name="bookIsbn">Isbn:</string>
+    <string name="bookLibrary">所属馆:</string>
+    <string name="bookLocation">馆藏地点:</string>
+    <string name="bookCallNumber">索书号:</string>
+    <string name="bookTheme">主题:</string>
+    <string name="bookDescription">详情:</string>
+    <string name="bookFirst">一级分类:</string>
+    <string name="bookThird">二级分类:</string>
+    <string name="bookType">文献类型:</string>
+    <string name="bookHouse">出版社:</string>
+    <string name="bookDate">出版日期:</string>
+
+    <string name="pay">需支付(元):</string>
+
+
+    <!--                                          -->
+    <string name="readerId">读者号:</string>
+    <string name="readerName">读者:</string>
+    <string name="borrowTime">借阅时间</string>
+    <string name="returnTime">还书时间</string>
+    <string name="reserveTime">预约时间</string>
+    <string name="validTime">有效时间至</string>
+    <string name="moreDetail">更多详情</string>
+
+    <!--                                                   -->
+    <string name="code">code:</string>
+    <string name="message">结果:</string>
+    <string name="tip">提示:</string>
+    <string name="from">来源:</string>
+
+
+    <!--                                                     -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_r_main">掌上图书馆</string>
+    <string name="r_tab_text_1">我的借阅</string>
+    <string name="r_tab_text_2">馆藏图书</string>
+    <string name="r_tab_text_3">我的分享</string>
+    <string name="r_tab_text_4">处理记录</string>
+    <string name="moreFunction">更多功能</string>
+    <string name="title_activity_l_main">LMainActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_settings">Settings</string>
+    <!--                                                     -->
+    <string name="menu_home">Home</string>
+    <string name="menu_gallery">Gallery</string>
+    <string name="menu_slideshow">Slideshow</string>
+
+
+    <string name="l_tab_text_1">公告管理</string>
+    <string name="l_tab_text_2">缴费处理</string>
+    <string name="l_tab_text_3">读者管理</string>
+    <string name="l_tab_text_4">图书管理</string>
+
+</resources>

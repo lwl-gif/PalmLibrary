@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.ul">
+
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- 读取电话权限 -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- 获取网络信息状态，如当前的网络连接是否有效 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- 允许程序读取、写入外部存储，如SD卡上读、写文件 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/main_background"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MyApplication1"
+        android:usesCleartextTraffic="true">
+        <activity
+            android:name="com.example.ul.activity.LMainActivity"
+            android:label="@string/title_activity_l_main"
+            android:theme="@style/Theme.MyApplication1.NoActionBar"></activity>
+        <activity android:name="com.example.ul.activity.RBookDetailActivity" />
+        <activity
+            android:name="com.example.ul.activity.RMainActivity"
+            android:label="@string/title_activity_r_main"
+            android:theme="@style/Theme.MyApplication1.NoActionBar" />
+        <activity android:name="com.example.ul.activity.ForgetPasswordActivity" />
+        <activity android:name="com.example.ul.activity.LoginActivity" />
+        <activity android:name="com.example.ul.activity.RegisterActivity" />
+        <activity android:name="com.example.ul.activity.AutoLoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

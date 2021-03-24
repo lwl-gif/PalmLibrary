@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="orderBy">
+        <item>无</item>
+        <item>ID</item>
+        <item>姓名</item>
+        <item>班级</item>
+        <item>学院</item>
+    </string-array>
+    <string-array name="selectBy">
+        <item>无</item>
+        <item>ID</item>
+        <item>姓名</item>
+        <item>班级</item>
+        <item>学院</item>
+    </string-array>
+</resources>
