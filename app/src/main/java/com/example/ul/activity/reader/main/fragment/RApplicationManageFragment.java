@@ -1,4 +1,4 @@
-package com.example.ul.fragment;
+package com.example.ul.activity.reader.main.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

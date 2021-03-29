@@ -1,10 +1,14 @@
-package com.example.ul.activity;
+package com.example.ul.activity.librarian;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 
 import com.example.ul.R;
+import com.example.ul.activity.librarian.main.activity.LBookDetailActivity;
 import com.example.ul.callback.CallbackTOMainActivity;
+import com.example.ul.util.ActivityManager;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.navigation.NavController;
@@ -22,6 +26,7 @@ public class LMainActivity extends AppCompatActivity implements CallbackTOMainAc
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityManager.getInstance().addActivity(this);
         setContentView(R.layout.activity_l_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -29,7 +34,7 @@ public class LMainActivity extends AppCompatActivity implements CallbackTOMainAc
         NavigationView navigationView = findViewById(R.id.nav_view);
         //将每个菜单ID作为一组ID传递，因为每个菜单应被视为顶级目的地
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
+                R.id.nav_main, R.id.nav_myself, R.id.nav_setting)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -47,10 +52,32 @@ public class LMainActivity extends AppCompatActivity implements CallbackTOMainAc
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()){
+            case R.id.add_book:
+                //打开书本详情活动
+                Intent intent = new Intent(this, LBookDetailActivity.class);
+                intent.putExtra("action","addBook");
+                startActivity(intent);
+                return true;
+            case R.id.add_reader:
+                //打开读者详情页面
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     public boolean onSupportNavigateUp() {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        return NavigationUI.navigateUp(navController, mAppBarConfiguration)
-                || super.onSupportNavigateUp();
+        return NavigationUI.navigateUp(navController, mAppBarConfiguration) || super.onSupportNavigateUp();
+    }
+
+    @Override
+    protected void onDestroy() {
+        ActivityManager.getInstance().removeActivity(this);
+        super.onDestroy();
     }
 
     @Override

@@ -16,6 +16,7 @@
 <!--    app:menu="@menu/l_main_menu"-->
 <!--    app:headerLayout="@layout/drawer_head_portrait"-->
 <!--    app:headerLayout="@layout/nav_header_main"-->
+
     <com.google.android.material.navigation.NavigationView
         android:id="@+id/nav_view"
         android:layout_width="wrap_content"

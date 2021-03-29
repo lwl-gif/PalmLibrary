@@ -25,7 +25,7 @@ import okhttp3.Response;
 
 public class HttpUtil {
 
-    public static final String BASE_URL = "http://192.168.1.102:8080/ul/api/";//寝室WiFi
+    public static final String BASE_URL = "http://192.168.1.101:8080/ul/api/";//寝室WiFi
     private static Map<String, List<Cookie>> cookieStore = new HashMap<>();
     //创建线程池
     private static ExecutorService threadPool = Executors.newFixedThreadPool(30);

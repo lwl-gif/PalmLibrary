@@ -1,8 +1,4 @@
-package com.example.ul.fragment;
-
-/*
- * 管理员个人信息界面碎片
- * */
+package com.example.ul.activity.librarian.person;
 
 import android.content.Context;
 import android.content.Intent;
@@ -34,7 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LPersonManageFragment extends Fragment {
-    private static final String TAG = "LPersonDetailFragment";
+
+    private static final String TAG = "LPersonManageFragment";
     //视图
     private View rootView;
     //服务器返回的个人信息
@@ -50,7 +47,7 @@ public class LPersonManageFragment extends Fragment {
     //工作地点
     private TextView tWorkplace;
     //用户名
-    private EditText tUsername;
+    private TextView tUsername;
     //权限
     private TextView tPermission;
     //刷新按钮
@@ -80,6 +77,7 @@ public class LPersonManageFragment extends Fragment {
         bOut = rootView.findViewById(R.id.btn_out);
         return rootView;
     }
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -186,5 +184,4 @@ public class LPersonManageFragment extends Fragment {
 
         }
     }
-
 }

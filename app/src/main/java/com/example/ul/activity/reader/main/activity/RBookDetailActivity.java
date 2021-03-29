@@ -1,4 +1,4 @@
-package com.example.ul.activity;
+package com.example.ul.activity.reader.main.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 

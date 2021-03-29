@@ -1,4 +1,4 @@
-package com.example.ul.fragment;
+package com.example.ul.activity.reader.main.fragment;
 
 import androidx.fragment.app.Fragment;
 

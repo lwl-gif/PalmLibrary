@@ -17,25 +17,33 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication1"
         android:usesCleartextTraffic="true">
-        <activity
-            android:name="com.example.ul.activity.LMainActivity"
-            android:label="@string/title_activity_l_main"
-            android:theme="@style/Theme.MyApplication1.NoActionBar"></activity>
-        <activity android:name="com.example.ul.activity.RBookDetailActivity" />
-        <activity
-            android:name="com.example.ul.activity.RMainActivity"
-            android:label="@string/title_activity_r_main"
-            android:theme="@style/Theme.MyApplication1.NoActionBar" />
-        <activity android:name="com.example.ul.activity.ForgetPasswordActivity" />
-        <activity android:name="com.example.ul.activity.LoginActivity" />
-        <activity android:name="com.example.ul.activity.RegisterActivity" />
-        <activity android:name="com.example.ul.activity.AutoLoginActivity">
+        <activity android:name=".activity.AutoLoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activity.ForgetPasswordActivity" />
+        <activity android:name=".activity.LoginActivity" />
+        <activity android:name=".activity.RegisterActivity" />
+
+
+        <activity
+            android:name=".activity.librarian.LMainActivity"
+            android:theme="@style/Theme.MyApplication1.NoActionBar">
+        </activity>
+
+        <activity android:name=".activity.librarian.main.activity.LBookDetailActivity" />
+        <activity
+            android:name=".activity.reader.main.RMainActivity"
+            android:label="@string/title_activity_r_main"
+            android:theme="@style/Theme.MyApplication1.NoActionBar" >
+        </activity>
+        <activity android:name=".activity.reader.main.activity.RBookDetailActivity" />
+
+
+
     </application>
 
 </manifest>

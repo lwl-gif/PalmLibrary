@@ -1,4 +1,4 @@
-package com.example.ul.activity.ui.lmain;
+package com.example.ul.activity.librarian.main;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,9 +14,9 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.example.ul.R;
 import com.example.ul.fragment.BookFragment;
-import com.example.ul.fragment.LApplicationManageFragment;
-import com.example.ul.fragment.LNotificationFragment;
-import com.example.ul.fragment.LReaderManageFragment;
+import com.example.ul.activity.librarian.main.fragment.LApplicationManageFragment;
+import com.example.ul.activity.librarian.main.fragment.LNotificationFragment;
+import com.example.ul.activity.librarian.main.fragment.LReaderManageFragment;
 
 /**
  * @Author:Wallace

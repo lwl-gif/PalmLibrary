@@ -1,4 +1,4 @@
-package com.example.ul.activity.ui.home;
+package com.example.ul.activity.librarian.main;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -9,10 +9,8 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager.widget.ViewPager;
 import com.example.ul.R;
-import com.example.ul.activity.ui.lmain.LMainFragmentPagerAdapter;
 import com.example.ul.callback.Callback;
 import com.google.android.material.tabs.TabLayout;
 
@@ -22,11 +20,9 @@ import java.util.Map;
 
 public class LMainFragment extends Fragment implements Callback {
 
-    private HomeViewModel homeViewModel;
     private static final String LAG = "LMainFragment";
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         View rootView = inflater.inflate(R.layout.fragment_l_main, container, false);
         FragmentManager manager = getChildFragmentManager();
         LMainFragmentPagerAdapter lMainFragmentPagerAdapter = new LMainFragmentPagerAdapter(this, manager);

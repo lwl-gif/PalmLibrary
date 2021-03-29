@@ -1,4 +1,4 @@
-package com.example.ul.fragment;
+package com.example.ul.activity.librarian.main.fragment;
 /*
  * 管理员管理读者信息界面碎片
  */

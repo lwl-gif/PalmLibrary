@@ -1,4 +1,4 @@
-package com.example.ul.activity.ui.rmain;
+package com.example.ul.activity.reader.main;
 
 import android.content.Context;
 
@@ -8,10 +8,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import com.example.ul.R;
-import com.example.ul.fragment.RApplicationManageFragment;
+import com.example.ul.activity.reader.main.fragment.RApplicationManageFragment;
 import com.example.ul.fragment.BookFragment;
-import com.example.ul.fragment.RBorrowManageFragment;
-import com.example.ul.fragment.RShareFragment;
+import com.example.ul.activity.reader.main.fragment.RBorrowManageFragment;
+import com.example.ul.activity.reader.main.fragment.RShareFragment;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
