@@ -22,8 +22,8 @@ import okhttp3.Response;
 
 public class RegisterActivity extends AppCompatActivity implements HttpUtil.MyCallback{
     //自定义消息代码
-    private static final int GET_CODE_CODE = 0201; //获取邮箱验证码
-    private static final int REGISTER_CODE = 0202; //提交注册申请
+    private static final int GET_CODE_CODE = 201; //获取邮箱验证码
+    private static final int REGISTER_CODE = 202; //提交注册申请
 
     //身份单选按钮
     private RadioGroup rg;

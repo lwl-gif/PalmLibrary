@@ -7,6 +7,8 @@ import android.view.MenuItem;
 
 import com.example.ul.R;
 import com.example.ul.activity.librarian.main.activity.LBookDetailActivity;
+import com.example.ul.activity.reader.main.RMainActivity;
+import com.example.ul.activity.reader.main.activity.RBookDetailActivity;
 import com.example.ul.callback.CallbackTOMainActivity;
 import com.example.ul.util.ActivityManager;
 import com.google.android.material.navigation.NavigationView;
@@ -57,7 +59,6 @@ public class LMainActivity extends AppCompatActivity implements CallbackTOMainAc
             case R.id.add_book:
                 //打开书本详情活动
                 Intent intent = new Intent(this, LBookDetailActivity.class);
-                intent.putExtra("action","addBook");
                 startActivity(intent);
                 return true;
             case R.id.add_reader:
@@ -87,7 +88,9 @@ public class LMainActivity extends AppCompatActivity implements CallbackTOMainAc
 
     @Override
     public void clickToGetBookDetail(String id) {
-
+        Intent intent = new Intent(LMainActivity.this, LBookDetailActivity.class);
+        intent.putExtra("id",id);
+        startActivity(intent);
     }
 
     @Override

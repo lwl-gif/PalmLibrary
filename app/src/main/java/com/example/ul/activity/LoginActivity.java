@@ -4,9 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +20,8 @@ import com.example.ul.util.ActivityManager;
 import com.example.ul.util.DialogUtil;
 import com.example.ul.util.HttpUtil;
 import com.example.ul.util.UserManager;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -28,12 +32,20 @@ import okhttp3.Response;
  * 登录界面
  * */
 public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallback{
+
+    private static final String TAG = "LoginActivity";
+
     //自定义代码
     //请求失败
-    private static final int REQUEST_FAIL = 0100;
-    // 登录请求的消息代码
-    private static final int LOGIN_CODE = 0101;
-
+    private static final int REQUEST_FAIL = 100;
+    //登录请求的消息代码
+    private static final int LOGIN_CODE = 11;
+    //登录成功
+    private static final int LOGIN_SUCCEED = 111;
+    //登录失败
+    private static final int LOGIN_FAIL = 110;
+    //服务器返回的数据
+    private JSONObject jsonObject;
     //账号
     private EditText username;
     //密码
@@ -62,8 +74,9 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
             int what = msg.what;
             switch (what){
                 //登录成功
-                case 01011:
+                case LOGIN_SUCCEED:
                     //根据身份启动主界面
+                    loginActivity.get().password.setText(null);
                     if(loginActivity.get().role.equals("librarian")){
                         Intent intent = new Intent(loginActivity.get(), LMainActivity.class);
                         loginActivity.get().startActivity(intent);
@@ -72,11 +85,28 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
                         loginActivity.get().startActivity(intent);
                     }
                     //结束该Activity
+                    ActivityManager.getInstance().removeActivity(loginActivity.get());
                     loginActivity.get().finish();
                     break;
                 //登录失败
-                case 01010:
-                    loginActivity.get().password.setText(null);
+                case LOGIN_FAIL:
+                    try {
+                        String message = loginActivity.get().jsonObject.getString("message");
+                        String code = loginActivity.get().jsonObject.getString("code");
+                        String tip = loginActivity.get().jsonObject.getString("tip");
+                        View view = View.inflate(loginActivity.get(),R.layout.dialog_view,null);
+                        TextView tvFrom = view.findViewById(R.id.dialog_from);
+                        tvFrom.setText(TAG);
+                        TextView tvCode = view.findViewById(R.id.dialog_code);
+                        tvCode.setText(code);
+                        TextView tvMessage = view.findViewById(R.id.dialog_message);
+                        tvMessage.setText(message);
+                        TextView tvTip = view.findViewById(R.id.dialog_tip);
+                        tvTip.setText(tip);
+                        DialogUtil.showDialog(loginActivity.get(),view);
+                    } catch (JSONException e) {
+                        Toast.makeText(loginActivity.get(),"主线程解析数据时异常！",Toast.LENGTH_LONG);
+                    }
                     break;
                 case REQUEST_FAIL:
                     Toast.makeText(loginActivity.get(),"网络异常！",Toast.LENGTH_SHORT).show();
@@ -89,19 +119,12 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityManager.getInstance().addActivity(this);
         setContentView(R.layout.activity_login);
         username = findViewById(R.id.editUsername);
         password = findViewById(R.id.editPassword);
         btn_login = findViewById(R.id.btn_login);
         btn_login.setOnClickListener(view -> {
-//            //根据身份启动主界面
-//            if(role.equals("librarian")){
-//                Intent intent = new Intent(com.example.myapplication1.activity.LoginActivity.this, LMainActivityItem.class);
-//                startActivity(intent);
-//            }else {
-//                Intent intent = new Intent(com.example.myapplication1.activity.LoginActivity.this, RMainActivityItem.class);
-//                startActivity(intent);
-//            }
             if(validate()){
                 login();
             }
@@ -187,8 +210,6 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
 
     @Override
     public void success(Response response, int code) throws IOException {
-        //服务器返回的数据
-        JSONObject jsonObject;
         String result = null;
         //获取服务器响应字符串
         result = response.body().string().trim();
@@ -210,13 +231,10 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
                         }
                         UserManager.getInstance().saveUserInfo(LoginActivity.this,username.getText().toString().trim(),password.getText().toString().trim(),role,token);
                         //用handle发送消息，通知主线程可以登录
-                        myHandler.sendEmptyMessage(01011);
+                        myHandler.sendEmptyMessage(LOGIN_SUCCEED);
                     }else {         //登录失败
-                        String msg0 = jsonObject.getString("message");
-                        String msg1 = jsonObject.getString("tip");
-                        DialogUtil.showDialog(this,msg0+msg1,false);
                         //用handle发送消息，通知主线程登录失败，进行后续操作
-                        myHandler.sendEmptyMessage(01010);
+                        myHandler.sendEmptyMessage(LOGIN_FAIL);
                     }
                 } catch (Exception e) {
                     DialogUtil.showDialog(this,"数据解析异常！",false);

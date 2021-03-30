@@ -33,14 +33,14 @@ public class RMainActivity extends AppCompatActivity implements CallbackTOMainAc
 
     @Override
     public void clickToGetReaderDetail(String id) {
-        Intent intent = new Intent(RMainActivity.this, RBookDetailActivity.class);
-        intent.putExtra("id",id);
-        startActivity(intent);
+
     }
 
     @Override
     public void clickToGetBookDetail(String id) {
-
+        Intent intent = new Intent(RMainActivity.this, RBookDetailActivity.class);
+        intent.putExtra("id",id);
+        startActivity(intent);
     }
 
     @Override

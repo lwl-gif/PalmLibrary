@@ -30,6 +30,7 @@
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/l_bookDetail_submit"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/l_bookDetail_title"
         app:layout_constraintVertical_bias="0.0">
@@ -39,16 +40,30 @@
             android:layout_height="wrap_content">
 
             <TextView
-                android:id="@+id/l_bookId"
+                android:id="@+id/textView51"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:padding="5dp"
-                android:text="书本号（id）系统自动生成"
+                android:text="@string/bookId"
+                android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintEnd_toEndOf="@+id/textView39"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <TextView
+                android:id="@+id/l_bookId"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="书本号（id）系统自动生成"
+                app:layout_constraintBottom_toBottomOf="@+id/textView51"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textView51"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.0" />
 
@@ -240,10 +255,10 @@
                 android:id="@+id/l_bookCallNumber"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:gravity="start|center_vertical"
-                android:padding="5dp"
-                android:inputType="text"
                 android:background="#EDEACF"
+                android:gravity="start|center_vertical"
+                android:inputType="text"
+                android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView40"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -389,8 +404,8 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:gravity="start|center_vertical"
-                android:padding="5dp"
                 android:inputType="text"
+                android:padding="5dp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView45"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/textView45"
@@ -416,10 +431,10 @@
                 android:id="@+id/l_bookHouse"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:gravity="start|center_vertical"
-                android:padding="5dp"
-                android:inputType="text"
                 android:background="#EDEACF"
+                android:gravity="start|center_vertical"
+                android:inputType="text"
+                android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView46"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -446,9 +461,9 @@
                 android:id="@+id/l_bookDate"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                android:background="#EDEACF"
                 android:gravity="start|center_vertical"
                 android:inputType="date"
-                android:background="#EDEACF"
                 android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView47"
@@ -471,15 +486,14 @@
                 app:layout_constraintStart_toStartOf="@+id/guideline4"
                 app:layout_constraintTop_toTopOf="@+id/textView48" />
 
-            <EditText
+            <TextView
                 android:id="@+id/l_bookState"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                android:background="#EDEACF"
                 android:gravity="start|center_vertical"
                 android:padding="5dp"
                 android:textSize="14sp"
-                android:inputType="text"
-                android:background="#EDEACF"
                 app:layout_constraintBottom_toBottomOf="@+id/textView49"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/textView49"
@@ -505,15 +519,16 @@
                 android:id="@+id/l_bookHot"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
+                android:background="#EDEACF"
                 android:gravity="start|center_vertical"
                 android:inputType="number"
                 android:padding="5dp"
                 android:textSize="14sp"
-                android:background="#EDEACF"
                 app:layout_constraintBottom_toBottomOf="@+id/textView48"
                 app:layout_constraintEnd_toStartOf="@+id/guideline4"
                 app:layout_constraintStart_toEndOf="@+id/textView48"
                 app:layout_constraintTop_toTopOf="@+id/textView48" />
+            
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -527,20 +542,9 @@
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/l_bookDetail_save"
+        app:layout_constraintLeft_toRightOf="@id/l_bookDetail_edit"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
-
-    <Button
-        android:id="@+id/l_bookDetail_save"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:text="@string/save"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="@+id/l_bookDetail_submit"
-        app:layout_constraintLeft_toRightOf="@+id/l_bookDetail_edit"
-        app:layout_constraintRight_toLeftOf="@+id/l_bookDetail_submit"
-        app:layout_constraintTop_toTopOf="@+id/l_bookDetail_submit"/>
 
     <Button
         android:id="@+id/l_bookDetail_edit"
@@ -549,15 +553,15 @@
         android:text="@string/edit"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/l_bookDetail_submit"
-        app:layout_constraintLeft_toRightOf="@+id/l_bookDetail_cancel"
-        app:layout_constraintRight_toLeftOf="@+id/l_bookDetail_save"
-        app:layout_constraintTop_toTopOf="@+id/l_bookDetail_submit"/>
+        app:layout_constraintLeft_toRightOf="@+id/l_bookDetail_back"
+        app:layout_constraintRight_toLeftOf="@id/l_bookDetail_submit"
+        app:layout_constraintTop_toTopOf="@+id/l_bookDetail_submit" />
 
     <Button
-        android:id="@+id/l_bookDetail_cancel"
+        android:id="@+id/l_bookDetail_back"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:text="@string/cancel"
+        android:text="@string/back"
         app:layout_constraintBottom_toBottomOf="@+id/l_bookDetail_submit"
         app:layout_constraintRight_toLeftOf="@+id/l_bookDetail_edit"
         app:layout_constraintStart_toStartOf="parent"

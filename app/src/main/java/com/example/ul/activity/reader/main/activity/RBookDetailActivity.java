@@ -38,26 +38,24 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
     private static final String TAG = "RBookDetailActivity";
     //自定义消息代码
     //未知请求
-    private static final int UNKNOWN_REQUEST = 0600;
+    private static final int UNKNOWN_REQUEST = 600;
     //请求失败
-    private static final int REQUEST_FAIL = 06000;
+    private static final int REQUEST_FAIL = 6000;
     //请求成功，但子线程解析数据失败
-    private static final int REQUEST_BUT_FAIL_READ_DATA = 06001;
+    private static final int REQUEST_BUT_FAIL_READ_DATA = 6001;
     //获取书本详情
-    private static final int GET_BOOK_DETAIL = 0601;
+    private static final int GET_BOOK_DETAIL = 601;
     //获取书本详情成功，有数据需要渲染
-    private static final int GET_BOOK_DETAIL_FILL = 06011;
+    private static final int GET_BOOK_DETAIL_FILL = 6011;
     //获取书本详情失败或无数据需要渲染
-    private static final int GET_BOOK_DETAIL_NOT_FILL = 06010;
+    private static final int GET_BOOK_DETAIL_NOT_FILL = 6010;
     //预约书本
-    private static final int RESERVE_BOOK = 0602;
+    private static final int RESERVE_BOOK = 602;
     //预约书本成功
-    private static final int RESERVE_BOOK_SUCCESS = 06021;
+    private static final int RESERVE_BOOK_SUCCESS = 6021;
     //预约书本失败
-    private static final int RESERVE_BOOK_FAIL = 06020;
-    //    private static final int ADD_BOOK = 0602;               //添加新书
-//    private static final int UPDATE_BOOK_DETAIL = 0603;     //更新书本信息
-//    private static final int DELETE_BOOK = 0604;            //删除书本信息
+    private static final int RESERVE_BOOK_FAIL = 6020;
+
     //服务器返回的书本详情数据
     private JSONObject jsonObjectBookDetail = null;
 
@@ -143,7 +141,7 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityManager.getInstance().addActivity(this);
-        //判断传进来的id是否为空，若为空，则说明是添加新书，若不为空则说明是查看书本详情
+        //判断传进来的id是否为空，若不为空则说明是查看书本详情
         id = this.getIntent().getStringExtra("id");
         if(id != null){
             //发送获取书本详情的请求，获取书本详情
@@ -170,6 +168,8 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
             id = null;
         }else {
             DialogUtil.showDialog(this,"无法获取书本详情！",false);
+            ActivityManager.getInstance().removeActivity(this);
+            finish();
         }
         setContentView(R.layout.activity_r_book_detail);
         //组件初始化
@@ -193,11 +193,12 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         tState = findViewById(R.id.bookState);
         bBack = findViewById(R.id.bookDetail_back);
         bBack.setOnClickListener(view -> {
+            ActivityManager.getInstance().removeActivity(this);
             finish();
         });
         bReserve = findViewById(R.id.bookDetail_reserve);
         bReserve.setOnClickListener(view -> {
-            //发送获取书本详情的请求，获取书本详情
+            //发送预约请求
             //获取token
             UserManager userManager = UserManager.getInstance();
             UserInfo userInfo = userManager.getUserInfo(this);

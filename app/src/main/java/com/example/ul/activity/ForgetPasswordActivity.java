@@ -20,9 +20,9 @@ import okhttp3.Response;
 public class ForgetPasswordActivity extends AppCompatActivity implements HttpUtil.MyCallback{
 
     //自定义消息代码
-    private static final int GET_CODE_CODE = 0301; //获取邮箱验证码
-    private static final int VERIFY_CODE_CODE = 0302; //验证邮箱验证码
-    private static final int UPDATE_PASSWORD_CODE = 0303; //修改密码
+    private static final int GET_CODE_CODE = 301; //获取邮箱验证码
+    private static final int VERIFY_CODE_CODE = 302; //验证邮箱验证码
+    private static final int UPDATE_PASSWORD_CODE = 303; //修改密码
 
     private EditText forgetEmailAddress;
     private Button forgetGetCode;

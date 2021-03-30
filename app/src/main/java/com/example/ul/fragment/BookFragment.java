@@ -52,8 +52,8 @@ import okhttp3.Response;
  */
 public class BookFragment extends Fragment implements CallbackToBookFragment, HttpUtil.MyCallback , SearchCallback {
     //自定义消息代码
-    private static final int GET_TYPE = 0501;       //获取各下拉列表中的内容
-    private static final int GET_BOOK_LIST = 0502;   //获取书籍信息
+    private static final int GET_TYPE = 501;       //获取各下拉列表中的内容
+    private static final int GET_BOOK_LIST = 502;   //获取书籍信息
 
     private static final String TAG = "BookFragment";
 
@@ -413,7 +413,7 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
          * @return: void
          */
         //返回id给activity
-        listClickedCallbackMain.clickToGetReaderDetail(id);
+        listClickedCallbackMain.clickToGetBookDetail(id);
     }
 
 }

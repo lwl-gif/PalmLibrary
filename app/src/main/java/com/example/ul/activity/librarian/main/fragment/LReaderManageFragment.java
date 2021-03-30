@@ -32,6 +32,7 @@ import org.json.JSONException;
 public class LReaderManageFragment extends Fragment implements CallbackToLReaderManageFragment {
 
     private static final String TAG = "LReadManageFragment";
+
     //服务器返回的所有读者的部分信息
     private JSONArray jsonArray;
     //适配器
@@ -58,6 +59,7 @@ public class LReaderManageFragment extends Fragment implements CallbackToLReader
     private RecyclerView recyclerViewReaderList;
 
     private CallbackTOMainActivity listClickedCallbackMain;
+
     private Callback callback;
 
     @Override

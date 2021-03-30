@@ -49,19 +49,19 @@ import okhttp3.Response;
 public class RBorrowManageFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, CallbackToRBorrowFragment, SearchCallback,HttpUtil.MyCallback {
     //自定义消息代码
     //未知请求
-    private static final int UNKNOWN_REQUEST = 0400;
+    private static final int UNKNOWN_REQUEST = 400;
     //请求失败
-    private static final int REQUEST_FAIL = 04000;
+    private static final int REQUEST_FAIL = 4000;
     //请求成功，但子线程解析数据失败
-    private static final int REQUEST_BUT_FAIL_READ_DATA = 04001;
+    private static final int REQUEST_BUT_FAIL_READ_DATA = 4001;
     //查询借阅、预约和已过期的记录
-    private static final int GET_RECORD = 0401;
+    private static final int GET_RECORD = 401;
     //查询成功，通知主线程渲染
-    private static final int GET_RECORD_SUCCESS_FILL = 040111;
+    private static final int GET_RECORD_SUCCESS_FILL = 40111;
     //查询成功，但不需要渲染
-    private static final int GET_RECORD_SUCCESS_NOT_FILL = 040110;
+    private static final int GET_RECORD_SUCCESS_NOT_FILL = 40110;
     //查询失败
-    private static final int GET_RECORD_FAIL = 04010;
+    private static final int GET_RECORD_FAIL = 4010;
 
     private static final String TAG = "RBorrowFragment";
     //搜索框布局
