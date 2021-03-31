@@ -70,6 +70,7 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
         public MyHandler(WeakReference<LoginActivity> loginActivity){
             this.loginActivity = loginActivity;
         }
+        @Override
         public void handleMessage(Message msg){
             int what = msg.what;
             switch (what){

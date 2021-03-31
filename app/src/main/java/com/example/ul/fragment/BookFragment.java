@@ -52,41 +52,52 @@ import okhttp3.Response;
  */
 public class BookFragment extends Fragment implements CallbackToBookFragment, HttpUtil.MyCallback , SearchCallback {
     //自定义消息代码
-    private static final int GET_TYPE = 501;       //获取各下拉列表中的内容
-    private static final int GET_BOOK_LIST = 502;   //获取书籍信息
+    /**未知请求*/
+    private static final int UNKNOWN_REQUEST = 500;
+    /**网络异常，请求失败*/
+    private static final int REQUEST_FAIL = 5000;
+    /**请求被服务器拦截，请求失败*/
+    private static final int REQUEST_INTERCEPTED = 5001;
+    /**请求成功，但子线程解析数据失败*/
+    private static final int REQUEST_BUT_FAIL_READ_DATA = 5002;
+    /**获取各下拉列表中的内容*/
+    private static final int GET_TYPE = 501;
+    /**获取书籍信息*/
+    private static final int GET_BOOK_LIST = 502;
 
     private static final String TAG = "BookFragment";
 
-    //服务器返回的所有书本的部分信息
+    /**服务器返回的所有书本的部分信息*/
     private JSONArray jsonArray;
-    //适配器
+    /**适配器*/
     private BookListAdapter adapter;
-    //碎片的视图
+    /**碎片的视图*/
     private View rootView;
-    //搜索框
+    /**搜索框*/
     private MySearchView mySearchView;
-    //“点击检索”文本框
+    /**“点击检索”文本框*/
     private TextView textView;
-    //布局中的查询方式下拉列表/排序方式/指定图书馆/指定图书状态/图书类别
+    /**布局中的查询方式下拉列表/排序方式/指定图书馆/指定图书状态/图书类别*/
     private Spinner spinnerSelectBy, spinnerOrderBy, spinnerLibrary, spinnerState, spinnerBelong1, spinnerBelong2;
-    //要填充到各个下拉列表中的内容
+    /**要填充到各个下拉列表中的内容*/
     private JSONArray jsonArraySelectBy,jsonArrayOrderBy,jsonArrayLibrary,jsonArrayState;
     private List<String> belongs1 = new ArrayList<>();
     private List<List<String>> belongs2 = new ArrayList<>();
-    //当前查询方式/当前排序方式/当前图书馆/图书状态/图书类别
+    /**当前查询方式/当前排序方式/当前图书馆/图书状态/图书类别*/
     private String selectBy = "null", orderBy = "null", library = "null", state = "null", belong1 = "null", belong2 = "null";
     private String queryString = "null";
-    //图书列表
+    /**图书列表*/
     private RecyclerView recyclerViewBookList;
-    //回调接口
+    /**回调接口*/
     private CallbackTOMainActivity listClickedCallbackMain;
 
 
     static class MyHandler extends Handler {
-        private WeakReference<BookFragment> bookFragment;
+        private final WeakReference<BookFragment> bookFragment;
         public MyHandler(WeakReference<BookFragment> bookFragment){
             this.bookFragment = bookFragment;
         }
+        @Override
         public void handleMessage(Message msg){
             int what = msg.what;
             switch (what){
@@ -98,13 +109,38 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
                 case BookFragment.GET_BOOK_LIST:
                     bookFragment.get().fillBookData();
                     break;
+                case REQUEST_FAIL:
+                    Toast.makeText(bookFragment.get().getActivity(),"网络异常！",Toast.LENGTH_SHORT).show();
+                    break;
+                case REQUEST_BUT_FAIL_READ_DATA:
+                    Toast.makeText(bookFragment.get().getActivity(),"子线程解析数据异常！",Toast.LENGTH_SHORT).show();
+                    break;
+                //请求被拦截
+                case REQUEST_INTERCEPTED:
+                    Bundle data = msg.getData();
+                    String code = data.getString("code");
+                    String message = data.getString("message");
+                    String tip = data.getString("tip");
+                    View view = View.inflate(bookFragment.get().getActivity(),R.layout.dialog_view,null);
+                    TextView tvFrom = view.findViewById(R.id.dialog_from);
+                    tvFrom.setText(TAG);
+                    TextView tvCode = view.findViewById(R.id.dialog_code);
+                    tvCode.setText(code);
+                    TextView tvMessage = view.findViewById(R.id.dialog_message);
+                    tvMessage.setText(message);
+                    TextView tvTip = view.findViewById(R.id.dialog_tip);
+                    tvTip.setText(tip);
+                    DialogUtil.showDialog(bookFragment.get().getActivity(),view);
+                    break;
                 default:
+                    Toast.makeText(bookFragment.get().getActivity(),"未知请求，无法处理！",Toast.LENGTH_SHORT).show();
             }
         }
     }
     MyHandler myHandler = new MyHandler(new WeakReference(this));
 
     //当该Fragment被添加、显示到Context时，回调该方法
+    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         Log.i(TAG, "图书界面加载了 ");
@@ -122,7 +158,7 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
         super.onCreate(savedInstanceState);
     }
 
-    @Nullable
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle bundle) {
 
@@ -178,10 +214,10 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
         String token = userInfo.getToken();
         //定义发送的URL
         String url = HttpUtil.BASE_URL + "book/selectSome";
-        if(queryString.equals("")){
+        if("".equals(queryString)){
             queryString = "null";
         }
-        if(!selectBy.equals("null")&&queryString.equals("null")){
+        if(!"null".equals(selectBy)&& "null".equals(queryString)){
             DialogUtil.showDialog(getActivity(),"当指定了检索方式时，检索内容不能为空。",false);
         }else {
             //使用Map封装请求参数
@@ -214,8 +250,15 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
         queryString = s;
     }
 
-    //为各个Spinner填充信息及绑定选中事件
     private void fillSpinnerData(){
+        /**
+          @Author:Wallace
+         * @Description:为各个Spinner填充信息及绑定选中事件
+         * @Date:Created in 8:32 2021/3/31
+         * @Modified By:
+          * @param
+         * @return: void
+         */
         MySpinnerAdapter sASelectBy = new MySpinnerAdapter(getActivity(),jsonArraySelectBy);
         MySpinnerAdapter sAOrderBy = new MySpinnerAdapter(getActivity(),jsonArrayOrderBy);
         MySpinnerAdapter sALibrary = new MySpinnerAdapter(getActivity(),jsonArrayLibrary);
@@ -301,7 +344,7 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-                state = "null";
+                belong1 = "null";
             }
         });
         //设置默认选择值
@@ -321,7 +364,7 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
         recyclerViewBookList.setAdapter(adapter);
     }
 
-    //当该Fragment从它所属的Activity中被删除时回调该方法
+    @Override
     public void onDetach() {
         super.onDetach();
         //将接口赋值为null
@@ -330,76 +373,84 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
 
     @Override
     public void success(Response response, int code) throws IOException {
-        //服务器返回的数据
-        String result = null;
         //获取服务器响应字符串
-        result = response.body().string().trim();
-        switch (code) {
-            //获取验证码请求
-            case GET_TYPE:
-                try {
-                    JSONObject jsonObject = new JSONObject(result);
-                    String message = jsonObject.getString("message");
-                    //将整个信息拆分
-                    JSONArray jsonArraySpinners = jsonObject.getJSONArray("dataArray");
-                    jsonArraySelectBy = jsonArraySpinners.getJSONArray(0);
-                    jsonArraySelectBy.put(jsonArraySelectBy.length(),"null");
-                    jsonArrayOrderBy = jsonArraySpinners.getJSONArray(1);
-                    jsonArrayOrderBy.put(jsonArrayOrderBy.length(),"null");
-                    jsonArrayLibrary = jsonArraySpinners.getJSONArray(2);
-                    jsonArrayLibrary.put(jsonArrayLibrary.length(),"null");
-                    jsonArrayState = jsonArraySpinners.getJSONArray(3);
-                    jsonArrayState.put(jsonArrayState.length(),"null");
-                    JSONArray jsonArrayType = jsonArraySpinners.getJSONArray(4);
-                    belongs1.clear();
-                    belongs2.clear();
-
-                    for(int i = 0; i < jsonArrayType.length();i ++){
-                        JSONArray belong = jsonArrayType.getJSONArray(i);
-                        String belong1 = belong.getString(0);
-                        String belong2 = belong.getString(1);
-                        String[] arrayStr = belong2.split(",");
-                        List<String> list = new ArrayList<String>(Arrays.asList(arrayStr));
-                        list.add("null");
-                        Log.e(TAG, "list: = " + list);
-                        belongs1.add(belong1);
-                        belongs2.add(list);
-                    }
-                    List<String> list = new ArrayList<>();
-                    list.add("null");
-                    belongs1.add("null");
-                    belongs2.add(list);
-                    //发消息通知主线程进行UI更新
-                    myHandler.sendEmptyMessage(GET_TYPE);
-                } catch (JSONException e) {
-                    DialogUtil.showDialog(getActivity(),"数据解析异常！",false);
-                    e.printStackTrace();
+        String result = response.body().string().trim();
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = new JSONObject(result);
+            //返回值为true,说明请求被拦截
+            if(HttpUtil.requestIsIntercepted(jsonObject)){
+                String message = jsonObject.getString("message");
+                String c = jsonObject.getString("code");
+                String tip = jsonObject.getString("tip");
+                Message msg = new Message();
+                Bundle data = new Bundle();
+                data.putString("code",c);
+                data.putString("tip",tip);
+                data.putString("message",message);
+                msg.setData(data);
+                msg.what = REQUEST_INTERCEPTED;
+                myHandler.sendMessage(msg);
+            }else {
+                switch (code) {
+                    case GET_TYPE:
+                        try {
+                            //将整个信息拆分
+                            JSONArray jsonArraySpinners = jsonObject.getJSONArray("dataArray");
+                            jsonArraySelectBy = jsonArraySpinners.getJSONArray(0);
+                            jsonArraySelectBy.put(jsonArraySelectBy.length(),"null");
+                            jsonArrayOrderBy = jsonArraySpinners.getJSONArray(1);
+                            jsonArrayOrderBy.put(jsonArrayOrderBy.length(),"null");
+                            jsonArrayLibrary = jsonArraySpinners.getJSONArray(2);
+                            jsonArrayLibrary.put(jsonArrayLibrary.length(),"null");
+                            jsonArrayState = jsonArraySpinners.getJSONArray(3);
+                            jsonArrayState.put(jsonArrayState.length(),"null");
+                            JSONArray jsonArrayType = jsonArraySpinners.getJSONArray(4);
+                            belongs1.clear();
+                            belongs2.clear();
+                            for(int i = 0; i < jsonArrayType.length();i ++){
+                                JSONArray belong = jsonArrayType.getJSONArray(i);
+                                String belong1 = belong.getString(0);
+                                String belong2 = belong.getString(1);
+                                String[] arrayStr = belong2.split(",");
+                                List<String> list = new ArrayList<String>(Arrays.asList(arrayStr));
+                                list.add("null");
+                                Log.e(TAG, "list: = " + list);
+                                belongs1.add(belong1);
+                                belongs2.add(list);
+                            }
+                            List<String> list = new ArrayList<>();
+                            list.add("null");
+                            belongs1.add("null");
+                            belongs2.add(list);
+                            //发消息通知主线程进行UI更新
+                            myHandler.sendEmptyMessage(GET_TYPE);
+                        } catch (JSONException e) {
+                            myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
+                        }
+                        break;
+                    case GET_BOOK_LIST:
+                        try {
+                            jsonArray = (JSONArray) jsonObject.get("object");
+                            //发消息通知主线程进行UI更新
+                            myHandler.sendEmptyMessage(GET_BOOK_LIST);
+                        } catch (JSONException e) {
+                            myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
+                        }
+                        break;
+                    default:
+                        myHandler.sendEmptyMessage(UNKNOWN_REQUEST);
                 }
-                break;
-            case GET_BOOK_LIST:
-                try {
-                    jsonArray = new JSONArray(result);
-                    //发消息通知主线程进行UI更新
-                    myHandler.sendEmptyMessage(GET_BOOK_LIST);
-                } catch (JSONException e) {
-                    DialogUtil.showDialog(getActivity(),"数据解析异常！",false);
-                    e.printStackTrace();
-                }
-                break;
-            default:
-                DialogUtil.showDialog(getActivity(), "未知请求！无法处理", false);
+            }
+        } catch (JSONException e) {
+            myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
         }
     }
 
     @Override
     public void failed(IOException e, int code) {
+        myHandler.sendEmptyMessage(REQUEST_FAIL);
         e.printStackTrace();
-        switch (code){
-            case GET_TYPE:
-                DialogUtil.showDialog(getActivity(),"服务器响应异常，请稍后重试！",false);
-                break;
-            default:
-        }
     }
 
     @Override

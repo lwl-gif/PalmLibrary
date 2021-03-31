@@ -1,6 +1,13 @@
 package com.example.ul.util;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +30,9 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+/**
+ * @author luoweili
+ */
 public class HttpUtil {
 
     public static final String BASE_URL = "http://192.168.1.101:8080/ul/api/";//寝室WiFi
@@ -32,9 +42,11 @@ public class HttpUtil {
     //创建默认的OkHttpClient对象
     private static OkHttpClient okHttpClient = new OkHttpClient.Builder()
             .cookieJar(new CookieJar(){
+                @Override
                 public void saveFromResponse(@NonNull HttpUrl httpUrl, @NonNull List<Cookie> list){
                     cookieStore.put(httpUrl.host(),list);
                 }
+                @Override
                 public List<Cookie> loadForRequest(@NonNull HttpUrl httpUrl){
                     List<Cookie> cookies = cookieStore.get(httpUrl.host());
                     return cookies==null?new ArrayList<>():cookies;
@@ -145,8 +157,23 @@ public class HttpUtil {
             e.printStackTrace();
         }
     }
+
     public interface MyCallback {
         void success(Response response,int code) throws IOException;
         void failed(IOException e,int code);
+    }
+
+    /**判断请求是否被服务器拦截*/
+    public static boolean requestIsIntercepted(JSONObject jsonObject){
+        try {
+            String tip = jsonObject.getString("tip");
+            String r = "请求被拦截！";
+            if(r.equals(tip)){
+                return true;
+            }
+        } catch (JSONException e) {
+            return false;
+        }
+        return false;
     }
 }

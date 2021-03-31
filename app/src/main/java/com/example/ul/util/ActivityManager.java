@@ -4,6 +4,9 @@ import android.app.Activity;
 
 import java.util.HashSet;
 
+/**
+ * @author luoweili
+ */
 public class ActivityManager {
 
     private static ActivityManager instance = new ActivityManager();
@@ -30,8 +33,9 @@ public class ActivityManager {
     public void removeActivity(Activity activity1) {
         try {
             for (Activity activity : hashSet) {
-                if (activity != null && activity.equals(activity1))
+                if (activity != null && activity.equals(activity1)) {
                     activity.finish();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -43,8 +47,9 @@ public class ActivityManager {
     public void exit() {
         try {
             for (Activity activity : hashSet) {
-                if (activity != null)
+                if (activity != null) {
                     activity.finish();
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

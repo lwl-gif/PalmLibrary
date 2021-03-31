@@ -72,6 +72,7 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         public MyHandler(WeakReference<RBookDetailActivity> rBookDetailActivity){
             this.rBookDetailActivity = rBookDetailActivity;
         }
+        @Override
         public void handleMessage(Message msg){
             int what = msg.what;
             if(what == UNKNOWN_REQUEST) {
@@ -93,7 +94,7 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
                     rBookDetailActivity.get().tCallNumber.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("callNumber"));
                     rBookDetailActivity.get().tTheme.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("theme"));
                     rBookDetailActivity.get().tDesc.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("description"));
-                    rBookDetailActivity.get().tType.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("type"));
+                    rBookDetailActivity.get().tType.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("typeName"));
                     rBookDetailActivity.get().tHouse.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("house"));
                     rBookDetailActivity.get().tHot.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("hot"));
                     rBookDetailActivity.get().tState.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("state"));
@@ -266,7 +267,7 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
                     data.putString("tip",tip);
                     data.putString("message",message);
                     msg.setData(data);
-                    if(message.equals("预约成功！")){
+                    if("预约成功！".equals(message)){
                         msg.what = RESERVE_BOOK_SUCCESS;
                     }else {
                         msg.what = RESERVE_BOOK_FAIL;

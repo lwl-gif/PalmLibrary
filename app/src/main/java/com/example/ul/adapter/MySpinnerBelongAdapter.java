@@ -19,7 +19,7 @@ public class MySpinnerBelongAdapter extends BaseAdapter {
 
     private final String TAG = "SpinnerAdapter";
     private Context context;
-    //定义需要包装的List<String>对象
+    /**定义需要包装的List<String>对象*/
     private List<String> list;
 
     public MySpinnerBelongAdapter(Context context, List<String> list){
