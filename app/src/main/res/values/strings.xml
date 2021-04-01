@@ -9,6 +9,8 @@
     <string name="password">密码</string>
 
     <string name="submit">提交</string>
+    <string name="add">添加</string>
+    <string name="update">更新</string>
     <string name="edit">编辑</string>
     <string name="cancel">取消</string>
     <string name="save">保存</string>
@@ -41,6 +43,11 @@
     <string name="bookType">文献类型:</string>
     <string name="bookHouse">出版社:</string>
     <string name="bookDate">出版日期:</string>
+    <string name="bookPrice">定价(元):</string>
+    <string name="chooseLibrary">请选择图书所属的书馆</string>
+    <string name="chooseFirst">请选择图书的一级分类</string>
+    <string name="chooseThird">请选择图书的二级分类</string>
+    <string name="chooseType">请选择图书的文献类型</string>
 
     <string name="pay">需支付(元):</string>
 
@@ -82,6 +89,7 @@
     <string name="nav_header_subtitle">android.studio@android.com</string>
     <string name="nav_header_desc">Navigation header</string>
     <string name="add_book">添加新书</string>
+    <string name="delete_book">删除此书</string>
     <string name="add_reader">添加读者</string>
 
     <string name="l_tab_text_1">公告管理</string>

@@ -73,11 +73,13 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
     //更新书本
     private static final int UPDATE_BOOK = 803;
     //更新成功
-    private static final int UPDATE_BOOK_SUCCEED = 803;
+    private static final int UPDATE_BOOK_SUCCEED = 8031;
     //更新失败
-    private static final int UPDATE_BOOK_FAIL = 803;
+    private static final int UPDATE_BOOK_FAIL = 8030;
     //删除书本信息
     private static final int DELETE_BOOK = 804;
+    private static final int DELETE_BOOK_SUCCEED = 8041;
+    private static final int DELETE_BOOK_FAIL = 8040;
     //查询分类
     private static final int GET_TYPE = 805;
     //服务器返回的书本详情数据
@@ -118,11 +120,13 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
     public EditText tHouse;
     @BindView(R.id.l_bookDate)
     public EditText tDate;
+    @BindView(R.id.l_bookPrice)
+    public EditText tPrice;
     @BindView(R.id.l_bookHot)
     public EditText tHot;
     @BindView(R.id.l_bookState)
     public TextView tState;
-    private Button bBack,bEdit,bSubmit;
+    private Button bBack,bEdit,bSubmit,bDelete;
     /**当前书本id*/
     private String id = null;
     /**当前是否启动了编辑*/
@@ -150,25 +154,31 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
                 Bundle data = msg.getData();
                 String code = data.getString("code");
                 String message = data.getString("message");
-                String tip = data.getString("tip");
-//                if (what == RESERVE_BOOK_SUCCESS) {
-//                    Toast.makeText(lBookDetailActivity.get(), message + tip, Toast.LENGTH_LONG).show();
-//                }else {
-//                    View view = View.inflate(lBookDetailActivity.get(),R.layout.dialog_view,null);
-//                    TextView tvFrom = view.findViewById(R.id.dialog_from);
-//                    tvFrom.setText(TAG);
-//                    TextView tvCode = view.findViewById(R.id.dialog_code);
-//                    tvCode.setText(code);
-//                    TextView tvMessage = view.findViewById(R.id.dialog_message);
-//                    tvMessage.setText(message);
-//                    TextView tvTip = view.findViewById(R.id.dialog_tip);
-//                    tvTip.setText(tip);
-//                    DialogUtil.showDialog(lBookDetailActivity.get(),view);
-//                }
+                if(what == ADD_BOOK_SUCCESS){
+                    lBookDetailActivity.get().clear();
+                    Toast.makeText(lBookDetailActivity.get(), message, Toast.LENGTH_LONG).show();
+                }else if(what == UPDATE_BOOK_SUCCEED){
+                    Toast.makeText(lBookDetailActivity.get(), message, Toast.LENGTH_LONG).show();
+                }else if(what == DELETE_BOOK_SUCCEED){
+                    Toast.makeText(lBookDetailActivity.get(), message, Toast.LENGTH_LONG).show();
+                    lBookDetailActivity.get().finish();
+                }
+                else {
+                    String tip = data.getString("tip");
+                    View view = View.inflate(lBookDetailActivity.get(),R.layout.dialog_view,null);
+                    TextView tvFrom = view.findViewById(R.id.dialog_from);
+                    tvFrom.setText(TAG);
+                    TextView tvCode = view.findViewById(R.id.dialog_code);
+                    tvCode.setText(code);
+                    TextView tvMessage = view.findViewById(R.id.dialog_message);
+                    tvMessage.setText(message);
+                    TextView tvTip = view.findViewById(R.id.dialog_tip);
+                    tvTip.setText(tip);
+                    DialogUtil.showDialog(lBookDetailActivity.get(),view);
+                }
             }
         }
     }
-
     MyHandler myHandler = new MyHandler(new WeakReference(this));
 
     @Override
@@ -194,7 +204,6 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
          */
         bBack = findViewById(R.id.l_bookDetail_back);
         bBack.setOnClickListener(view -> {
-            ActivityManager.getInstance().removeActivity(this);
             finish();
         });
         bEdit = findViewById(R.id.l_bookDetail_edit);
@@ -213,10 +222,27 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         if(id != null){
             writing = false;
             tTitle.setText("书籍详情");
+            bSubmit.setText(R.string.update);
+            bDelete = findViewById(R.id.l_bookDetail_delete);
+            bDelete.setVisibility(View.VISIBLE);
+            bDelete.setOnClickListener(view -> {
+                //绑定删除请求
+                //获取token
+                UserManager userManager = UserManager.getInstance();
+                UserInfo userInfo = userManager.getUserInfo(this);
+                String token = userInfo.getToken();
+                //使用Map封装请求参数
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put("id",this.id);
+                String url = HttpUtil.BASE_URL + "book/deleteBookById";
+                url = HttpUtil.newUrl(url,hashMap);
+                HttpUtil.deleteRequest(token,url,this,DELETE_BOOK);
+            });
         }else {
             writing = true;
             tTitle.setText("添加新书");
             tState.setText("在馆");
+            bSubmit.setText(R.string.add);
         }
         isAllowEdit();
         //提交按钮绑定请求
@@ -235,22 +261,41 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
             hashMap.put("location",tLocation.getText().toString().trim());
             hashMap.put("callNumber",tCallNumber.getText().toString().trim());
             hashMap.put("theme",tTheme.getText().toString().trim());
-            hashMap.put("desc",tDate.getText().toString().trim());
+            hashMap.put("desc",tDesc.getText().toString().trim());
             hashMap.put("first",first);
             hashMap.put("third",third);
             hashMap.put("typeName",type);
             hashMap.put("house",tHouse.getText().toString().trim());
             hashMap.put("date",tDate.getText().toString().trim());
+            hashMap.put("price",tPrice.getText().toString().trim());
             hashMap.put("hot",tHot.getText().toString().trim());
             hashMap.put("state",tState.getText().toString().trim());
             if(id != null){     //绑定更新图书请求
                 String url = HttpUtil.BASE_URL + "book/updateBook";
-//                HttpUtil.getRequest(token,url,this,GET_BOOK_DETAIL);
+                HttpUtil.putRequest(token,url,hashMap,this,UPDATE_BOOK);
             }else {             //绑定添加图书请求
                 String url = HttpUtil.BASE_URL + "book/addBook";
                 HttpUtil.postRequest(token,url,hashMap,this,ADD_BOOK);
             }
         });
+    }
+
+    private void clear() {
+        tName.setText(null);
+        tAuthor.setText(null);
+        tIsbn.setText(null);
+        tLocation.setText(null);
+        tCallNumber.setText(null);
+        tTheme.setText(null);
+        tDesc.setText(null);
+        tHouse.setText(null);
+        tDate.setText("1970-01-01");
+        tPrice.setText("0.00");
+        tHot.setText("0");
+        spinnerLibrary.setSelection(0,true);
+        spinnerType.setSelection(0,true);
+        spinnerFirst.setSelection(0,true);
+        spinnerThird.setSelection(0,true);
     }
 
     private void getType(){
@@ -372,7 +417,7 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
             String tLibrary = this.jsonObjectBookDetail.getString("library");
             for(int i = 0;i < spinnerLibrary.getCount(); i++){
                 String s = (String) spinnerLibrary.getItemAtPosition(i);
-                if(!(s == null) && s.equals(tLibrary)){
+                if(s != null && s.equals(tLibrary)){
                     spinnerLibrary.setSelection(i,true);
                     break;
                 }
@@ -393,6 +438,7 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
             this.tHouse.setText(this.jsonObjectBookDetail.getString("house"));
             this.tHot.setText(this.jsonObjectBookDetail.getString("hot"));
             this.tState.setText(this.jsonObjectBookDetail.getString("state"));
+            this.tPrice.setText(this.jsonObjectBookDetail.getString("price"));
             JSONObject belong = new JSONObject(this.jsonObjectBookDetail.getString("classification"));
             //改变列表的默认值
             String tFirst = belong.getString("first");
@@ -508,6 +554,11 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         tDate.setClickable(writing);
         tDate.setEnabled(writing);
 
+        tPrice.setFocusable(writing);
+        tPrice.setFocusableInTouchMode(writing);
+        tPrice.setClickable(writing);
+        tPrice.setEnabled(writing);
+
         tHot.setFocusable(writing);
         tHot.setFocusableInTouchMode(writing);
         tHot.setClickable(writing);
@@ -586,17 +637,61 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
                     JSONObject jsonObject = new JSONObject(result);
                     String message = jsonObject.getString("message");
                     String c = jsonObject.getString("code");
-                    String tip = jsonObject.getString("tip");
                     Message msg = new Message();
                     Bundle data = new Bundle();
                     data.putString("code",c);
-                    data.putString("tip",tip);
                     data.putString("message",message);
                     msg.setData(data);
                     if(message.equals("添加成功！")){
                         msg.what = ADD_BOOK_SUCCESS;
                     }else {
+                        String tip = jsonObject.getString("tip");
+                        data.putString("tip",tip);
                         msg.what = ADD_BOOK_FAIL;
+                    }
+                    myHandler.sendMessage(msg);
+                } catch (JSONException e) {
+                    myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
+                }
+                break;
+            case UPDATE_BOOK:
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    String message = jsonObject.getString("message");
+                    String c = jsonObject.getString("code");
+                    Message msg = new Message();
+                    Bundle data = new Bundle();
+                    data.putString("code",c);
+                    data.putString("message",message);
+                    msg.setData(data);
+                    if(message.equals("更新成功！")){
+                        msg.what = UPDATE_BOOK_SUCCEED;
+                    }else {
+                        String tip = jsonObject.getString("tip");
+                        data.putString("tip",tip);
+                        msg.what = UPDATE_BOOK_FAIL;
+                    }
+                    myHandler.sendMessage(msg);
+                } catch (JSONException e) {
+                    myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
+                }
+                break;
+            case DELETE_BOOK:
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    String message = jsonObject.getString("message");
+                    String c = jsonObject.getString("code");
+                    Message msg = new Message();
+                    Bundle data = new Bundle();
+                    data.putString("code",c);
+                    data.putString("message",message);
+                    msg.setData(data);
+                    if(message.equals("删除成功！")){
+                        msg.what = DELETE_BOOK_SUCCEED;
+                    }else {
+                        String tip = jsonObject.getString("tip");
+                        data.putString("tip",tip);
+                        msg.what = DELETE_BOOK_FAIL;
                     }
                     myHandler.sendMessage(msg);
                 } catch (JSONException e) {

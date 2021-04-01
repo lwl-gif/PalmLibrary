@@ -28,12 +28,11 @@
         android:id="@+id/scrollView2"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/l_bookDetail_submit"
+        app:layout_constraintBottom_toTopOf="@+id/l_bookDetail_edit"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/l_bookDetail_title"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintTop_toBottomOf="@+id/l_bookDetail_delete">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -196,10 +195,13 @@
                 android:layout_height="0dp"
                 android:gravity="start|center_vertical"
                 android:padding="5dp"
+                android:prompt="@string/chooseLibrary"
+                android:spinnerMode="dialog"
                 app:layout_constraintBottom_toBottomOf="@+id/textView36"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/textView36"
-                app:layout_constraintTop_toTopOf="@+id/textView36" />
+                app:layout_constraintTop_toTopOf="@+id/textView36"
+                tools:ignore="HardcodedText" />
 
             <!--      馆藏地点     -->
             <TextView
@@ -351,6 +353,8 @@
                 android:layout_height="0dp"
                 android:gravity="start|center_vertical"
                 android:padding="5dp"
+                android:prompt="@string/chooseFirst"
+                android:spinnerMode="dialog"
                 app:layout_constraintBottom_toBottomOf="@+id/textView43"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/textView43"
@@ -378,6 +382,8 @@
                 android:layout_height="0dp"
                 android:gravity="start|center_vertical"
                 android:padding="5dp"
+                android:prompt="@string/chooseThird"
+                android:spinnerMode="dialog"
                 app:layout_constraintBottom_toBottomOf="@+id/textView44"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/textView44"
@@ -406,6 +412,8 @@
                 android:gravity="start|center_vertical"
                 android:inputType="text"
                 android:padding="5dp"
+                android:prompt="@string/chooseType"
+                android:spinnerMode="dialog"
                 app:layout_constraintBottom_toBottomOf="@+id/textView45"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/textView45"
@@ -463,28 +471,32 @@
                 android:layout_height="0dp"
                 android:background="#EDEACF"
                 android:gravity="start|center_vertical"
+                android:hint="1970-01-01"
                 android:inputType="date"
                 android:padding="5dp"
+                android:text="1970-01-01"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView47"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/guideline4"
                 app:layout_constraintStart_toEndOf="@+id/textView47"
                 app:layout_constraintTop_toTopOf="@+id/textView47" />
 
             <!--      状态     -->
+
             <TextView
                 android:id="@+id/textView49"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:gravity="center"
                 android:padding="5dp"
                 android:text="@string/bookState"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView48"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintEnd_toEndOf="@+id/textView52"
+                app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="@+id/guideline4"
-                app:layout_constraintTop_toTopOf="@+id/textView48" />
+                app:layout_constraintTop_toTopOf="@+id/textView48"
+                app:layout_constraintVertical_bias="0.5" />
 
             <TextView
                 android:id="@+id/l_bookState"
@@ -523,12 +535,41 @@
                 android:gravity="start|center_vertical"
                 android:inputType="number"
                 android:padding="5dp"
+                android:text="0"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView48"
                 app:layout_constraintEnd_toStartOf="@+id/guideline4"
                 app:layout_constraintStart_toEndOf="@+id/textView48"
                 app:layout_constraintTop_toTopOf="@+id/textView48" />
-            
+
+            <TextView
+                android:id="@+id/textView52"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:padding="5dp"
+                android:text="@string/bookPrice"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@+id/textView47"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/guideline4"
+                app:layout_constraintTop_toTopOf="@+id/textView47" />
+
+            <EditText
+                android:id="@+id/l_bookPrice"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="#EDEACF"
+                android:gravity="start|center_vertical"
+                android:inputType="numberDecimal"
+                android:padding="5dp"
+                android:text="0.00"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@+id/textView52"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textView52"
+                app:layout_constraintTop_toTopOf="@+id/textView52" />
+
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -550,6 +591,7 @@
         android:id="@+id/l_bookDetail_edit"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
+        android:background="@drawable/btn01"
         android:text="@string/edit"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/l_bookDetail_submit"
@@ -561,11 +603,26 @@
         android:id="@+id/l_bookDetail_back"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
+        android:background="@drawable/btn02"
         android:text="@string/back"
         app:layout_constraintBottom_toBottomOf="@+id/l_bookDetail_submit"
         app:layout_constraintRight_toLeftOf="@+id/l_bookDetail_edit"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/l_bookDetail_submit" />
+
+    <Button
+        android:id="@+id/l_bookDetail_delete"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/btn03"
+        android:text="@string/delete_book"
+        android:textSize="12sp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/l_bookDetail_title"
+        app:layout_constraintVertical_bias="0.0" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

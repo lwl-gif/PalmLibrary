@@ -38,6 +38,19 @@
             android:layout_height="wrap_content">
 
             <TextView
+                android:id="@+id/textView53"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:gravity="start|center_vertical"
+                android:padding="5dp"
+                android:text="@string/bookPrice"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@+id/textView47"
+                app:layout_constraintEnd_toEndOf="@+id/textView49"
+                app:layout_constraintStart_toStartOf="@+id/guideline4"
+                app:layout_constraintTop_toTopOf="@+id/textView47" />
+
+            <TextView
                 android:id="@+id/bookId"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -210,7 +223,7 @@
                 android:scrollHorizontally="true"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView47"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/guideline4"
                 app:layout_constraintStart_toEndOf="@+id/textView47"
                 app:layout_constraintTop_toTopOf="@+id/textView47" />
 
@@ -483,6 +496,18 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/textView36"
                 app:layout_constraintTop_toTopOf="@+id/textView36" />
+
+            <TextView
+                android:id="@+id/bookPrice"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:gravity="start|center_vertical"
+                android:padding="5dp"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@+id/textView53"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textView53"
+                app:layout_constraintTop_toTopOf="@+id/textView53" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

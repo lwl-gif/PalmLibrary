@@ -62,8 +62,8 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
     //当前书本id
     private String id = null;
     //界面组件
-    //标题，Id，名称，作者，Isbn，所属馆，馆藏地点，索书号，主题，详情，一级分类，二级分类，文献类型，出版社，出版日期，热度，状态
-    private TextView tTitle,tId,tName,tAuthor,tIsbn,tLibrary,tLocation,tCallNumber,tTheme,tDesc,tFirst,tThird,tType,tHouse,tDate,tHot,tState;
+    //标题，Id，名称，作者，Isbn，所属馆，馆藏地点，索书号，主题，详情，一级分类，二级分类，文献类型，出版社，出版日期，定价,热度，状态
+    private TextView tTitle,tId,tName,tAuthor,tIsbn,tLibrary,tLocation,tCallNumber,tTheme,tDesc,tFirst,tThird,tType,tHouse,tDate,tPrice,tHot,tState;
 
     private Button bBack,bReserve;
 
@@ -98,6 +98,7 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
                     rBookDetailActivity.get().tHouse.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("house"));
                     rBookDetailActivity.get().tHot.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("hot"));
                     rBookDetailActivity.get().tState.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("state"));
+                    rBookDetailActivity.get().tPrice.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("price"));
                     JSONObject belong = new JSONObject(rBookDetailActivity.get().jsonObjectBookDetail.getString("classification"));
                     rBookDetailActivity.get().tFirst.setText(belong.getString("first"));
                     rBookDetailActivity.get().tThird.setText(belong.getString("third"));
@@ -190,6 +191,7 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         tType = findViewById(R.id.bookType);
         tHouse = findViewById(R.id.bookHouse);
         tDate = findViewById(R.id.bookDate);
+        tPrice = findViewById(R.id.bookPrice);
         tHot = findViewById(R.id.bookHot);
         tState = findViewById(R.id.bookState);
         bBack = findViewById(R.id.bookDetail_back);

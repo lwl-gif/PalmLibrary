@@ -54,6 +54,32 @@ public class HttpUtil {
             })
             .build();
 
+
+    public static String newUrl(String url , HashMap<String, String> hashMap){
+        /**
+         * @Author:Wallace
+         * @Description:发送GET和DELETE请求时，url拼接参数形成新的url
+         * @Date:Created in 22:27 2021/4/1
+         * @Modified By:
+          * @param url  请求地址
+         * @param hashMap   请求原本要携带的参数
+         * @return: java.lang.String    新的url
+         */
+        // 拼接请求参数
+        StringBuffer buffer = new StringBuffer(url);
+        buffer.append('?');
+        for (HashMap.Entry<String, String> entry : hashMap.entrySet()) {
+            buffer.append(entry.getKey());
+            buffer.append('=');
+            buffer.append(entry.getValue());
+            buffer.append('&');
+        }
+        buffer.deleteCharAt(buffer.length() - 1);
+        url = buffer.toString();
+        return url;
+    }
+
+
     // GET方法
     public static void getRequest(String Authorization,String url, MyCallback callback, int code)  {
         FutureTask<String> task = new FutureTask<>(()->{
@@ -147,6 +173,87 @@ public class HttpUtil {
 //                callback.success(response);
 //            }
 //        });
+        //提交任务
+        threadPool.submit(task);
+        try {
+            task.get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // DELETE方法
+    public static void deleteRequest(String Authorization,String url, MyCallback callback, int code)  {
+        FutureTask<String> task = new FutureTask<>(()->{
+            //创建请求对象
+            Request request;
+            Request.Builder builder = new Request.Builder();
+            builder.method("DELETE", null);
+            if(Authorization!=null&&Authorization.length()>0){
+                request = builder.addHeader("Authorization",Authorization).url(url).build();
+            }else {
+                request = builder.url(url).build();
+            }
+            Call call = okHttpClient.newCall(request);
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callback.failed(e,code);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    callback.success(response,code);
+                }
+            });
+            return null;
+        });
+        //提交任务
+        threadPool.submit(task);
+        try {
+            task.get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // PUT 方法
+    public static void putRequest(String Authorization, String url, HashMap<String, String> params, MyCallback callback, int code) {
+        FutureTask<String> task = new FutureTask<>(() -> {
+            MediaType MultiPart_Form_Data = MediaType.parse("multipart/form-data; charset=utf-8");
+            MultipartBody.Builder multiBuilder = new MultipartBody.Builder();
+            multiBuilder.setType(MultiPart_Form_Data);
+            for (Map.Entry<String, String> entry : params.entrySet()) {
+                multiBuilder.addPart(
+                        Headers.of("Content-Disposition", "form-data; name=\"" + entry.getKey() + "\""),
+                        RequestBody.create(null, params.get(entry.getKey())));
+            }
+            RequestBody multiBody = multiBuilder.build();
+            Request request;
+            Request.Builder rBuilder = new Request.Builder();
+            if (Authorization != null && Authorization.length() > 0) {
+                request = rBuilder.addHeader("Authorization", Authorization).url(url).put(multiBody).build();
+            } else {
+                request = rBuilder.url(url).put(multiBody).build();
+            }
+            Call call = okHttpClient.newCall(request);
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    callback.failed(e,code);
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    callback.success(response,code);
+                }
+            });
+            return null;
+        });
         //提交任务
         threadPool.submit(task);
         try {
