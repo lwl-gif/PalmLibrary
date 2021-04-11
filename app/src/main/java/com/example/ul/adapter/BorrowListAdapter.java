@@ -5,18 +5,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.ul.R;
 import com.example.ul.callback.CallbackToRBorrowFragment;
-
 import org.json.JSONArray;
 import org.json.JSONException;
-
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * @Author:Wallace
@@ -28,19 +25,33 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
 
     private final String TAG = "BorrowListAdapter";
     private Context context;
-    //定义需要包装的JSONArray对象
+    /**定义需要包装的JSONArray对象*/
     private JSONArray jsonArray;
-    //定义列表项显示JSONObject对象的哪些属性
-    private String id;                  //书本号
-    private String name;                //名称
-    private String readerId;            //读者Id
-    private String readerName;          //读者名字
-    private String state;               //借阅状态
-    private String start;               //预约/借阅时间
-    private String end;                 //有效时间至/还书时间
-    private String box;                 //当前适配的数据类型
+    /**
+     * 定义列表项显示JSONObject对象的哪些属性*
+     * 书本号
+     * 名称
+     * 读者Id
+     * 读者名字
+     * 借阅状态
+     * 借阅时间
+     * 预约
+     * 有效时间至
+     * 还书时间
+     * 当前适配的数据类型
+     */
+    private String id;
+    private String name;
+    private String readerId;
+    private String readerName;
+    private String state;
+    private String start;
+    private String end;
+    private String box;
     //列表项单击事件回调接口
     private CallbackToRBorrowFragment callbackToRBorrowFragment;
+
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
     public BorrowListAdapter(Context context,JSONArray jsonArray,String id , String name,String readerId,String readerName,String state,
                            String start, String end, String box, CallbackToRBorrowFragment callbackToRBorrowFragment){
@@ -78,11 +89,17 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         View view;
-        if(box.equals("box1")){             //适配当前借阅
+        //适配当前借阅
+        if("box1".equals(box)){
             view = LayoutInflater.from(context).inflate(R.layout.borrow,viewGroup,false);
-        }else if(box.equals("box2")){       //适配当前预约
+
+        }
+        //适配当前预约
+        else if("box2".equals(box)){
             view = LayoutInflater.from(context).inflate(R.layout.reservation,viewGroup,false);
-        }else {                             //适配过期记录
+        }
+        //适配过期记录
+        else {
             view = null;
         }
         return new ViewHolder(view);
@@ -101,7 +118,7 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
             Long Start = jsonArray.optJSONObject(position).getLong(start);
             Long End = jsonArray.optJSONObject(position).getLong(end);
             Date date = new Date(Start);
-            SimpleDateFormat format = new SimpleDateFormat("YYYY-MM-dd");
+
             String itemStart = format.format(date);
             Date date0 = new Date(End);
             String itemEnd = format.format(date0);

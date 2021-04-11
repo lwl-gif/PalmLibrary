@@ -14,4 +14,16 @@
         <item>班级</item>
         <item>学院</item>
     </string-array>
+    <string-array name="sex">
+        <item>男</item>
+        <item>女</item>
+    </string-array>
+    <string-array name="readerType">
+        <item>学生证</item>
+        <item>教职工证</item>
+        <item>身份证</item>
+        <item>其它证件</item>
+    </string-array>
+
+
 </resources>

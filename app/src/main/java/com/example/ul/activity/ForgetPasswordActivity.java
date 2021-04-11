@@ -112,7 +112,7 @@ public class ForgetPasswordActivity extends AppCompatActivity implements HttpUti
     }
 
     void changeTo(String s){
-        if(s.equals("forgetNext")){
+        if("forgetNext".equals(s)){
             setContentView(R.layout.activity_forget_password_next);
             forgetNextPassword = findViewById(R.id.forgetNextPassword);
             forgetNextConfirmPassword = findViewById(R.id.forgetNextConfirmPassword);

@@ -15,18 +15,21 @@ import com.example.ul.callback.CallbackToLReaderManageFragment;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+/**
+ * @author luoweili
+ */
 public class ReaderListAdapter extends RecyclerView.Adapter<ReaderListAdapter.ViewHolder> {
     private final String TAG = "ReaderListAdapter";
     private Context context;
-    //定义需要包装的JSONArray对象
+    /**定义需要包装的JSONArray对象*/
     private JSONArray jsonArray;
-    //定义列表项显示JSONObject对象的哪些属性
-    private String id;              //读者id
-    private String name;            //读者名
-    private String age;             //读者年龄
-    private String department;      //读者所属学院
-    private String classroom;       //读者所属年级
-    //列表项单击事件回调接口
+    /**定义列表项显示JSONObject对象的哪些属性*/
+    private String id;
+    private String name;
+    private String age;
+    private String department;
+    private String classroom;
+    /**列表项单击事件回调接口*/
     private CallbackToLReaderManageFragment readerListClickedCallback;
 
     public ReaderListAdapter(Context context,JSONArray jsonArray,

@@ -3,11 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.ul">
 
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- 读取电话权限 -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- 获取网络权限 -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- 获取网络信息状态，如当前的网络连接是否有效 -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- 允许程序读取、写入外部存储，如SD卡上读、写文件 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
@@ -16,7 +17,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication1"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        tools:replace="android:theme">
+        <activity android:name=".activity.ShowPictureActivity" />
         <activity android:name=".activity.AutoLoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -27,23 +30,16 @@
         <activity android:name=".activity.ForgetPasswordActivity" />
         <activity android:name=".activity.LoginActivity" />
         <activity android:name=".activity.RegisterActivity" />
-
-
+        <activity android:name=".activity.ReaderDetailActivity" />
         <activity
             android:name=".activity.librarian.LMainActivity"
-            android:theme="@style/Theme.MyApplication1.NoActionBar">
-        </activity>
-
+            android:theme="@style/Theme.MyApplication1.NoActionBar" />
         <activity android:name=".activity.librarian.main.activity.LBookDetailActivity" />
         <activity
             android:name=".activity.reader.main.RMainActivity"
             android:label="@string/title_activity_r_main"
-            android:theme="@style/Theme.MyApplication1.NoActionBar" >
-        </activity>
+            android:theme="@style/Theme.MyApplication1.NoActionBar" />
         <activity android:name=".activity.reader.main.activity.RBookDetailActivity" />
-
-
-
     </application>
 
 </manifest>

@@ -17,11 +17,13 @@ import com.google.android.material.tabs.TabLayout;
 import org.json.JSONArray;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 
 public class LMainFragment extends Fragment implements Callback {
 
     private static final String LAG = "LMainFragment";
 
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_l_main, container, false);
         FragmentManager manager = getChildFragmentManager();
@@ -32,7 +34,7 @@ public class LMainFragment extends Fragment implements Callback {
         Drawable d = null;
         tabs.setupWithViewPager(viewPager);
         for (int i = 0; i < tabs.getTabCount(); i++) {
-            tabs.getTabAt(i).setCustomView(lMainFragmentPagerAdapter.getTabView(i));
+            Objects.requireNonNull(tabs.getTabAt(i)).setCustomView(lMainFragmentPagerAdapter.getTabView(i));
         }
         return rootView;
     }

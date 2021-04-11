@@ -95,6 +95,7 @@ public class RBorrowManageFragment extends Fragment implements CompoundButton.On
         public MyHandler(WeakReference<RBorrowManageFragment> rBorrowFragment){
             this.rBorrowFragment = rBorrowFragment;
         }
+        @Override
         public void handleMessage(Message msg){
             int what = msg.what;
             if(what == UNKNOWN_REQUEST) {
@@ -123,7 +124,7 @@ public class RBorrowManageFragment extends Fragment implements CompoundButton.On
                     tvMessage.setText(message);
                     TextView tvTip = view.findViewById(R.id.dialog_tip);
                     tvTip.setText(tip);
-                    DialogUtil.showDialog(rBorrowFragment.get().getActivity(),view);
+                    DialogUtil.showDialog(rBorrowFragment.get().getActivity(),view,false);
                 }
             }
         }

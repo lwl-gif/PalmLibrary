@@ -2,7 +2,6 @@ package com.example.ul.activity.librarian.person;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,72 +10,65 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
 import com.example.ul.R;
-import com.example.ul.activity.AutoLoginActivity;
-import com.example.ul.activity.reader.main.activity.RBookDetailActivity;
 import com.example.ul.model.UserInfo;
 import com.example.ul.util.ActivityManager;
 import com.example.ul.util.DialogUtil;
 import com.example.ul.util.HttpUtil;
 import com.example.ul.util.UserManager;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
-
 import okhttp3.Response;
 
+/**
+ * @author luoweili
+ */
 public class LPersonManageFragment extends Fragment implements HttpUtil.MyCallback{
 
     private static final String TAG = "LPersonManageFragment";
     //自定义消息代码
-    //未知请求
+    /**未知请求*/
     private static final int UNKNOWN_REQUEST = 700;
-    //请求失败
+    /**请求失败*/
     private static final int REQUEST_FAIL = 7000;
-    //请求成功，但子线程解析数据失败
+    /**请求成功，但子线程解析数据失败*/
     private static final int REQUEST_BUT_FAIL_READ_DATA = 7001;
-    //获取个人详情
+    /**获取个人详情*/
     private static final int GET_PERSON_DETAIL = 701;
-    //获取个人详情成功，有数据需要渲染
+    /**获取个人详情成功，有数据需要渲染*/
     private static final int GET_PERSON_DETAIL_FILL = 7011;
-    //获取个人详情失败或无数据需要渲染
+    /**获取个人详情失败或无数据需要渲染*/
     private static final int GET_PERSON_DETAIL_NOT_FILL = 7010;
-    //退出登录请求
+    /**退出登录请求*/
     private static final int ACCOUNT_OFFLINE = 702;
-    //退出成功
+    /**退出成功*/
     private static final int ACCOUNT_OFFLINE_SUCCEED = 7021;
-    //退出失败
+    /**退出失败*/
     private static final int ACCOUNT_OFFLINE_FAIL = 7020;
-    //视图
-    private View rootView;
-    //服务器返回的个人信息
+
+    /**服务器返回的个人信息详情*/
     private JSONObject jsonObject;
     private TextView tId,tName,tSex,tAge,tWorkplace,tUsername,tPermission;
 
-    //刷新按钮
+    /**刷新按钮*/
     private Button bReload;
-    //清空应用中的个人信息并退出
+    /**清空应用中的个人信息并退出的按钮*/
     private Button bOut;
     static class MyHandler extends Handler {
         private WeakReference<LPersonManageFragment> lPersonManageFragment;
         public MyHandler(WeakReference<LPersonManageFragment> lPersonManageFragment){
             this.lPersonManageFragment = lPersonManageFragment;
         }
+        @Override
         public void handleMessage(Message msg){
             Activity myActivity = lPersonManageFragment.get().getActivity();
             int what = msg.what;
@@ -120,11 +112,12 @@ public class LPersonManageFragment extends Fragment implements HttpUtil.MyCallba
         super.onCreate(savedInstanceState);
     }
 
+    @Override
     @Nullable
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         //获取当前界面视图
-        rootView = inflater.inflate(R.layout.activity_l_person_detail,container,false);
+        View rootView = inflater.inflate(R.layout.activity_l_person_detail, container, false);
         //获取视图中的组件
         tId = rootView.findViewById(R.id.l_id);
         tName = rootView.findViewById(R.id.l_name);

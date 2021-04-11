@@ -133,7 +133,7 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
                     tvMessage.setText(message);
                     TextView tvTip = view.findViewById(R.id.dialog_tip);
                     tvTip.setText(tip);
-                    DialogUtil.showDialog(rBookDetailActivity.get(),view);
+                    DialogUtil.showDialog(rBookDetailActivity.get(),view,false);
                 }
             }
         }

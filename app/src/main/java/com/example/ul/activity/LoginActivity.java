@@ -78,16 +78,13 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
                 case LOGIN_SUCCEED:
                     //根据身份启动主界面
                     loginActivity.get().password.setText(null);
-                    if(loginActivity.get().role.equals("librarian")){
+                    if("librarian".equals(loginActivity.get().role)){
                         Intent intent = new Intent(loginActivity.get(), LMainActivity.class);
                         loginActivity.get().startActivity(intent);
                     }else {
                         Intent intent = new Intent(loginActivity.get(), RMainActivity.class);
                         loginActivity.get().startActivity(intent);
                     }
-                    //结束该Activity
-                    ActivityManager.getInstance().removeActivity(loginActivity.get());
-                    loginActivity.get().finish();
                     break;
                 //登录失败
                 case LOGIN_FAIL:
@@ -104,7 +101,7 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
                         tvMessage.setText(message);
                         TextView tvTip = view.findViewById(R.id.dialog_tip);
                         tvTip.setText(tip);
-                        DialogUtil.showDialog(loginActivity.get(),view);
+                        DialogUtil.showDialog(loginActivity.get(),view,false);
                     } catch (JSONException e) {
                         Toast.makeText(loginActivity.get(),"主线程解析数据时异常！",Toast.LENGTH_LONG);
                     }
@@ -120,7 +117,6 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ActivityManager.getInstance().addActivity(this);
         setContentView(R.layout.activity_login);
         username = findViewById(R.id.editUsername);
         password = findViewById(R.id.editPassword);
@@ -159,7 +155,6 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
         ActivityManager.getInstance().addActivity(this);
     }
 
-    //登陆
     void login(){
         String username1 = username.getText().toString().trim();
         String password1 = password.getText().toString().trim();
@@ -172,29 +167,29 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
         String url = HttpUtil.BASE_URL + "login/";
         HttpUtil.postRequest(null,url,hashMap,LoginActivity.this, LOGIN_CODE);
     }
-    //重置
+
     void reset(){
         username.setText(null);
         password.setText(null);
         rg.check(R.id.radioButtonR);
     }
-    //注册
+
     void register(){
         //启动注册活动
         Intent intent = new Intent(this, RegisterActivity.class);
         startActivity(intent);
     }
-    //忘记密码
+
     void forget(){
         //启动忘记密码活动
         Intent intent = new Intent(this, ForgetPasswordActivity.class);
         startActivity(intent);
     }
-    //退出应用
+
     void backHome(){
         finish();
     }
-    //校验
+
     boolean validate(){
         String username1 = username.getText().toString().trim();
         if(username1.equals("")){

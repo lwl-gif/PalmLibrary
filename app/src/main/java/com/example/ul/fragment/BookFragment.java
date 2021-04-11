@@ -1,5 +1,6 @@
 package com.example.ul.fragment;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -118,19 +119,7 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
                 //请求被拦截
                 case REQUEST_INTERCEPTED:
                     Bundle data = msg.getData();
-                    String code = data.getString("code");
-                    String message = data.getString("message");
-                    String tip = data.getString("tip");
-                    View view = View.inflate(bookFragment.get().getActivity(),R.layout.dialog_view,null);
-                    TextView tvFrom = view.findViewById(R.id.dialog_from);
-                    tvFrom.setText(TAG);
-                    TextView tvCode = view.findViewById(R.id.dialog_code);
-                    tvCode.setText(code);
-                    TextView tvMessage = view.findViewById(R.id.dialog_message);
-                    tvMessage.setText(message);
-                    TextView tvTip = view.findViewById(R.id.dialog_tip);
-                    tvTip.setText(tip);
-                    DialogUtil.showDialog(bookFragment.get().getActivity(),view);
+                    DialogUtil.showDialog(bookFragment.get().getActivity(),BookFragment.TAG,data,true);
                     break;
                 default:
                     Toast.makeText(bookFragment.get().getActivity(),"未知请求，无法处理！",Toast.LENGTH_SHORT).show();

@@ -164,17 +164,7 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
                     lBookDetailActivity.get().finish();
                 }
                 else {
-                    String tip = data.getString("tip");
-                    View view = View.inflate(lBookDetailActivity.get(),R.layout.dialog_view,null);
-                    TextView tvFrom = view.findViewById(R.id.dialog_from);
-                    tvFrom.setText(TAG);
-                    TextView tvCode = view.findViewById(R.id.dialog_code);
-                    tvCode.setText(code);
-                    TextView tvMessage = view.findViewById(R.id.dialog_message);
-                    tvMessage.setText(message);
-                    TextView tvTip = view.findViewById(R.id.dialog_tip);
-                    tvTip.setText(tip);
-                    DialogUtil.showDialog(lBookDetailActivity.get(),view);
+                    DialogUtil.showDialog(lBookDetailActivity.get(),TAG,data,false);
                 }
             }
         }
@@ -193,15 +183,15 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         init();
     }
 
+    /**
+     * @Author:Wallace
+     * @Description:根据有无id值，有两种初始化方式，对应新添书籍和书籍详情两种打开方式。
+     * @Date:Created in 12:48 2021/3/31
+     * @Modified By:
+     * @param
+     * @return: void
+     */
     private void init() {
-        /**
-         * @Author:Wallace
-         * @Description:根据有无id值，有两种初始化方式，对应新添书籍和书籍详情两种打开方式。
-         * @Date:Created in 12:48 2021/3/31
-         * @Modified By:
-          * @param
-         * @return: void
-         */
         bBack = findViewById(R.id.l_bookDetail_back);
         bBack.setOnClickListener(view -> {
             finish();
@@ -411,8 +401,8 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
             this.id = this.jsonObjectBookDetail.getString("id");
             this.tId.setText(this.id);
             this.tName.setText(this.jsonObjectBookDetail.getString("name"));
-            this.tAuthor.setText(this.jsonObjectBookDetail.getString("isbn"));
-            this.tIsbn.setText(this.jsonObjectBookDetail.getString("author"));
+            this.tAuthor.setText(this.jsonObjectBookDetail.getString("author"));
+            this.tIsbn.setText(this.jsonObjectBookDetail.getString("isbn"));
             //改变列表的默认值
             String tLibrary = this.jsonObjectBookDetail.getString("library");
             for(int i = 0;i < spinnerLibrary.getCount(); i++){
@@ -492,7 +482,6 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         tName.setFocusableInTouchMode(writing);
         tName.setClickable(writing);
         tName.setEnabled(writing);
-        tName.requestFocus();
 
         tAuthor.setFocusable(writing);
         tAuthor.setFocusableInTouchMode(writing);

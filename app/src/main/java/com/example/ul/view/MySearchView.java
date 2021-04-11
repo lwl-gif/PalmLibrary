@@ -30,12 +30,14 @@ public class MySearchView extends LinearLayout{
     /**
      * 初始化成员变量
      */
-    private LinearLayout search_block; // 搜索框布局
-    // 搜索框组件
-    private SearchView et_search;   //搜索框
-    private Button btn_clear;       //清空搜索记录
-    // 回调接口
-    private SearchCallback searchCallback;   // 搜索按键回调接口
+    // 搜索框布局
+    private LinearLayout search_block;
+    // //搜索框
+    private SearchView et_search;
+    //清空搜索记录按钮
+    private Button btn_clear;
+    // 搜索按键回调接口
+    private SearchCallback searchCallback;
     // 用于存放历史搜索记录
     private RecordSQLiteOpenHelper helper ;
     private SQLiteDatabase db;
@@ -132,6 +134,7 @@ public class MySearchView extends LinearLayout{
          * 调用时刻：点击键盘上的搜索键时
          */
         et_search.setOnKeyListener(new OnKeyListener() {
+            @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
 

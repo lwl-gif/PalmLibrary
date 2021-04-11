@@ -30,6 +30,7 @@ public class LMainActivity extends AppCompatActivity implements CallbackTOMainAc
         super.onCreate(savedInstanceState);
         ActivityManager.getInstance().addActivity(this);
         setContentView(R.layout.activity_l_main);
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -49,19 +50,22 @@ public class LMainActivity extends AppCompatActivity implements CallbackTOMainAc
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.l_main, menu);
+        getMenuInflater().inflate(R.menu.l_main_menu, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
-            case R.id.add_book:
+            case R.id.menu_AddBook:
                 //打开书本详情活动
                 Intent intent = new Intent(this, LBookDetailActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.add_reader:
+            case R.id.menu_AddReader:
+                //打开读者详情页面
+                return true;
+            case R.id.menu_Scan:
                 //打开读者详情页面
                 return true;
             default:

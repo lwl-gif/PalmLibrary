@@ -1,13 +1,9 @@
 package com.example.ul.util;
 
-import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
