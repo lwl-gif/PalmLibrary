@@ -1,5 +1,7 @@
 package com.example.ul.activity.librarian.main.activity;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,15 +15,26 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ul.R;
+import com.example.ul.activity.ShowPictureActivity;
+import com.example.ul.activity.reader.main.activity.RReaderDetailActivity;
+import com.example.ul.adapter.ImagesAdapter;
+import com.example.ul.adapter.ImagesOnlyReadAdapter;
 import com.example.ul.adapter.MySpinnerAdapter;
 import com.example.ul.adapter.MySpinnerBelongAdapter;
+import com.example.ul.callback.ImageAdapterItemListener;
 import com.example.ul.model.UserInfo;
 import com.example.ul.util.ActivityManager;
 import com.example.ul.util.DialogUtil;
 import com.example.ul.util.HttpUtil;
 import com.example.ul.util.UserManager;
+import com.luck.picture.lib.PictureSelector;
+import com.luck.picture.lib.config.PictureConfig;
+import com.luck.picture.lib.config.PictureMimeType;
+import com.luck.picture.lib.entity.LocalMedia;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,48 +54,47 @@ import butterknife.ButterKnife;
 import okhttp3.Response;
 
 /**
- * @Author:Wallace
- * @Description:管理员有两种方式进入到该页面(通过传入的id是否为null来判断)：
+ * @Author: Wallace
+ * @Description: 管理员有两种方式进入到该页面(通过传入的id是否为null来判断)：
  * 1.添加新书时，打开该页面，数据为空，可以填入新书本的信息
  * 2.扫码或者点击查看书本详情时，进入该页面，获取书本的详情，可以修改书本信息
- * @Date:Created in 22:25 2021/3/28
+ * @Date: Created in 22:25 2021/3/28
  * @Modified By:
  */
-public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.MyCallback {
+public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.MyCallback, ImageAdapterItemListener {
 
     private static final String TAG = "LBookDetailActivity";
-    //自定义消息代码
-    //未知请求
+    /**未知请求*/
     private static final int UNKNOWN_REQUEST = 800;
-    //请求失败
+    /**请求失败*/
     private static final int REQUEST_FAIL = 8000;
-    //请求成功，但子线程解析数据失败
+    /**请求成功，但子线程解析数据失败*/
     private static final int REQUEST_BUT_FAIL_READ_DATA = 8001;
-    //获取书本详情
+    /**获取书本详情*/
     private static final int GET_BOOK_DETAIL = 801;
-    //获取书本详情成功，有数据需要渲染
+    /**获取书本详情成功，有数据需要渲染*/
     private static final int GET_BOOK_DETAIL_FILL = 8011;
-    //获取书本详情失败或无数据需要渲染
+    /**获取书本详情失败或无数据需要渲染*/
     private static final int GET_BOOK_DETAIL_NOT_FILL = 8010;
-    //添加书本
+    /**添加书本*/
     private static final int ADD_BOOK = 802;
-    //添加书本成功
+    /**添加书本成功*/
     private static final int ADD_BOOK_SUCCESS = 8021;
-    //添加书本失败
+    /**添加书本失败*/
     private static final int ADD_BOOK_FAIL = 8020;
-    //更新书本
+    /**更新书本*/
     private static final int UPDATE_BOOK = 803;
-    //更新成功
+    /**更新成功*/
     private static final int UPDATE_BOOK_SUCCEED = 8031;
-    //更新失败
+    /**更新失败*/
     private static final int UPDATE_BOOK_FAIL = 8030;
-    //删除书本信息
+    /**删除书本信息*/
     private static final int DELETE_BOOK = 804;
     private static final int DELETE_BOOK_SUCCEED = 8041;
     private static final int DELETE_BOOK_FAIL = 8040;
-    //查询分类
+    /**查询分类*/
     private static final int GET_TYPE = 805;
-    //服务器返回的书本详情数据
+    /**服务器返回的书本详情数据*/
     private JSONObject jsonObjectBookDetail = null;
     /**要填充到各个下拉列表中的内容*/
     private JSONArray jsonArrayLibrary,jsonArrayType;
@@ -126,11 +138,14 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
     public EditText tHot;
     @BindView(R.id.l_bookState)
     public TextView tState;
+    private RecyclerView recyclerView;
+    private ImagesAdapter imagesAdapter;
     private Button bBack,bEdit,bSubmit,bDelete;
     /**当前书本id*/
     private String id = null;
     /**当前是否启动了编辑*/
     private boolean writing = false;
+
     static class MyHandler extends Handler {
         private WeakReference<LBookDetailActivity> lBookDetailActivity;
         public MyHandler(WeakReference<LBookDetailActivity> lBookDetailActivity){
@@ -177,21 +192,30 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         ActivityManager.getInstance().addActivity(this);
         setContentView(R.layout.activity_l_book_detail);
         ButterKnife.bind(this);
-        //先发送获取分类的请求
-        getType();
         //初始化
         init();
     }
 
     /**
-     * @Author:Wallace
-     * @Description:根据有无id值，有两种初始化方式，对应新添书籍和书籍详情两种打开方式。
-     * @Date:Created in 12:48 2021/3/31
+     * @Author: Wallace
+     * @Description: 根据有无id值，有两种初始化方式，对应新添书籍和书籍详情两种打开方式。
+     * @Date: Created in 12:48 2021/3/31
      * @Modified By:
-     * @param
      * @return: void
      */
     private void init() {
+        //获取token
+        UserManager userManager = UserManager.getInstance();
+        UserInfo userInfo = userManager.getUserInfo(this);
+        String token = userInfo.getToken();
+        // 先发送获取分类的请求
+        String getTypeUrl = HttpUtil.BASE_URL + "book/getDetailType";
+        HttpUtil.getRequest(token,getTypeUrl,this,GET_TYPE);
+        recyclerView = findViewById(R.id.recyclerView);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
+        recyclerView.setLayoutManager(gridLayoutManager);
+        imagesAdapter = new ImagesAdapter(this,token,this);
+        recyclerView.setAdapter(imagesAdapter);
         bBack = findViewById(R.id.l_bookDetail_back);
         bBack.setOnClickListener(view -> {
             finish();
@@ -199,11 +223,7 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         bEdit = findViewById(R.id.l_bookDetail_edit);
         bEdit.setOnClickListener(view -> {
             //如果当前可编辑
-            if(writing == true){
-                writing = false;
-            }else {
-                writing = true;
-            }
+            writing = !writing;
             isAllowEdit();
         });
         bSubmit = findViewById(R.id.l_bookDetail_submit);
@@ -215,12 +235,8 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
             bSubmit.setText(R.string.update);
             bDelete = findViewById(R.id.l_bookDetail_delete);
             bDelete.setVisibility(View.VISIBLE);
+            // 绑定删除请求
             bDelete.setOnClickListener(view -> {
-                //绑定删除请求
-                //获取token
-                UserManager userManager = UserManager.getInstance();
-                UserInfo userInfo = userManager.getUserInfo(this);
-                String token = userInfo.getToken();
                 //使用Map封装请求参数
                 HashMap<String, String> hashMap = new HashMap<>();
                 hashMap.put("id",this.id);
@@ -235,13 +251,9 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
             bSubmit.setText(R.string.add);
         }
         isAllowEdit();
-        //提交按钮绑定请求
+        // 提交按钮绑定请求
         bSubmit.setOnClickListener(view -> {
-            //获取token
-            UserManager userManager = UserManager.getInstance();
-            UserInfo userInfo = userManager.getUserInfo(this);
-            String token = userInfo.getToken();
-            //使用Map封装请求参数
+            // 使用Map封装请求参数
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put("id",tId.getText().toString().trim());
             hashMap.put("name",tName.getText().toString().trim());
@@ -260,12 +272,16 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
             hashMap.put("price",tPrice.getText().toString().trim());
             hashMap.put("hot",tHot.getText().toString().trim());
             hashMap.put("state",tState.getText().toString().trim());
-            if(id != null){     //绑定更新图书请求
+            // 获取要提交的图片的全路径
+            List<String> list = this.imagesAdapter.getImagesPath();
+            List<String> tempList = list.subList(0,list.size()-1);
+            if(id != null){     // 绑定更新图书请求
                 String url = HttpUtil.BASE_URL + "book/updateBook";
-                HttpUtil.putRequest(token,url,hashMap,this,UPDATE_BOOK);
-            }else {             //绑定添加图书请求
+
+                HttpUtil.putRequest(token,url,hashMap,tempList,this,UPDATE_BOOK);
+            }else {             // 绑定添加图书请求
                 String url = HttpUtil.BASE_URL + "book/addBook";
-                HttpUtil.postRequest(token,url,hashMap,this,ADD_BOOK);
+                HttpUtil.postRequest(token,url,hashMap,tempList,this,ADD_BOOK);
             }
         });
     }
@@ -279,34 +295,23 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         tTheme.setText(null);
         tDesc.setText(null);
         tHouse.setText(null);
-        tDate.setText("1970-01-01");
-        tPrice.setText("0.00");
-        tHot.setText("0");
+        tDate.setText(R.string.bookDateAutoFill);
+        tPrice.setText(R.string.bookPrice_0);
+        tHot.setText(R.string.math_0);
         spinnerLibrary.setSelection(0,true);
         spinnerType.setSelection(0,true);
         spinnerFirst.setSelection(0,true);
         spinnerThird.setSelection(0,true);
     }
 
-    private void getType(){
-        UserManager userManager = UserManager.getInstance();
-        UserInfo userInfo = userManager.getUserInfo(this);
-        String token = userInfo.getToken();
-        //使用Map封装请求参数
-        HashMap<String, String> hashMap = new HashMap<>();
-        String url = HttpUtil.BASE_URL + "book/getDetailType";
-        HttpUtil.getRequest(token,url,this,GET_TYPE);
-    }
-
+    /**
+     * @Author: Wallace
+     * @Description:为 各个Spinner填充信息及绑定选中事件
+     * @Date: Created in 13:16 2021/3/31
+     * @Modified By:
+     * @return: void
+     */
     private void fillSpinnerData() {
-        /**
-         * @Author:Wallace
-         * @Description:为各个Spinner填充信息及绑定选中事件
-         * @Date:Created in 13:16 2021/3/31
-         * @Modified By:
-         * @param
-         * @return: void
-         */
         MySpinnerAdapter sALibrary = new MySpinnerAdapter(this,jsonArrayLibrary);
         MySpinnerAdapter sAType = new MySpinnerAdapter(this,jsonArrayType);
         spinnerLibrary.setAdapter(sALibrary);
@@ -369,9 +374,7 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         spinnerType.setSelection(0,true);
         spinnerFirst.setSelection(0,true);
         spinnerThird.setSelection(0,true);
-        if(id == null){
-
-        }else {
+        if(id != null){
             //发送查询书籍详情的请求
             //获取token
             UserManager userManager = UserManager.getInstance();
@@ -382,16 +385,7 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
             hashMap.put("id", id);
             String url = HttpUtil.BASE_URL + "book/selectAllById";
             // 拼接请求参数
-            StringBuffer buffer = new StringBuffer(url);
-            buffer.append('?');
-            for (HashMap.Entry<String, String> entry : hashMap.entrySet()) {
-                buffer.append(entry.getKey());
-                buffer.append('=');
-                buffer.append(entry.getValue());
-                buffer.append('&');
-            }
-            buffer.deleteCharAt(buffer.length() - 1);
-            url = buffer.toString();
+            url = HttpUtil.newUrl(url,hashMap);
             HttpUtil.getRequest(token,url,this,GET_BOOK_DETAIL);
         }
     }
@@ -430,20 +424,20 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
             this.tState.setText(this.jsonObjectBookDetail.getString("state"));
             this.tPrice.setText(this.jsonObjectBookDetail.getString("price"));
             JSONObject belong = new JSONObject(this.jsonObjectBookDetail.getString("classification"));
-            //改变列表的默认值
+            // 改变列表的默认值
             String tFirst = belong.getString("first");
             for(int i = 0;i < spinnerFirst.getCount(); i++){
                 String s = (String) spinnerFirst.getItemAtPosition(i);
-                if(!(s == null) && s.equals(tFirst)){
+                if(s != null && s.equals(tFirst)){
                     spinnerFirst.setSelection(i,true);
                     break;
                 }
             }
-            //改变列表的默认值
+            // 改变列表的默认值
             String tThird = belong.getString("third");
             for(int i = 0;i < spinnerThird.getCount(); i++){
                 String s = (String) spinnerThird.getItemAtPosition(i);
-                if(!(s == null) && s.equals(tThird)){
+                if(s != null && s.equals(tThird)){
                     spinnerThird.setSelection(i,true);
                     break;
                 }
@@ -453,24 +447,38 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
             if(d == null || n.equals(d) || "".equals(d)){
                 this.tDate.setText(null);
             }else {
-                Long l = Long.parseLong(d);
+                long l = Long.parseLong(d);
                 Date date = new Date(l);
-                SimpleDateFormat format = new SimpleDateFormat("YYYY-MM-dd");
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
                 String tvDate = format.format(date);
                 this.tDate.setText(tvDate);
+            }
+            // 获取图片名，构造出获取图片的url
+            // 获取图片的基本url
+            String baseUrl = HttpUtil.BASE_URL + "book/getBookImage/";
+            String images = jsonObjectBookDetail.getString("images");
+            JSONArray jsonArray1 = jsonObjectBookDetail.getJSONArray("pictures");
+            if (jsonArray1 != null && jsonArray1.length() > 0) {
+                ArrayList<String> arrayList = new ArrayList<>();
+                for (int i = 0; i < jsonArray1.length(); i++) {
+                    String url = baseUrl + images + "/" + jsonArray1.get(i);
+                    arrayList.add(url);
+                }
+                Log.e(TAG, "fillBookDetail: arrayList = " + arrayList.toString());
+                imagesAdapter.setImageNameUrlList(arrayList);
             }
         } catch (JSONException e) {
             Toast.makeText(this, "主线程解析数据时异常！", Toast.LENGTH_SHORT).show();
         }
     }
 
-    @Override
-    protected void onDestroy() {
-        ActivityManager.getInstance().removeActivity(this);
-        super.onDestroy();
-    }
-
-    //启动或禁止编辑
+    /**
+     * @Author: Wallace
+     * @Description: 启动或禁止编辑
+     * @Date: Created 20:41 2021/4/20
+     * @Modified: by who yyyy-MM-dd
+     * @return: void
+     */
     private void isAllowEdit(){
         if(!writing){
             bEdit.setText(R.string.edit);
@@ -519,17 +527,14 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         tDesc.setEnabled(writing);
 
         spinnerFirst.setFocusable(writing);
-//        spinnerFirst.setFocusableInTouchMode(writing);
         spinnerFirst.setClickable(writing);
         spinnerFirst.setEnabled(writing);
 
         spinnerThird.setFocusable(writing);
-//        spinnerThird.setFocusableInTouchMode(writing);
         spinnerThird.setClickable(writing);
         spinnerThird.setEnabled(writing);
 
         spinnerType.setFocusable(writing);
-//        spinnerType.setFocusableInTouchMode(writing);
         spinnerType.setClickable(writing);
         spinnerType.setEnabled(writing);
 
@@ -552,23 +557,123 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         tHot.setFocusableInTouchMode(writing);
         tHot.setClickable(writing);
         tHot.setEnabled(writing);
+    }
 
-//        tState.setFocusable(isEdit);
-//        tState.setFocusableInTouchMode(isEdit);
-//        tState.setClickable(isEdit);
-//        tState.setEnabled(isEdit);
+    /**
+     * @Author: Wallace
+     * @Description: 先判断是不是最后一个item
+     * 1.不是最后一个item,则开启一个Activity，用大图来展示当前的图片
+     * 2.是最后一个item，则选择图片添加
+     * @Date: Created 19:28 2021/4/20
+     * @Modified: by who yyyy-MM-dd
+     * @param position item的位置
+     * @return: void
+     */
+    @Override
+    public void onClickToShow(int position) {
+        // 当前不处于删除状态
+        if(!imagesAdapter.getDeleting()){
+            if(position == imagesAdapter.getItemCount()-1) {
+                //进入相册 以下是例子：不需要的api可以不写
+                PictureSelector.create(this)
+                        //全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
+                        .openGallery(PictureMimeType.ofImage())
+                        //每行显示个数 int
+                        .imageSpanCount(3)
+                        .maxSelectNum(30)
+                        //多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                        .selectionMode(PictureConfig.MULTIPLE)
+                        //是否可预览图片
+                        .previewImage(true)
+                        //是否显示拍照按钮 true or false
+                        .isCamera(false)
+                        //拍照保存图片格式后缀,默认jpeg
+                        .imageFormat(PictureMimeType.JPEG)
+                        //图片列表点击 缩放效果 默认true
+                        .isZoomAnim(true)
+                        //int 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
+                        .withAspectRatio(1, 1)
+                        //是否显示uCrop工具栏，默认不显示 true or false
+                        .hideBottomControls(false)
+                        //裁剪框是否可拖拽 true or false
+                        .freeStyleCropEnabled(false)
+                        //是否圆形裁剪 true or false
+                        .circleDimmedLayer(false)
+                        //是否显示裁剪矩形边框 圆形裁剪时建议设为false   true or false
+                        .showCropFrame(false)
+                        //是否显示裁剪矩形网格 圆形裁剪时建议设为false    true or false
+                        .showCropGrid(false)
+                        //是否开启点击声音 true or false
+                        .openClickSound(true)
+                        //同步true或异步false 压缩 默认同步
+                        .synOrAsy(true)
+                        //裁剪是否可旋转图片 true or false
+                        .rotateEnabled(false)
+                        //裁剪是否可放大缩小图片 true or false
+                        .scaleEnabled(true)
+                        //是否可拖动裁剪框(固定)
+                        .isDragFrame(false)
+                        //结果回调onActivityResult requestCode
+                        .forResult(PictureConfig.CHOOSE_REQUEST);
+            }
+            else {
+                Intent intent = new Intent(LBookDetailActivity.this, ShowPictureActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("TAG",TAG);
+                bundle.putParcelable("Adapter", imagesAdapter);
+                bundle.putInt("position",position);
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case PictureConfig.CHOOSE_REQUEST:
+                    // 结果回调
+                    imagesAdapter.setSelectList((ArrayList<LocalMedia>) PictureSelector.obtainMultipleResult(data));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    }
+
+    @Override
+    public void onClickToDelete(int position) {
+        // 当前处于删除状态
+        if(imagesAdapter.getDeleting()){
+            // 如果当前是第一次删除图片，弹出提示框
+            if(imagesAdapter.isFirstDelete()){
+                DialogUtil.showDialog(this,this.imagesAdapter,position);
+            }else {
+                imagesAdapter.removeItem(position);
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        id = null;
+        ActivityManager.getInstance().removeActivity(this);
+        super.onDestroy();
     }
 
     @Override
     public void success(Response response, int code) throws IOException {
-        //获取服务器响应字符串
+        // 获取服务器响应字符串
         String result = response.body().string().trim();
         switch (code) {
             case GET_TYPE:
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     String message = jsonObject.getString("message");
-                    //将整个信息拆分
+                    // 将整个信息拆分
                     JSONArray jsonArraySpinners = jsonObject.getJSONArray("dataArray");
                     jsonArrayLibrary = jsonArraySpinners.getJSONArray(0);
                     JSONArray jsonArray0 = jsonArraySpinners.getJSONArray(1);
@@ -581,7 +686,6 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
                         String third = belong.getString(1);
                         String[] arrayStr = third.split(",");
                         List<String> list = new ArrayList<String>(Arrays.asList(arrayStr));
-                        Log.e(TAG, "list: = " + list);
                         firsts.add(first);
                         thirds.add(list);
                     }
@@ -596,9 +700,9 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
                     JSONObject jsonObject = new JSONObject(result);
                     String message = jsonObject.getString("message");
                     String tip = null;
-                    if(message.equals("查询成功！")){
+                    if("查询成功！".equals(message)){
                         tip = jsonObject.getString("tip");
-                        if(tip.equals("null")){
+                        if("null".equals(tip)){
                             //查询成功，获取书籍数据，通知主线程渲染前端
                             jsonObjectBookDetail = jsonObject.getJSONObject("object");
                             myHandler.sendEmptyMessage(GET_BOOK_DETAIL_FILL);
@@ -631,7 +735,7 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
                     data.putString("code",c);
                     data.putString("message",message);
                     msg.setData(data);
-                    if(message.equals("添加成功！")){
+                    if("添加成功！".equals(message)){
                         msg.what = ADD_BOOK_SUCCESS;
                     }else {
                         String tip = jsonObject.getString("tip");
@@ -653,7 +757,7 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
                     data.putString("code",c);
                     data.putString("message",message);
                     msg.setData(data);
-                    if(message.equals("更新成功！")){
+                    if("更新成功！".equals(message)){
                         msg.what = UPDATE_BOOK_SUCCEED;
                     }else {
                         String tip = jsonObject.getString("tip");
@@ -675,7 +779,7 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
                     data.putString("code",c);
                     data.putString("message",message);
                     msg.setData(data);
-                    if(message.equals("删除成功！")){
+                    if("删除成功！".equals(message)){
                         msg.what = DELETE_BOOK_SUCCEED;
                     }else {
                         String tip = jsonObject.getString("tip");

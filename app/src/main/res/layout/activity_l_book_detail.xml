@@ -25,7 +25,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <ScrollView
-        android:id="@+id/scrollView2"
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/l_bookDetail_edit"
@@ -59,7 +59,7 @@
                 android:layout_height="0dp"
                 android:gravity="center"
                 android:padding="5dp"
-                android:text="书本号（id）系统自动生成"
+                android:text="@string/auto_fill_l_bookId"
                 app:layout_constraintBottom_toBottomOf="@+id/textView51"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/textView51"
@@ -265,7 +265,8 @@
                 app:layout_constraintBottom_toBottomOf="@+id/textView40"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/textView40"
-                app:layout_constraintTop_toTopOf="@+id/textView40" />
+                app:layout_constraintTop_toTopOf="@+id/textView40"
+                tools:ignore="TextFields" />
 
             <!--      主题     -->
             <TextView
@@ -471,10 +472,10 @@
                 android:layout_height="0dp"
                 android:background="#EDEACF"
                 android:gravity="start|center_vertical"
-                android:hint="1970-01-01"
+                android:hint="@string/bookDateStandard"
                 android:inputType="date"
                 android:padding="5dp"
-                android:text="1970-01-01"
+                android:text="@string/bookDateAutoFill"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView47"
                 app:layout_constraintEnd_toStartOf="@+id/guideline4"
@@ -482,7 +483,6 @@
                 app:layout_constraintTop_toTopOf="@+id/textView47" />
 
             <!--      状态     -->
-
             <TextView
                 android:id="@+id/textView49"
                 android:layout_width="0dp"
@@ -504,6 +504,7 @@
                 android:layout_height="0dp"
                 android:background="#EDEACF"
                 android:gravity="start|center_vertical"
+                android:text="@string/bookStateAutoFill"
                 android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView49"
@@ -535,7 +536,7 @@
                 android:gravity="start|center_vertical"
                 android:inputType="number"
                 android:padding="5dp"
-                android:text="0"
+                android:text="@string/math_0"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView48"
                 app:layout_constraintEnd_toStartOf="@+id/guideline4"
@@ -563,13 +564,24 @@
                 android:gravity="start|center_vertical"
                 android:inputType="numberDecimal"
                 android:padding="5dp"
-                android:text="0.00"
+                android:text="@string/bookPrice_0"
+                android:hint="@string/bookPrice_0"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView52"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/textView52"
-                app:layout_constraintTop_toTopOf="@+id/textView52" />
+                app:layout_constraintTop_toTopOf="@+id/textView52"/>
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView48"
+                app:layout_constraintVertical_bias="0.0" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

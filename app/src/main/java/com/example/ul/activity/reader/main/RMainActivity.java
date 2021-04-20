@@ -8,7 +8,7 @@ import android.view.MenuItem;
 import com.example.ul.R;
 import com.example.ul.activity.reader.main.activity.RBookDetailActivity;
 import com.example.ul.callback.CallbackTOMainActivity;
-import com.example.ul.activity.ReaderDetailActivity;
+import com.example.ul.activity.reader.main.activity.RReaderDetailActivity;
 import com.example.ul.util.ActivityManager;
 import com.google.android.material.tabs.TabLayout;
 
@@ -47,8 +47,7 @@ public class RMainActivity extends AppCompatActivity implements CallbackTOMainAc
         switch (item.getItemId()){
             case R.id.menu_Person:
                 //打开个人信息详情活动
-                Intent intent = new Intent(this, ReaderDetailActivity.class);
-                intent.putExtra("id","myself");
+                Intent intent = new Intent(this, RReaderDetailActivity.class);
                 startActivity(intent);
                 return true;
             case R.id.menu_Setting:

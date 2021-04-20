@@ -1,24 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/boot_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/layout_boundary">
 
 
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="95dp"
-        android:layout_height="110dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/imageLayout"
+        android:background="@drawable/book_image_border"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@android:drawable/ic_menu_gallery" />
+        android:layout_width="95dp"
+        android:layout_height="110dp">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_margin="1dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/ic_menu_gallery"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
         android:id="@+id/text2"
@@ -30,7 +42,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintStart_toEndOf="@+id/imageLayout"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
@@ -56,7 +68,7 @@
         android:gravity="bottom|start"
         android:scrollHorizontally="true"
         android:singleLine="true"
-        android:text="null"
+        android:text="@string/emptyString"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/text2"
         app:layout_constraintEnd_toStartOf="@+id/textView3"
@@ -70,7 +82,7 @@
         android:layout_height="0dp"
         android:gravity="center"
         android:singleLine="true"
-        android:text="null"
+        android:text="@string/emptyString"
         android:textColor="#E91E63"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/textView7"
@@ -90,7 +102,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/bookHot"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintStart_toEndOf="@+id/imageLayout"
         app:layout_constraintTop_toBottomOf="@+id/text2"
         app:layout_constraintVertical_bias="0.0" />
 
@@ -98,9 +110,9 @@
         android:id="@+id/bookAuthor"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:gravity="bottom|left"
+        android:gravity="bottom|start"
         android:scrollHorizontally="true"
-        android:text="null"
+        android:text="@string/emptyString"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/textView7"
         app:layout_constraintEnd_toStartOf="@+id/bookHot"
@@ -118,7 +130,7 @@
         app:layout_constraintBottom_toTopOf="@+id/textView18"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintStart_toEndOf="@+id/imageLayout"
         app:layout_constraintTop_toBottomOf="@+id/textView15"
         app:layout_constraintVertical_bias="1.0" />
 
@@ -126,9 +138,9 @@
         android:id="@+id/bookTheme"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:gravity="bottom|left"
+        android:gravity="bottom|start"
         android:scrollHorizontally="true"
-        android:text="null"
+        android:text="@string/emptyString"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/textView12"
         app:layout_constraintEnd_toEndOf="parent"
@@ -159,7 +171,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintStart_toEndOf="@+id/imageLayout"
         app:layout_constraintTop_toBottomOf="@+id/textView7"
         app:layout_constraintVertical_bias="0.0" />
 
@@ -167,9 +179,9 @@
         android:id="@+id/bookLibrary"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:gravity="bottom|left"
+        android:gravity="bottom|start"
         android:scrollHorizontally="true"
-        android:text="null"
+        android:text="@string/emptyString"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/textView14"
         app:layout_constraintEnd_toEndOf="parent"
@@ -187,7 +199,7 @@
         app:layout_constraintBottom_toBottomOf="@+id/textView2"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintStart_toEndOf="@+id/imageLayout"
         app:layout_constraintTop_toBottomOf="@id/textView15"
         app:layout_constraintVertical_bias="1.0" />
 
@@ -195,8 +207,8 @@
         android:id="@+id/bookIsbn"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:gravity="bottom|left"
-        android:text="null"
+        android:gravity="bottom|start"
+        android:text="@string/emptyString"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/textView18"
         app:layout_constraintEnd_toStartOf="@+id/textView14"
@@ -210,7 +222,7 @@
         android:gravity="start|top"
         android:maxLines="3"
         android:scrollHorizontally="true"
-        android:text="null"
+        android:text="@string/emptyString"
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/textView12"
         app:layout_constraintEnd_toStartOf="@+id/textView13"
@@ -227,10 +239,10 @@
         android:text="@string/bookId"
         android:textColor="#00BCD4"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/imageView"
+        app:layout_constraintEnd_toEndOf="@+id/imageLayout"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView"
+        app:layout_constraintTop_toBottomOf="@+id/imageLayout"
         app:layout_constraintVertical_bias="0.5" />
 
     <TextView
@@ -238,7 +250,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:gravity="center_horizontal"
-        android:text="状态"
+        android:text="@string/bookState1"
         android:textColor="#9C27B0"
         android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="@+id/textView15"
@@ -252,7 +264,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="null"
+        android:text="@string/emptyString"
         android:textSize="12sp"
         app:layout_constraintBottom_toTopOf="@+id/bookTheme"
         app:layout_constraintEnd_toEndOf="parent"
@@ -264,13 +276,13 @@
         android:id="@+id/bookId"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:gravity="bottom|left"
-        android:text="null"
+        android:gravity="bottom|start"
+        android:text="@string/emptyString"
         android:textSize="12sp"
+        android:background="@drawable/right_border"
         app:layout_constraintBottom_toBottomOf="@+id/textView2"
-        app:layout_constraintEnd_toEndOf="@+id/imageView"
+        app:layout_constraintEnd_toEndOf="@+id/imageLayout"
         app:layout_constraintStart_toEndOf="@+id/textView2"
         app:layout_constraintTop_toTopOf="@+id/textView2" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,7 +1,11 @@
 package com.example.ul.activity.reader.main.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -10,62 +14,83 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
 import com.example.ul.R;
+import com.example.ul.activity.ShowPictureActivity;
+import com.example.ul.adapter.ImagesAdapter;
+import com.example.ul.adapter.ImagesOnlyReadAdapter;
+import com.example.ul.callback.ImageAdapterItemListener;
 import com.example.ul.model.UserInfo;
 import com.example.ul.util.ActivityManager;
 import com.example.ul.util.DialogUtil;
 import com.example.ul.util.HttpUtil;
 import com.example.ul.util.UserManager;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 
 import okhttp3.Response;
 /**
- * @Author:Wallace
- * @Description:读者查看书籍详情的活动
- * @Date:Created in 16:20 2021/3/22
+ * @Author: Wallace
+ * @Description: 读者查看书籍详情的活动
+ * @Date: Created in 16:20 2021/3/22
  * @Modified By:
  */
-public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.MyCallback {
+public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.MyCallback, ImageAdapterItemListener {
 
     private static final String TAG = "RBookDetailActivity";
-    //自定义消息代码
-    //未知请求
+    /**未知请求*/
     private static final int UNKNOWN_REQUEST = 600;
-    //请求失败
+    /**请求失败*/
     private static final int REQUEST_FAIL = 6000;
-    //请求成功，但子线程解析数据失败
+    /**请求成功，但子线程解析数据失败*/
     private static final int REQUEST_BUT_FAIL_READ_DATA = 6001;
-    //获取书本详情
+    /**获取书本详情*/
     private static final int GET_BOOK_DETAIL = 601;
-    //获取书本详情成功，有数据需要渲染
+    /**获取书本详情成功，有数据需要渲染*/
     private static final int GET_BOOK_DETAIL_FILL = 6011;
-    //获取书本详情失败或无数据需要渲染
+    /**获取书本详情失败或无数据需要渲染*/
     private static final int GET_BOOK_DETAIL_NOT_FILL = 6010;
-    //预约书本
+    /**预约书本*/
     private static final int RESERVE_BOOK = 602;
-    //预约书本成功
+    /**预约书本成功*/
     private static final int RESERVE_BOOK_SUCCESS = 6021;
-    //预约书本失败
+    /**预约书本失败*/
     private static final int RESERVE_BOOK_FAIL = 6020;
 
-    //服务器返回的书本详情数据
+    /**服务器返回的书本详情数据*/
     private JSONObject jsonObjectBookDetail = null;
-
-    //当前书本id
+    /**当前书本id*/
     private String id = null;
-    //界面组件
-    //标题，Id，名称，作者，Isbn，所属馆，馆藏地点，索书号，主题，详情，一级分类，二级分类，文献类型，出版社，出版日期，定价,热度，状态
-    private TextView tTitle,tId,tName,tAuthor,tIsbn,tLibrary,tLocation,tCallNumber,tTheme,tDesc,tFirst,tThird,tType,tHouse,tDate,tPrice,tHot,tState;
-
-    private Button bBack,bReserve;
+    private TextView tId;
+    private TextView tName;
+    private TextView tAuthor;
+    private TextView tIsbn;
+    private TextView tLibrary;
+    private TextView tLocation;
+    private TextView tCallNumber;
+    private TextView tTheme;
+    private TextView tDesc;
+    private TextView tFirst;
+    private TextView tThird;
+    private TextView tType;
+    private TextView tHouse;
+    private TextView tDate;
+    private TextView tPrice;
+    private TextView tHot;
+    private TextView tState;
+    private ImagesOnlyReadAdapter imagesOnlyReadAdapter;
+    private RecyclerView recyclerView;
 
     static class MyHandler extends Handler {
         private WeakReference<RBookDetailActivity> rBookDetailActivity;
@@ -75,56 +100,25 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         @Override
         public void handleMessage(Message msg){
             int what = msg.what;
+            RBookDetailActivity myActivity = rBookDetailActivity.get();
             if(what == UNKNOWN_REQUEST) {
-                Toast.makeText(rBookDetailActivity.get(),"未知请求，无法处理！",Toast.LENGTH_SHORT).show();
+                Toast.makeText(myActivity,"未知请求，无法处理！",Toast.LENGTH_SHORT).show();
             }
             else if(what == REQUEST_FAIL){
-                Toast.makeText(rBookDetailActivity.get(),"网络异常！",Toast.LENGTH_SHORT).show();
+                Toast.makeText(myActivity,"网络异常！",Toast.LENGTH_SHORT).show();
             }else if(what == REQUEST_BUT_FAIL_READ_DATA){
-                Toast.makeText(rBookDetailActivity.get(),"子线程解析数据异常！",Toast.LENGTH_SHORT).show();
+                Toast.makeText(myActivity,"子线程解析数据异常！",Toast.LENGTH_SHORT).show();
             } else if (what == GET_BOOK_DETAIL_FILL) {
-                try {
-                    rBookDetailActivity.get().id = rBookDetailActivity.get().jsonObjectBookDetail.getString("id");
-                    rBookDetailActivity.get().tId.setText("No." + rBookDetailActivity.get().id);
-                    rBookDetailActivity.get().tName.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("name"));
-                    rBookDetailActivity.get().tAuthor.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("isbn"));
-                    rBookDetailActivity.get().tIsbn.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("author"));
-                    rBookDetailActivity.get().tLibrary.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("library"));
-                    rBookDetailActivity.get().tLocation.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("location"));
-                    rBookDetailActivity.get().tCallNumber.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("callNumber"));
-                    rBookDetailActivity.get().tTheme.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("theme"));
-                    rBookDetailActivity.get().tDesc.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("description"));
-                    rBookDetailActivity.get().tType.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("typeName"));
-                    rBookDetailActivity.get().tHouse.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("house"));
-                    rBookDetailActivity.get().tHot.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("hot"));
-                    rBookDetailActivity.get().tState.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("state"));
-                    rBookDetailActivity.get().tPrice.setText(rBookDetailActivity.get().jsonObjectBookDetail.getString("price"));
-                    JSONObject belong = new JSONObject(rBookDetailActivity.get().jsonObjectBookDetail.getString("classification"));
-                    rBookDetailActivity.get().tFirst.setText(belong.getString("first"));
-                    rBookDetailActivity.get().tThird.setText(belong.getString("third"));
-                    String d = rBookDetailActivity.get().jsonObjectBookDetail.getString("date");
-                    if(d == null || d.equals("null") || d.equals("")){
-                        rBookDetailActivity.get().tDate.setText(null);
-                    }else {
-                        Long l = Long.parseLong(d);
-                        Date date = new Date(l);
-                        SimpleDateFormat format = new SimpleDateFormat("YYYY-MM-dd");
-                        String tvDate = format.format(date);
-                        rBookDetailActivity.get().tDate.setText(tvDate);
-                    }
-
-                } catch (JSONException e) {
-                    Toast.makeText(rBookDetailActivity.get(), "主线程解析数据时异常！", Toast.LENGTH_SHORT).show();
-                }
+                myActivity.fillData();
             } else {
                 Bundle data = msg.getData();
                 String code = data.getString("code");
                 String message = data.getString("message");
                 String tip = data.getString("tip");
                 if (what == RESERVE_BOOK_SUCCESS) {
-                    Toast.makeText(rBookDetailActivity.get(), message + tip, Toast.LENGTH_LONG).show();
+                    Toast.makeText(myActivity, message + tip, Toast.LENGTH_LONG).show();
                 }else {
-                    View view = View.inflate(rBookDetailActivity.get(),R.layout.dialog_view,null);
+                    View view = View.inflate(myActivity,R.layout.dialog_view,null);
                     TextView tvFrom = view.findViewById(R.id.dialog_from);
                     tvFrom.setText(TAG);
                     TextView tvCode = view.findViewById(R.id.dialog_code);
@@ -133,7 +127,7 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
                     tvMessage.setText(message);
                     TextView tvTip = view.findViewById(R.id.dialog_tip);
                     tvTip.setText(tip);
-                    DialogUtil.showDialog(rBookDetailActivity.get(),view,false);
+                    DialogUtil.showDialog(myActivity,view,false);
                 }
             }
         }
@@ -143,39 +137,17 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityManager.getInstance().addActivity(this);
-        //判断传进来的id是否为空，若不为空则说明是查看书本详情
+        setContentView(R.layout.activity_r_book_detail);
+        // 判断传进来的id是否为空
         id = this.getIntent().getStringExtra("id");
-        if(id != null){
-            //发送获取书本详情的请求，获取书本详情
-            //获取token
-            UserManager userManager = UserManager.getInstance();
-            UserInfo userInfo = userManager.getUserInfo(this);
-            String token = userInfo.getToken();
-            //使用Map封装请求参数
-            HashMap<String, String> hashMap = new HashMap<>();
-            hashMap.put("id", id);
-            String url = HttpUtil.BASE_URL + "book/selectAllById";
-            // 拼接请求参数
-            StringBuffer buffer = new StringBuffer(url);
-            buffer.append('?');
-            for (HashMap.Entry<String, String> entry : hashMap.entrySet()) {
-                buffer.append(entry.getKey());
-                buffer.append('=');
-                buffer.append(entry.getValue());
-                buffer.append('&');
-            }
-            buffer.deleteCharAt(buffer.length() - 1);
-            url = buffer.toString();
-            HttpUtil.getRequest(token,url,this,GET_BOOK_DETAIL);
-            id = null;
-        }else {
-            DialogUtil.showDialog(this,"无法获取书本详情！",false);
+        if(id == null){
+            Toast.makeText(this,"无法获取书本详情！",Toast.LENGTH_SHORT).show();
             ActivityManager.getInstance().removeActivity(this);
             finish();
         }
-        setContentView(R.layout.activity_r_book_detail);
-        //组件初始化
-        tTitle = findViewById(R.id.bookDetail_title);
+        // 组件初始化
+        // 界面组件:标题，Id，名称，作者，Isbn，所属馆，馆藏地点，索书号，主题，详情，一级分类，二级分类，文献类型，出版社，出版日期，定价，热度，状态
+        TextView tTitle = findViewById(R.id.bookDetail_title);
         tTitle.setText("查看详情");
         tId = findViewById(R.id.bookId);
         tName = findViewById(R.id.bookName);
@@ -194,12 +166,12 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         tPrice = findViewById(R.id.bookPrice);
         tHot = findViewById(R.id.bookHot);
         tState = findViewById(R.id.bookState);
-        bBack = findViewById(R.id.bookDetail_back);
+        Button bBack = findViewById(R.id.bookDetail_back);
         bBack.setOnClickListener(view -> {
             ActivityManager.getInstance().removeActivity(this);
             finish();
         });
-        bReserve = findViewById(R.id.bookDetail_reserve);
+        Button bReserve = findViewById(R.id.bookDetail_reserve);
         bReserve.setOnClickListener(view -> {
             //发送预约请求
             //获取token
@@ -212,10 +184,105 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
             String url = HttpUtil.BASE_URL + "reservation/reserveBook";
             HttpUtil.postRequest(token,url,hashMap,this,RESERVE_BOOK);
         });
+        // 获取token
+        UserManager userManager = UserManager.getInstance();
+        UserInfo userInfo = userManager.getUserInfo(this);
+        String token = userInfo.getToken();
+        imagesOnlyReadAdapter = new ImagesOnlyReadAdapter(this,token,this);
+        recyclerView = findViewById(R.id.recyclerView);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
+        recyclerView.setAdapter(imagesOnlyReadAdapter);
+        recyclerView.setLayoutManager(gridLayoutManager);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(jsonObjectBookDetail == null){
+            // 发送获取书本详情的请求，获取书本详情
+            // 获取token
+            UserManager userManager = UserManager.getInstance();
+            UserInfo userInfo = userManager.getUserInfo(this);
+            String token = userInfo.getToken();
+            // 使用Map封装请求参数
+            HashMap<String, String> hashMap = new HashMap<>();
+            hashMap.put("id", id);
+            String url = HttpUtil.BASE_URL + "book/selectAllById";
+            url = HttpUtil.newUrl(url,hashMap);
+            HttpUtil.getRequest(token, url, this, GET_BOOK_DETAIL);
+        }else {
+            fillData();
+        }
+    }
+
+    private void fillData() {
+        try {
+            id = jsonObjectBookDetail.getString("id");
+            String s = "No." + id;
+            tId.setText(s);
+            tName.setText(jsonObjectBookDetail.getString("name"));
+            tAuthor.setText(jsonObjectBookDetail.getString("isbn"));
+            tIsbn.setText(jsonObjectBookDetail.getString("author"));
+            tLibrary.setText(jsonObjectBookDetail.getString("library"));
+            tLocation.setText(jsonObjectBookDetail.getString("location"));
+            tCallNumber.setText(jsonObjectBookDetail.getString("callNumber"));
+            tTheme.setText(jsonObjectBookDetail.getString("theme"));
+            tDesc.setText(jsonObjectBookDetail.getString("description"));
+            tType.setText(jsonObjectBookDetail.getString("typeName"));
+            tHouse.setText(jsonObjectBookDetail.getString("house"));
+            tHot.setText(jsonObjectBookDetail.getString("hot"));
+            tState.setText(jsonObjectBookDetail.getString("state"));
+            tPrice.setText(jsonObjectBookDetail.getString("price"));
+            JSONObject belong = new JSONObject(jsonObjectBookDetail.getString("classification"));
+            tFirst.setText(belong.getString("first"));
+            tThird.setText(belong.getString("third"));
+            String d = jsonObjectBookDetail.getString("date");
+            if (d == null || "null".equals(d) || "".equals(d)) {
+                tDate.setText(null);
+            } else {
+                long l = Long.parseLong(d);
+                Date date = new Date(l);
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                String tvDate = format.format(date);
+                tDate.setText(tvDate);
+            }
+            // 获取图片名，构造出获取图片的url
+            // 获取图片的基本url
+            String baseUrl = HttpUtil.BASE_URL + "book/getBookImage/";
+            String images = jsonObjectBookDetail.getString("images");
+            JSONArray jsonArray1 = jsonObjectBookDetail.getJSONArray("pictures");
+            if (jsonArray1 != null && jsonArray1.length() > 0) {
+                ArrayList<String> arrayList = new ArrayList<>();
+                for (int i = 0; i < jsonArray1.length(); i++) {
+                    String url = baseUrl + images + "/" + jsonArray1.get(i);
+                    arrayList.add(url);
+                }
+                imagesOnlyReadAdapter.setImageNameUrlList(arrayList);
+            }
+        } catch (JSONException e) {
+            Toast.makeText(this, "主线程解析数据时异常！", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onClickToShow(int position) {
+        Intent intent = new Intent(RBookDetailActivity.this, ShowPictureActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("TAG",TAG);
+        bundle.putParcelable("Adapter", imagesOnlyReadAdapter);
+        bundle.putInt("position",position);
+        intent.putExtras(bundle);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onClickToDelete(int position) {
+
     }
 
     @Override
     protected void onDestroy() {
+        id = null;
         ActivityManager.getInstance().removeActivity(this);
         super.onDestroy();
     }
@@ -232,9 +299,9 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
                     JSONObject jsonObject = new JSONObject(result);
                     String message = jsonObject.getString("message");
                     String tip = null;
-                    if(message.equals("查询成功！")){
+                    if("查询成功！".equals(message)){
                         tip = jsonObject.getString("tip");
-                        if(tip == null || tip.equals("null")){
+                        if(tip == null || "null".equals(tip)){
                             //查询成功，获取书籍数据，通知主线程渲染前端
                             jsonObjectBookDetail = jsonObject.getJSONObject("object");
                             myHandler.sendEmptyMessage(GET_BOOK_DETAIL_FILL);

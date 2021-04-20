@@ -1,5 +1,6 @@
 package com.example.ul.activity.librarian;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -54,19 +55,20 @@ public class LMainActivity extends AppCompatActivity implements CallbackTOMainAc
         return true;
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
             case R.id.menu_AddBook:
-                //打开书本详情活动
+                // 打开书本详情活动
                 Intent intent = new Intent(this, LBookDetailActivity.class);
                 startActivity(intent);
                 return true;
             case R.id.menu_AddReader:
-                //打开读者详情页面
+                // 打开读者详情页面
                 return true;
             case R.id.menu_Scan:
-                //打开读者详情页面
+                // 打开读者详情页面
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -32,6 +32,7 @@ import com.example.ul.util.HttpUtil;
 import com.example.ul.util.UserManager;
 import com.example.ul.view.MySearchView;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,12 +47,13 @@ import java.util.List;
 import okhttp3.Response;
 
 /**
- * @Author:Wallace
- * @Description:查阅图书的页面，管理员和读者可共享同一个页面（共享页面不加“L”和“R”的前缀）。
- * @Date:2021/3/9 20:29
+ * @Author: Wallace
+ * @Description: 查阅图书的页面，管理员和读者可共享同一个页面（共享页面不加“L”和“R”的前缀）。
+ * @Date: 2021/3/9 20:29
  * @Modified By:
  */
 public class BookFragment extends Fragment implements CallbackToBookFragment, HttpUtil.MyCallback , SearchCallback {
+    private static final String TAG = "BookFragment";
     //自定义消息代码
     /**未知请求*/
     private static final int UNKNOWN_REQUEST = 500;
@@ -66,14 +68,10 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
     /**获取书籍信息*/
     private static final int GET_BOOK_LIST = 502;
 
-    private static final String TAG = "BookFragment";
-
     /**服务器返回的所有书本的部分信息*/
     private JSONArray jsonArray;
     /**适配器*/
     private BookListAdapter adapter;
-    /**碎片的视图*/
-    private View rootView;
     /**搜索框*/
     private MySearchView mySearchView;
     /**“点击检索”文本框*/
@@ -91,7 +89,6 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
     private RecyclerView recyclerViewBookList;
     /**回调接口*/
     private CallbackTOMainActivity listClickedCallbackMain;
-
 
     static class MyHandler extends Handler {
         private final WeakReference<BookFragment> bookFragment;
@@ -126,11 +123,11 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
             }
         }
     }
+
     MyHandler myHandler = new MyHandler(new WeakReference(this));
 
-    //当该Fragment被添加、显示到Context时，回调该方法
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NotNull Context context) {
         super.onAttach(context);
         Log.i(TAG, "图书界面加载了 ");
         Log.i(TAG,"context:"+context);
@@ -148,11 +145,9 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle bundle) {
-
-        //获取当前界面视图
-        rootView = inflater.inflate(R.layout.book_manege,container,false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
+        // 获取当前界面视图
+        View rootView = inflater.inflate(R.layout.book_manege, container, false);
         mySearchView = rootView.findViewById(R.id.mySearchView);
         mySearchView.setSearchCallback(this);
         textView = rootView.findViewById(R.id.textSelect);
@@ -165,17 +160,17 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
         spinnerState = rootView.findViewById(R.id.state);
         spinnerBelong1 = rootView.findViewById(R.id.classification1);
         spinnerBelong2 = rootView.findViewById(R.id.classification2);
-        //获取视图中的读者列表
+        // 获取视图中的读者列表
         recyclerViewBookList = rootView.findViewById(R.id.recyclerBookList);
         recyclerViewBookList.setHasFixedSize(true);
         //为RecyclerView设置布局管理器
         recyclerViewBookList.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
-        //发送请求，获取要填充到列表中的内容
-        //获取token
+        // 发送请求，获取要填充到列表中的内容
+        // 获取token
         UserManager userManager = UserManager.getInstance();
         UserInfo userInfo = userManager.getUserInfo(getActivity());
         String token = userInfo.getToken();
-        //定义发送的URL
+        // 定义发送的URL
         String url = HttpUtil.BASE_URL + "book/getType";
         HttpUtil.getRequest(token, url, this, GET_TYPE);
         query();
@@ -186,17 +181,14 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
     public void onStart() {
         super.onStart();
     }
-
-    //综合所有条件查询所有书本的部分信息
+    /**
+     * @Author:Wallace
+     * @Description: 综合所有条件查询所有书本的部分信息
+     * @Date:Created in 13:22 2021/3/8
+     * @Modified By:
+     * @return: void
+     */
     private void query() {
-        /**
-         * @Author:Wallace
-         * @Description:
-         * @Date:Created in 13:22 2021/3/8
-         * @Modified By:
-         * @param
-         * @return: void
-         */
         //获取token
         UserManager userManager = UserManager.getInstance();
         UserInfo userInfo = userManager.getUserInfo(getActivity());
@@ -219,16 +211,16 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
             hashMap.put("first", belong1);
             hashMap.put("third", belong2);
             // 拼接请求参数
-            StringBuffer buffer = new StringBuffer(url);
-            buffer.append('?');
+            StringBuilder builder = new StringBuilder(url);
+            builder.append('?');
             for (HashMap.Entry<String, String> entry : hashMap.entrySet()) {
-                buffer.append(entry.getKey());
-                buffer.append('=');
-                buffer.append(entry.getValue());
-                buffer.append('&');
+                builder.append(entry.getKey());
+                builder.append('=');
+                builder.append(entry.getValue());
+                builder.append('&');
             }
-            buffer.deleteCharAt(buffer.length() - 1);
-            url = buffer.toString();
+            builder.deleteCharAt(builder.length() - 1);
+            url = builder.toString();
             Log.e(TAG, "url: "+ url );
             HttpUtil.getRequest(token, url, this, GET_BOOK_LIST);
         }
@@ -238,16 +230,14 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
     public void searchAction(String s) {
         queryString = s;
     }
-
+    /**
+     * @Author: Wallace
+     * @Description: 为各个Spinner填充信息及绑定选中事件
+     * @Date: Created in 8:32 2021/3/31
+     * @Modified By:
+     * @return: void
+     */
     private void fillSpinnerData(){
-        /**
-          @Author:Wallace
-         * @Description:为各个Spinner填充信息及绑定选中事件
-         * @Date:Created in 8:32 2021/3/31
-         * @Modified By:
-          * @param
-         * @return: void
-         */
         MySpinnerAdapter sASelectBy = new MySpinnerAdapter(getActivity(),jsonArraySelectBy);
         MySpinnerAdapter sAOrderBy = new MySpinnerAdapter(getActivity(),jsonArrayOrderBy);
         MySpinnerAdapter sALibrary = new MySpinnerAdapter(getActivity(),jsonArrayLibrary);
@@ -348,8 +338,15 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
         recyclerViewBookList.setHasFixedSize(true);
         //为RecyclerView设置布局管理器
         recyclerViewBookList.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
+        // 获取图片的基本url
+        String baseUrl = HttpUtil.BASE_URL + "book/getBookImage/";
+        // 获取token
+        UserManager userManager = UserManager.getInstance();
+        UserInfo userInfo = userManager.getUserInfo(getActivity());
+        String token = userInfo.getToken();
         //将服务器响应包装成Adapter
-        adapter = new BookListAdapter(getActivity(),jsonArray,"id","name","author","description","hot","state","theme","isbn","library",this);
+        adapter = new BookListAdapter(getActivity(),baseUrl,token,jsonArray,"id","name","author","description",
+                "hot","state","theme","isbn","library","images",this);
         recyclerViewBookList.setAdapter(adapter);
     }
 
@@ -404,7 +401,6 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
                                 String[] arrayStr = belong2.split(",");
                                 List<String> list = new ArrayList<String>(Arrays.asList(arrayStr));
                                 list.add("null");
-                                Log.e(TAG, "list: = " + list);
                                 belongs1.add(belong1);
                                 belongs2.add(list);
                             }
@@ -441,17 +437,16 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
         myHandler.sendEmptyMessage(REQUEST_FAIL);
         e.printStackTrace();
     }
-
+    /**
+     * @Author: Wallace
+     * @Description: 把书本的id返回给所在的主活动，让主活动开启另一个活动查看书本的详情
+     * @Date: Created in 9:06 2021/3/22
+     * @Modified By:
+     * @param id 书本的id
+     * @return: void
+     */
     @Override
     public void bookListClickPosition(String id) {
-        /**
-         * @Author:Wallace
-         * @Description:把书本的id返回给所在的主活动，让主活动开启另一个活动查看书本的详情
-         * @Date:Created in 9:06 2021/3/22
-         * @Modified By:
-          * @param id 书本的id
-         * @return: void
-         */
         //返回id给activity
         listClickedCallbackMain.clickToGetBookDetail(id);
     }

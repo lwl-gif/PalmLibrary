@@ -4,6 +4,7 @@
     <string name="state">状态</string>
     <string name="imageName">图片名</string>
     <string name="symbol">/</string>
+    <string name="math_0">0</string>
 
 
     <string name="welcome">欢迎使用移动图书管理系统</string>
@@ -20,7 +21,7 @@
     <string name="edit">编辑</string>
     <string name="cancel">取消</string>
     <string name="save">保存</string>
-    <string name="title">标题</string>
+    <string name="title">我的详情</string>
     <string name="reserve">一键预约</string>
     <string name="back">返回</string>
     <!--                                         -->
@@ -34,8 +35,11 @@
 
     <!--                                          -->
     <string name="auto_fill_l_bookId">书本号（id）系统自动生成</string>
+    <string name="bookTitle">书本详情</string>
     <string name="bookHot">热度:</string>
     <string name="bookState">状态:</string>
+    <string name="bookState1">状态</string>
+    <string name="bookStateAutoFill">在馆</string>
     <string name="bookId">No.</string>
     <string name="bookName">名称:</string>
     <string name="bookAuthor">作者:</string>
@@ -50,16 +54,17 @@
     <string name="bookType">文献类型:</string>
     <string name="bookHouse">出版社:</string>
     <string name="bookDate">出版日期:</string>
+    <string name="bookDateStandard">yyyy-MM-dd</string>
+    <string name="bookDateAutoFill">1970–01–01</string>
     <string name="bookPrice">定价(元):</string>
     <string name="chooseLibrary">请选择图书所属的书馆</string>
     <string name="chooseFirst">请选择图书的一级分类</string>
     <string name="chooseThird">请选择图书的二级分类</string>
     <string name="chooseType">请选择图书的文献类型</string>
-
-
+    <string name="emptyString">null</string>
+    <string name="bookPrice_0">0.00</string>
     <string name="auto_fill_readerId">系统自动生成</string>
     <string name="pay">需支付(元):</string>
-
 
     <!--                                          -->
     <string name="basic_information">基本信息</string>
@@ -84,6 +89,7 @@
     <string name="edit_basic_information">编辑基本信息</string>
     <string name="apply_reader_permission">申请借阅权限</string>
     <string name="delete_reader">删除读者信息</string>
+    <string name="reader_picture">图片信息</string>
 
 
     <string name="borrowTime">借阅时间</string>
@@ -143,5 +149,7 @@
     <string name="buttonUpdate">刷新</string>
     <string name="closeAccount">注销账户</string>
     <string name="show_picture">查看图片</string>
+
+
 
 </resources>

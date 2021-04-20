@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/orange"
-    tools:context=".activity.ReaderDetailActivity">
+    tools:context=".activity.reader.main.activity.RReaderDetailActivity">
 
     <TextView
         android:id="@+id/readerDetail_title"
@@ -34,37 +34,17 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/abc_vector_test" />
 
-    <Button
-        android:id="@+id/button_delete_reader"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginBottom="5dp"
-        android:padding="5dp"
-        android:text="@string/delete_reader"
-        android:visibility="visible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/readerDetail_title"
-        app:layout_constraintVertical_bias="0.0" />
-
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginEnd="2dp"
         android:background="#EDEACF"
         app:layout_constraintBottom_toTopOf="@id/button_quitAndClean"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_delete_reader"
+        app:layout_constraintTop_toBottomOf="@+id/readerDetail_title"
         app:layout_constraintVertical_bias="0.0">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -568,15 +548,40 @@
                 app:layout_constraintStart_toEndOf="@+id/textView69"
                 app:layout_constraintTop_toTopOf="@+id/textView69" />
 
-            <com.example.ul.view.PictureSelectViewGroup
-                android:id="@+id/pictureSelectViewGroup"
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
+            <!--图片信息-->
+            <TextView
+                android:id="@+id/title_picture"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@color/teal_200"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="@string/reader_picture"
+                android:textColor="@color/blue"
+                android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textView69"
+                app:layout_constraintTop_toBottomOf="@+id/readerType"
                 app:layout_constraintVertical_bias="0.0" />
+
+            <ScrollView
+                android:id="@+id/scrollView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/title_picture"
+                app:layout_constraintVertical_bias="0.0">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </ScrollView>
 
             <Button
                 android:id="@+id/button_apply_reader_permission"
@@ -588,7 +593,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/pictureSelectViewGroup"
+                app:layout_constraintTop_toBottomOf="@id/scrollView2"
                 app:layout_constraintVertical_bias="0.0" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -604,10 +609,20 @@
         android:text="@string/quitAndClean"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_delete_reader"
+        app:layout_constraintTop_toBottomOf="@+id/readerDetail_title"
+        app:layout_constraintStart_toEndOf="@id/button_delete"
         app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/button_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:text="@string/closeAccount"
+        app:layout_constraintBottom_toBottomOf="@+id/button_quitAndClean"
+        app:layout_constraintEnd_toStartOf="@+id/button_quitAndClean"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/button_quitAndClean" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
