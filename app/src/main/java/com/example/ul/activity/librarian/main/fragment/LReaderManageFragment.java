@@ -202,7 +202,7 @@ public class LReaderManageFragment extends Fragment implements CallbackToLReader
      */
     private void query() {
         // 获取当前的查询方式，排序方式以及读者类别（全部，已审核，未审核，待审核）
-
+        String i = null;
     }
 
     private void fill() {
