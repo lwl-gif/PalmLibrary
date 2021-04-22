@@ -189,18 +189,18 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
      * @return: void
      */
     private void query() {
-        //获取token
-        UserManager userManager = UserManager.getInstance();
-        UserInfo userInfo = userManager.getUserInfo(getActivity());
-        String token = userInfo.getToken();
-        //定义发送的URL
-        String url = HttpUtil.BASE_URL + "book/selectSome";
         if("".equals(queryString)){
             queryString = "null";
         }
         if(!"null".equals(selectBy)&& "null".equals(queryString)){
             DialogUtil.showDialog(getActivity(),"当指定了检索方式时，检索内容不能为空。",false);
         }else {
+            //获取token
+            UserManager userManager = UserManager.getInstance();
+            UserInfo userInfo = userManager.getUserInfo(getActivity());
+            String token = userInfo.getToken();
+            //定义发送的URL
+            String url = HttpUtil.BASE_URL + "book/selectSome";
             //使用Map封装请求参数
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put("queryString", queryString);
@@ -238,14 +238,14 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
      * @return: void
      */
     private void fillSpinnerData(){
-        MySpinnerAdapter sASelectBy = new MySpinnerAdapter(getActivity(),jsonArraySelectBy);
-        MySpinnerAdapter sAOrderBy = new MySpinnerAdapter(getActivity(),jsonArrayOrderBy);
-        MySpinnerAdapter sALibrary = new MySpinnerAdapter(getActivity(),jsonArrayLibrary);
-        MySpinnerAdapter sAState = new MySpinnerAdapter(getActivity(),jsonArrayState);
-        spinnerSelectBy.setAdapter(sASelectBy);
-        spinnerOrderBy.setAdapter(sAOrderBy);
-        spinnerLibrary.setAdapter(sALibrary);
-        spinnerState.setAdapter(sAState);
+        MySpinnerAdapter adapterSelectBy = new MySpinnerAdapter(getActivity(),jsonArraySelectBy);
+        MySpinnerAdapter adapterOrderBy = new MySpinnerAdapter(getActivity(),jsonArrayOrderBy);
+        MySpinnerAdapter adapterLibrary = new MySpinnerAdapter(getActivity(),jsonArrayLibrary);
+        MySpinnerAdapter adapterState = new MySpinnerAdapter(getActivity(),jsonArrayState);
+        spinnerSelectBy.setAdapter(adapterSelectBy);
+        spinnerOrderBy.setAdapter(adapterOrderBy);
+        spinnerLibrary.setAdapter(adapterLibrary);
+        spinnerState.setAdapter(adapterState);
         MySpinnerBelongAdapter mySpinnerBelongAdapter = new MySpinnerBelongAdapter(getActivity(),belongs1);
         spinnerBelong1.setAdapter(mySpinnerBelongAdapter);
         //绑定事件

@@ -28,7 +28,7 @@
         android:layout_height="wrap_content"
         android:background="#FFFFFF"
         android:gravity="center"
-        android:text="过期记录"
+        android:text="@string/expiredRecord"
         android:textColor="#E91E63"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -56,7 +56,7 @@
         android:layout_height="wrap_content"
         android:background="#FFFFFF"
         android:gravity="center"
-        android:text="当前借阅"
+        android:text="@string/nowBorrow"
         android:textColor="#E91E63"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -82,7 +82,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="点击检索"
+        android:text="@string/clickToCheck"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="@+id/mySearchView"
         app:layout_constraintEnd_toEndOf="parent"
@@ -106,21 +106,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="当前借阅" />
+            android:text="@string/nowBorrow" />
 
         <CheckBox
             android:id="@+id/checkBox2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="当前预约" />
+            android:text="@string/nowReserve" />
 
         <CheckBox
             android:id="@+id/checkBox3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="过期记录" />
+            android:text="@string/expiredRecord" />
 
     </LinearLayout>
 
@@ -130,7 +130,7 @@
         android:layout_height="wrap_content"
         android:background="#FFFFFF"
         android:gravity="center"
-        android:text="当前预约"
+        android:text="@string/nowReserve"
         android:textColor="#E91E63"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"

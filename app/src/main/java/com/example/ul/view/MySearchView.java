@@ -1,5 +1,6 @@
 package com.example.ul.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -21,30 +22,27 @@ import com.example.ul.callback.SearchCallback;
 import com.example.ul.util.RecordSQLiteOpenHelper;
 
 /**
- * @Author:Wallace
+ * @Author: Wallace
  * @Description:
- * @Date:2021/3/5 16:54
+ * @Date: 2021/3/5 16:54
  * @Modified By:
  */
 public class MySearchView extends LinearLayout{
-    /**
-     * 初始化成员变量
-     */
-    // 搜索框布局
+    /**搜索框布局*/
     private LinearLayout search_block;
-    // //搜索框
+    /**搜索框*/
     private SearchView et_search;
-    //清空搜索记录按钮
+    /**清空搜索记录按钮*/
     private Button btn_clear;
-    // 搜索按键回调接口
+    /**搜索按键回调接口*/
     private SearchCallback searchCallback;
-    // 用于存放历史搜索记录
+    /**用于存放历史搜索记录*/
     private RecordSQLiteOpenHelper helper ;
     private SQLiteDatabase db;
-    // ListView列表 & 适配器
+    /**ListView列表 & 适配器*/
     private Search_ListView listView;
     private BaseAdapter adapter;
-    //上下文
+    /**上下文*/
     private Context context;
 
     public MySearchView(Context context){
@@ -88,32 +86,25 @@ public class MySearchView extends LinearLayout{
         et_search.setQueryHint("输入关键字搜索");
         //历史搜索记录
         listView = (Search_ListView) rootView.findViewById(R.id.listView);
-        /**
-         * 搜索记录列表（ListView）监听
-         * 即当用户点击搜索历史里的字段后,会直接将结果当作搜索字段进行搜索
-         */
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // 获取用户点击列表里的文字,并自动填充到搜索框内
-                TextView textView = (TextView) view.findViewById(android.R.id.text1);
-                String name = textView.getText().toString();
-                et_search.setQuery(name,true);
-                Toast.makeText(context, name, Toast.LENGTH_SHORT).show();
-            }
+         // 搜索记录列表（ListView）监听,即当用户点击搜索历史里的字段后,会直接将结果当作搜索字段进行搜索
+        listView.setOnItemClickListener((AdapterView.OnItemClickListener) (parent, view, position, id) -> {
+            // 获取用户点击列表里的文字,并自动填充到搜索框内
+            TextView textView = (TextView) view.findViewById(android.R.id.text1);
+            String name = textView.getText().toString();
+            et_search.setQuery(name,true);
+            Toast.makeText(context, name, Toast.LENGTH_SHORT).show();
         });
         // 5. 删除历史搜索记录 按钮
         btn_clear = (Button) rootView.findViewById(R.id.tv_clear);
-        btn_clear.setVisibility(GONE); // 初始状态 = 隐藏
+        // 初始状态 = 隐藏
+        btn_clear.setVisibility(GONE);
         btn_clear.setOnClickListener(view -> {
-                // 清空数据库->>关注2
-                deleteData();
-                // 模糊搜索空字符 = 显示所有的搜索历史（此时是没有搜索记录的） & 显示该按钮的条件->>关注3
-                queryData("");
+            // 清空数据库->>关注2
+            MySearchView.this.deleteData();
+            // 模糊搜索空字符 = 显示所有的搜索历史（此时是没有搜索记录的） & 显示该按钮的条件->>关注3
+            MySearchView.this.queryData("");
         });
-        /**
-         * 搜索框的文本变化实时监听
-         */
+        // 搜索框的文本变化实时监听
         et_search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -126,34 +117,25 @@ public class MySearchView extends LinearLayout{
                 // 注：若搜索框为空,则模糊搜索空字符 = 显示所有的搜索历史
                 String tempName = et_search.getQuery().toString();
                 queryData(tempName); // ->>关注1
+                // 根据输入的搜索字段进行查询
+                if (searchCallback != null){
+                    searchCallback.searchAction(et_search.getQuery().toString().trim());
+                }
                 return true;
             }
         });
-        /**
-         * 监听输入键盘更换后的搜索按键
-         * 调用时刻：点击键盘上的搜索键时
-         */
-        et_search.setOnKeyListener(new OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
-
-                    // 1. 点击搜索按键后，根据输入的搜索字段进行查询
-                    // 注：由于此处需求会根据自身情况不同而不同，所以具体逻辑由开发者自己实现，此处仅留出接口
-                    if (!(searchCallback == null)){
-                        searchCallback.searchAction(et_search.getQuery().toString().trim());
-                    }
-                    Toast.makeText(context, "需要搜索的是" + et_search.getQuery(), Toast.LENGTH_SHORT).show();
-                    // 2. 点击搜索键后，对该搜索字段在数据库是否存在进行检查（查询）->> 关注3
-                    boolean hasData = hasData(et_search.getQuery().toString().trim());
-                    // 3. 若存在，则不保存；若不存在，则将该搜索字段保存（插入）到数据库，并作为历史搜索记录
-                    if (!hasData) {
-                        insertData(et_search.getQuery().toString().trim()); // ->>关注4
-                        queryData("");
-                    }
+        // 监听输入键盘更换后的搜索按键,调用时刻：点击键盘上的搜索键时
+        et_search.setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+                // 1. 点击搜索键后，对该搜索字段在数据库是否存在进行检查（查询）->> 关注3
+                boolean hasData = hasData(et_search.getQuery().toString().trim());
+                // 2. 若存在，则不保存；若不存在，则将该搜索字段保存（插入）到数据库，并作为历史搜索记录
+                if (!hasData) {
+                    insertData(et_search.getQuery().toString().trim()); // ->>关注4
+                    queryData("");
                 }
-                return false;
             }
+            return false;
         });
     }
     /**
@@ -170,9 +152,9 @@ public class MySearchView extends LinearLayout{
         // 3. 设置适配器
         listView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-        System.out.println(cursor.getCount());
+//        System.out.println(cursor.getCount());
         // 当输入框为空 & 数据库中有搜索记录时，显示 "删除搜索记录"按钮
-        if (tempName.equals("") && cursor.getCount() != 0){
+        if ("".equals(tempName) && cursor.getCount() != 0){
             btn_clear.setVisibility(VISIBLE);
         }
         else {
@@ -195,7 +177,7 @@ public class MySearchView extends LinearLayout{
      */
     private boolean hasData(String tempName) {
         // 从数据库中Record表里找到name=tempName的id
-        Cursor cursor = helper.getReadableDatabase().rawQuery(
+        @SuppressLint("Recycle") Cursor cursor = helper.getReadableDatabase().rawQuery(
                 "select id as _id,name from records where name =?", new String[]{tempName});
         //  判断是否有下一个
         return cursor.moveToNext();

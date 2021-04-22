@@ -30,9 +30,6 @@ public class RMainActivity extends AppCompatActivity implements CallbackTOMainAc
         viewPager.setAdapter(rMainActivityPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
-
-
-
     }
 
     @Override

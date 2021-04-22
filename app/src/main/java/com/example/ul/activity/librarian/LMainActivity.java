@@ -8,8 +8,7 @@ import android.view.MenuItem;
 
 import com.example.ul.R;
 import com.example.ul.activity.librarian.main.activity.LBookDetailActivity;
-import com.example.ul.activity.reader.main.RMainActivity;
-import com.example.ul.activity.reader.main.activity.RBookDetailActivity;
+import com.example.ul.activity.librarian.main.activity.LReaderDetailActivity;
 import com.example.ul.callback.CallbackTOMainActivity;
 import com.example.ul.util.ActivityManager;
 import com.google.android.material.navigation.NavigationView;
@@ -31,7 +30,6 @@ public class LMainActivity extends AppCompatActivity implements CallbackTOMainAc
         super.onCreate(savedInstanceState);
         ActivityManager.getInstance().addActivity(this);
         setContentView(R.layout.activity_l_main);
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -68,7 +66,7 @@ public class LMainActivity extends AppCompatActivity implements CallbackTOMainAc
                 // 打开读者详情页面
                 return true;
             case R.id.menu_Scan:
-                // 打开读者详情页面
+                // 打开扫码活动
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -89,7 +87,9 @@ public class LMainActivity extends AppCompatActivity implements CallbackTOMainAc
 
     @Override
     public void clickToGetReaderDetail(String id) {
-
+        Intent intent = new Intent(LMainActivity.this, LReaderDetailActivity.class);
+        intent.putExtra("readerId",id);
+        startActivity(intent);
     }
 
     @Override

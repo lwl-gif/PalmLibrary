@@ -6,7 +6,6 @@
     <string name="symbol">/</string>
     <string name="math_0">0</string>
 
-
     <string name="welcome">欢迎使用移动图书管理系统</string>
     <string name="welcome1">掌上图书馆带您享受极致阅读体验</string>
     <string name="register">注册新用户</string>
@@ -21,9 +20,10 @@
     <string name="edit">编辑</string>
     <string name="cancel">取消</string>
     <string name="save">保存</string>
-    <string name="title">我的详情</string>
+    <string name="myDetail">我的详情</string>
     <string name="reserve">一键预约</string>
     <string name="back">返回</string>
+    <string name="readerDetail">读者详情</string>
     <!--                                         -->
     <string name="personalInfo">个人信息</string>
     <string name="reader_manage">读者管理</string>
@@ -149,7 +149,23 @@
     <string name="buttonUpdate">刷新</string>
     <string name="closeAccount">注销账户</string>
     <string name="show_picture">查看图片</string>
-
+    <string name="clickToCheck">点击检索</string>
+    <string name="allReaderType">全部</string>
+    <string name="checkedReader">已审核</string>
+    <string name="uncheckedReader">未审核</string>
+    <string name="checkingReader">待审核</string>
+    <string name="orderBy">排序方式:</string>
+    <string name="selectBy">查询方式:</string>
+    <string name="expiredRecord">过期记录</string>
+    <string name="nowBorrow">当前借阅</string>
+    <string name="nowReserve">当前预约</string>
+    <string name="readerAmountAutoFill">18</string>
+    <string name="readerAmountHint">请给他设置一个初始借阅量</string>
+    <string name="readerCreditAutoFill">100</string>
+    <string name="readerCreditHint">请给他设置一个初始信誉分</string>
+    <string name="readerTermHint">格式：1970–01–01</string>
+    <string name="checkOk">审核通过</string>
+    <string name="checkNo">审核不通过</string>
 
 
 </resources>

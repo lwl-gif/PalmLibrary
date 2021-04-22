@@ -72,21 +72,20 @@ public class HttpUtil {
                     return cookies == null ? new ArrayList<>() : cookies;
                 }
             })
-            .connectTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(10, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .build();
-
+    /**
+     * @Author: Wallace
+     * @Description: 发送GET和DELETE请求时，url拼接参数形成新的url
+     * @Date: Created in 22:27 2021/4/1
+     * @Modified By:
+     * @param url  请求地址
+     * @param hashMap   请求原本要携带的参数
+     * @return: java.lang.String    新的url
+     */
     public static String newUrl(String url, HashMap<String, String> hashMap) {
-        /**
-         * @Author:Wallace
-         * @Description:发送GET和DELETE请求时，url拼接参数形成新的url
-         * @Date:Created in 22:27 2021/4/1
-         * @Modified By:
-         * @param url  请求地址
-         * @param hashMap   请求原本要携带的参数
-         * @return: java.lang.String    新的url
-         */
         // 拼接请求参数
         StringBuilder buffer = new StringBuilder(url);
         buffer.append('?');

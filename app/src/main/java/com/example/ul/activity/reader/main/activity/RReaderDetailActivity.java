@@ -220,10 +220,10 @@ public class RReaderDetailActivity extends AppCompatActivity implements HttpUtil
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityManager.getInstance().addActivity(this);
-        setContentView(R.layout.activity_reader_detall);
+        setContentView(R.layout.activity_r_reader_detall);
         ButterKnife.bind(this);
         rdTitle.setText("我的详情");
-        //获取token
+        // 获取token
         UserManager userManager = UserManager.getInstance();
         UserInfo userInfo = userManager.getUserInfo(this);
         String token = userInfo.getToken();
@@ -232,7 +232,7 @@ public class RReaderDetailActivity extends AppCompatActivity implements HttpUtil
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         recyclerView.setAdapter(imagesAdapter);
         recyclerView.setLayoutManager(gridLayoutManager);
-        //返回按钮绑定返回事件
+        // 返回按钮绑定返回事件
         buttonBack.setOnClickListener(view -> {
             finish();
         });
@@ -241,11 +241,11 @@ public class RReaderDetailActivity extends AppCompatActivity implements HttpUtil
     @Override
     protected void onStart() {
         super.onStart();
-        //屏幕亮起时开始初始化
+        // 屏幕亮起时开始初始化
         init();
         if(jsonObject == null || jsonObject.length()<0) {
-            //发送请求
-            //获取token
+            // 发送请求
+            // 获取token
             UserManager userManager = UserManager.getInstance();
             UserInfo userInfo = userManager.getUserInfo(this);
             String token = userInfo.getToken();
