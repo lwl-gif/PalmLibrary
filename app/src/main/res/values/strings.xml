@@ -166,6 +166,17 @@
     <string name="readerTermHint">格式：1970–01–01</string>
     <string name="checkOk">审核通过</string>
     <string name="checkNo">审核不通过</string>
-
-
+    <string name="whichLibrary">指定书馆：</string>
+    <string name="whichSelectBy">指定检索：</string>
+    <string name="whichState">指定状态：</string>
+    <string name="whichType">图书分类：</string>
+    <string name="whichOrderBy">排序方式：</string>
+    <!--                 Zxing                     -->
+    <string name="msg_camera_framework_bug">相机被占用或没有相机权限，请检查</string>
+    <string name="button_ok">退出</string>
+    <string name="scan_code">扫一扫</string>
+    <string name="open_flash">打开手电筒</string>
+    <string name="close_flash">关闭手电筒</string>
+    <string name="gallery">相册</string>
+    <string name="scan_failed_tip">图片解析失败，换个图片试试.</string>
 </resources>

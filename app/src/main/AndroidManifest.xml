@@ -3,14 +3,34 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.ul">
 
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- 获取网络权限 -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" /> <!-- 获取网络信息状态，如当前的网络连接是否有效 -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- 允许程序读取、写入外部存储，如SD卡上读、写文件 -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" />
+
+    <!--  APP需要权限：
+    1.相机权限
+    2.闪光灯权限
+    3.震动权限
+    4.允许使用PowerManager的 WakeLocks保持进程在休眠时从屏幕消失
+    5.读外部存储权限
+    6.写外部存储权限
+    7.获取网络权限
+    8.获取网络信息状态，如当前的网络连接是否有效
+    9.允许程序读取、写入外部存储，如SD卡上读、写文件
+    -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!--  硬件权限：
+        1.相机设备
+        2.自动对焦
+        -->
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
         android:allowBackup="true"
@@ -30,6 +50,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".myscan.android.CaptureActivity"/>
         <activity android:name=".activity.ForgetPasswordActivity" />
         <activity android:name=".activity.LoginActivity" />
         <activity android:name=".activity.RegisterActivity" />
@@ -43,6 +64,7 @@
             android:label="@string/title_activity_r_main"
             android:theme="@style/Theme.MyApplication1.NoActionBar" />
         <activity android:name=".activity.reader.main.activity.RBookDetailActivity" />
+
     </application>
 
 </manifest>
