@@ -1,5 +1,6 @@
 package com.example.ul.util;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -8,9 +9,13 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
+
 import com.example.ul.R;
 import com.example.ul.activity.LoginActivity;
 import com.example.ul.adapter.ImagesAdapter;
+import com.example.ul.fragment.BookFragment;
+import com.example.ul.librarian.LMainActivity;
 
 
 public class DialogUtil {
@@ -107,6 +112,19 @@ public class DialogUtil {
             }
         });
         //参数都设置完成了，创建并显示出来
+        builder.create().show();
+    }
+
+    /**定义一个显示消息的对话框*/
+    public static void showDialog(Activity activity, String msg, boolean finishActivity) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity).setMessage(msg).setCancelable(false);
+        if (finishActivity) {
+            builder.setPositiveButton("确定", (dialog, which) -> {
+                activity.finish();
+            });
+        } else {
+            builder.setPositiveButton("确定", null);
+        }
         builder.create().show();
     }
 }

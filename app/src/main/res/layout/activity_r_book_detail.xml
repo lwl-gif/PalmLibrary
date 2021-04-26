@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#EDEACF"
-    tools:context=".activity.reader.main.activity.RBookDetailActivity">
+    tools:context=".reader.main.activity.RBookDetailActivity">
     
     <TextView
         android:id="@+id/bookDetail_title"

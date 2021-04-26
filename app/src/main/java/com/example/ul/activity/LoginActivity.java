@@ -13,8 +13,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import com.example.ul.R;
-import com.example.ul.activity.librarian.LMainActivity;
-import com.example.ul.activity.reader.main.RMainActivity;
+import com.example.ul.librarian.LMainActivity;
+import com.example.ul.reader.main.RMainActivity;
 import com.example.ul.model.UserInfo;
 import com.example.ul.util.ActivityManager;
 import com.example.ul.util.DialogUtil;

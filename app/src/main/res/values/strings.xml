@@ -131,6 +131,8 @@
     <string name="scan">扫一扫</string>
     <string name="feedback">反馈建议</string>
     <string name="aboutUs">关于我们</string>
+    <string name="bookList">书籍列表</string>
+    <string name="delete">删除</string>
 
     <string name="l_tab_text_1">公告管理</string>
     <string name="l_tab_text_2">缴费处理</string>
@@ -179,4 +181,9 @@
     <string name="close_flash">关闭手电筒</string>
     <string name="gallery">相册</string>
     <string name="scan_failed_tip">图片解析失败，换个图片试试.</string>
+
+    <string name="returnBook">还书</string>
+    <string name="borrowBook">借书</string>
+
+
 </resources>

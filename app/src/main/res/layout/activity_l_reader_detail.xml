@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/orange"
-    tools:context=".activity.librarian.main.activity.LReaderDetailActivity">
+    tools:context=".librarian.main.activity.LReaderDetailActivity">
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"

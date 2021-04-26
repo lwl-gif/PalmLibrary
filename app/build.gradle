@@ -31,12 +31,14 @@ android {
 dependencies {
     implementation 'com.jakewharton:butterknife:10.0.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
-    //图片选择器架包
+    // 图片选择器架包
     implementation 'com.github.LuckSiege.PictureSelector:picture_library:v2.2.4'
-    //二维码支持包
+    // 二维码支持包
     implementation 'com.google.zxing:core:3.3.0'
     implementation 'com.google.zxing:javase:3.3.0'
-    
+    // 具有左滑删除功能的recyclerView
+    implementation 'com.yanzhenjie:recyclerview-swipe:1.0.0'
+
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'

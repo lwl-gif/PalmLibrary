@@ -7,8 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -30,7 +28,7 @@ import org.json.JSONException;
  * @Date: 2021/3/10 11:21
  * @Modified By:
  */
-public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHolder> {
+public class BookListAdapter extends RecyclerView.Adapter<BookViewHolder> {
     private final String TAG = "BookListAdapter";
     private Context context;
     /**
@@ -50,7 +48,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
     private final String isbn;
     private final String library;
     private final String images;
-    // 列表项单击事件回调接口
+    /**列表项单击事件回调接口*/
     private final CallbackToBookFragment callbackToBookFragment;
     protected final RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.placeholder1).centerCrop().error(R.drawable.error1);
     String state1 = "在馆";
@@ -79,15 +77,14 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
 
     @NotNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
+    public BookViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.book,viewGroup,false);
-        return new ViewHolder(view);
+        return new BookViewHolder(view);
     }
 
     @SuppressLint("ResourceAsColor")
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        //获取JSONArray数组元素的id,name,age,department,classroom属性
+    public void onBindViewHolder(@NonNull BookViewHolder holder, int position) {
         try {
             // 从数据源中取值
             String itemId = jsonArray.optJSONObject(holder.getLayoutPosition()).getString(id);
@@ -139,6 +136,7 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
         } catch (JSONException e) {
             Log.e(TAG, "onBindViewHolder: 列表"+holder.getLayoutPosition()+"项绑定数据时异常");
         }
+        holder.bookRoot.setOnClickListener(view -> callbackToBookFragment.bookListClickPosition(holder.id.getText().toString().trim()));
     }
 
     @Override
@@ -147,37 +145,5 @@ public class BookListAdapter extends RecyclerView.Adapter<BookListAdapter.ViewHo
             return 0;
         }
         return jsonArray.length();
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder{
-
-        private TextView id;
-        private TextView name;
-        private TextView author;
-        private TextView description;
-        private TextView hot;
-        private TextView state;
-        private TextView theme;
-        private TextView isbn;
-        private TextView library;
-        private ImageView bookImage;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-            id = itemView.findViewById(R.id.bookId);
-            name = itemView.findViewById(R.id.bookName);
-            author = itemView.findViewById(R.id.bookAuthor);
-            description = itemView.findViewById(R.id.bookDescription);
-            hot = itemView.findViewById(R.id.bookHot);
-            state = itemView.findViewById(R.id.bookState);
-            theme = itemView.findViewById(R.id.bookTheme);
-            isbn = itemView.findViewById(R.id.bookIsbn);
-            library = itemView.findViewById(R.id.bookLibrary);
-            bookImage = itemView.findViewById(R.id.imageView);
-            //readerListClickedCallback，则为列表项绑定单击事件监听器
-            if(callbackToBookFragment!=null){
-                itemView.findViewById(R.id.boot_root).setOnClickListener(view -> callbackToBookFragment.bookListClickPosition(id.getText().toString().trim()));
-            }
-        }
     }
 }

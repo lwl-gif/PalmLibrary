@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/nav_main"
-        android:name="com.example.ul.activity.librarian.main.LMainFragment"
+        android:name="com.example.ul.librarian.main.LMainFragment"
         android:label="@string/menu_main"
         tools:layout="@layout/fragment_l_main" />
 
     <fragment
         android:id="@+id/nav_myself"
-        android:name="com.example.ul.activity.librarian.person.LPersonManageFragment"
+        android:name="com.example.ul.librarian.person.LPersonManageFragment"
         android:label="@string/menu_myself"
         tools:layout="@layout/activity_l_person_detail" />
 
     <fragment
         android:id="@+id/nav_setting"
-        android:name="com.example.ul.activity.librarian.setting.SettingFragment"
+        android:name="com.example.ul.librarian.setting.SettingFragment"
         android:label="@string/menu_setting"
         tools:layout="@layout/fragment_slideshow" />
 

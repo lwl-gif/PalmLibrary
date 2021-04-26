@@ -1,11 +1,10 @@
 package com.example.ul.fragment;
 
-import android.app.Dialog;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +23,7 @@ import com.example.ul.adapter.BookListAdapter;
 import com.example.ul.adapter.MySpinnerAdapter;
 import com.example.ul.adapter.MySpinnerBelongAdapter;
 import com.example.ul.callback.CallbackToBookFragment;
-import com.example.ul.callback.CallbackTOMainActivity;
+import com.example.ul.callback.CallbackToMainActivity;
 import com.example.ul.callback.SearchCallback;
 import com.example.ul.model.UserInfo;
 import com.example.ul.util.DialogUtil;
@@ -88,7 +87,7 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
     /**图书列表*/
     private RecyclerView recyclerViewBookList;
     /**回调接口*/
-    private CallbackTOMainActivity listClickedCallbackMain;
+    private CallbackToMainActivity listClickedCallbackMain;
 
     static class MyHandler extends Handler {
         private final WeakReference<BookFragment> bookFragment;
@@ -129,14 +128,12 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
     @Override
     public void onAttach(@NotNull Context context) {
         super.onAttach(context);
-        Log.i(TAG, "图书界面加载了 ");
-        Log.i(TAG,"context:"+context);
         //如果Context没有实现callback,ListClickedCallback接口，则抛出异常
-        if (!(context instanceof CallbackTOMainActivity)) {
+        if (!(context instanceof CallbackToMainActivity)) {
             throw new IllegalStateException("BookFragment所在的Context必须实现CallbackTOMainActivity接口");
         }
         //把该Context当初listClickedCallback对象
-        listClickedCallbackMain = (CallbackTOMainActivity) context;
+        listClickedCallbackMain = (CallbackToMainActivity) context;
     }
 
     @Override
@@ -182,9 +179,9 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
         super.onStart();
     }
     /**
-     * @Author:Wallace
+     * @Author: Wallace
      * @Description: 综合所有条件查询所有书本的部分信息
-     * @Date:Created in 13:22 2021/3/8
+     * @Date: Created in 13:22 2021/3/8
      * @Modified By:
      * @return: void
      */
@@ -210,18 +207,7 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
             hashMap.put("state", state);
             hashMap.put("first", belong1);
             hashMap.put("third", belong2);
-            // 拼接请求参数
-            StringBuilder builder = new StringBuilder(url);
-            builder.append('?');
-            for (HashMap.Entry<String, String> entry : hashMap.entrySet()) {
-                builder.append(entry.getKey());
-                builder.append('=');
-                builder.append(entry.getValue());
-                builder.append('&');
-            }
-            builder.deleteCharAt(builder.length() - 1);
-            url = builder.toString();
-            Log.e(TAG, "url: "+ url );
+            url = HttpUtil.newUrl(url,hashMap);
             HttpUtil.getRequest(token, url, this, GET_BOOK_LIST);
         }
     }

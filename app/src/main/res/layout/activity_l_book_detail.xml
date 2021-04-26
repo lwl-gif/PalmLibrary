@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#EDEACF"
-    tools:context=".activity.librarian.main.activity.LBookDetailActivity">
+    tools:context=".librarian.main.activity.LBookDetailActivity">
 
     <TextView
         android:id="@+id/l_bookDetail_title"
