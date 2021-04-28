@@ -15,4 +15,8 @@ public interface CallbackToBorrowBookActivity {
      * 单击删除书本时
      */
     void onClickToDeleteBook(int position);
+    /**
+     * 需要改变可借阅量时
+     */
+    void changeAmount(int amount);
 }

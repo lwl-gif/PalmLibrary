@@ -1,17 +1,15 @@
 package com.example.ul.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
-
+import com.alibaba.fastjson.JSONArray;
 import com.example.ul.R;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 
 /**
  * @Author:Wallace
@@ -23,7 +21,7 @@ public class MySpinnerAdapter extends BaseAdapter {
 
     private final String TAG = "MySpinnerAdapter";
     private Context context;
-    //定义需要包装的JSONArray对象
+    /**定义需要包装的JSONArray对象*/
     private JSONArray jsonArray;
 
     public MySpinnerAdapter(Context context, JSONArray jsonArray){
@@ -33,18 +31,12 @@ public class MySpinnerAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return jsonArray.length();
+        return jsonArray.size();
     }
 
     @Override
     public Object getItem(int i) {
-        Object object = null;
-        try {
-            object = jsonArray.get(i);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return object;
+        return jsonArray.get(i);
     }
 
     @Override
@@ -52,20 +44,15 @@ public class MySpinnerAdapter extends BaseAdapter {
         return 0;
     }
 
+    @SuppressLint("InflateParams")
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        if(view == null)
-        {
+        if(view == null) {
             view = layoutInflater.inflate(R.layout.spinner_item, null);
         }
         TextView textView = (TextView)view.findViewById(R.id.s_item);
-        try {
-            textView.setText(jsonArray.getString(i));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Toast.makeText(context,"数据解析异常.",Toast.LENGTH_SHORT);
-        }
+        textView.setText(jsonArray.getString(i));
         return view;
     }
 }

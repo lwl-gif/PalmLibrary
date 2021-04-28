@@ -121,14 +121,6 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter implements Parcelable {
         }
     };
 
-    public ArrayList<String> getGlideLoad() {
-        return glideLoad;
-    }
-
-    public ArrayList<LocalMedia> getSelectList() {
-        return selectList;
-    }
-
     public void setSelectList(ArrayList<LocalMedia> selectList) {
         setDeleting(false);
         int index = this.imageNameUrlList.size() + this.selectList.size();

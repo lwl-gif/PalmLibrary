@@ -1,5 +1,6 @@
 package com.example.ul.adapter;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
@@ -7,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +20,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.ul.R;
 import com.example.ul.callback.CallbackToBorrowBookActivity;
 import com.example.ul.model.Book;
+import com.example.ul.util.DialogUtil;
 import com.example.ul.view.ItemSlideHelper;
 
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +29,7 @@ import java.util.ArrayList;
 
 /**
  * @Author: Wallace
- * @Description: 借书活动中更多适配器
+ * @Description: 借书活动中的适配器
  * @Date: 2021/4/26 22:28
  * @Modified: By yyyy-MM-dd
  */
@@ -35,23 +38,40 @@ public class BorrowBookListAdapter extends RecyclerView.Adapter<BookViewHolder> 
     private final String TAG = "BorrowBookListAdapter";
     /**适配器所在的列表*/
     private RecyclerView mRecyclerView;
-    private Context context;
+    /**上下文*/
+    private final Context context;
     /**
      * 访问服务器需携带的token
      */
-    private String token;
-    private String baseUrl;
+    private final String token;
+    /**访问图片的基本url*/
+    private final String baseUrl;
+    /**最大可借阅量*/
+    private int maxAmount;
     /**数据集*/
-    ArrayList<Book> bookArrayList;
+    private final ArrayList<Book> bookArrayList = new ArrayList<>();
     /**回调接口*/
     private CallbackToBorrowBookActivity callbackToBorrowBookActivity;
+
     protected final RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.placeholder1).centerCrop().error(R.drawable.error1);
-    
-    public BorrowBookListAdapter(Context context,String token, String baseUrl, ArrayList<Book> bookArrayList){
+
+    public void setMaxAmount(int maxAmount) {
+        this.maxAmount = maxAmount;
+        callbackToBorrowBookActivity.changeAmount(maxAmount);
+    }
+
+    public ArrayList<Book> getBookArrayList() {
+        return bookArrayList;
+    }
+
+    public Book getBook(int position) {
+        return bookArrayList.get(position);
+    }
+
+    public BorrowBookListAdapter(Context context,String token, String baseUrl){
         this.context = context;
         this.token = token;
         this.baseUrl = baseUrl;
-        this.bookArrayList = bookArrayList;
         init(context);
     }
 
@@ -99,7 +119,7 @@ public class BorrowBookListAdapter extends RecyclerView.Adapter<BookViewHolder> 
         // 获取图片
         ArrayList<String> pictures = bookArrayList.get(holder.getLayoutPosition()).getPictures();
         String url = baseUrl + itemImages;
-        if (pictures.size() > 0) {
+        if (pictures != null && pictures.size() > 0) {
             String pictureName = pictures.get(0);
             url = url + "/" + pictureName;
             Log.e(TAG, "onBindViewHolder: holder.getLayoutPosition() = " + holder.getLayoutPosition());
@@ -126,7 +146,90 @@ public class BorrowBookListAdapter extends RecyclerView.Adapter<BookViewHolder> 
     public int getItemCount() {
         return this.bookArrayList.size();
     }
+    /**
+     * @Author: Wallace
+     * @Description: 判断book是否已经存在于bookArrayList中
+     * @Date: Created 11:22 2021/4/27
+     * @Modified: by who yyyy-MM-dd
+     * @param newBook 书籍
+     * @return: int 存在返回所在的位置,不存在返回-1
+     */
+    private int isExisted(Book newBook){
+        int bookId = newBook.getId();
+        return isExisted(bookId);
+    }
 
+    private int isExisted(int bookId){
+        int position = -1;
+        for(Book book : bookArrayList){
+            if(bookId == book.getId()){
+                position = bookArrayList.indexOf(book);
+                break;
+            }
+        }
+        return position;
+    }
+
+    public void addItem(Book book){
+        if(bookArrayList.size() < maxAmount){
+            if(isExisted(book) == -1){
+                bookArrayList.add(book);
+                callbackToBorrowBookActivity.changeAmount(--maxAmount);
+                notifyItemInserted(bookArrayList.size()-1);
+            }else {
+                Toast.makeText(context,"您已经添加过此书了！",Toast.LENGTH_LONG).show();
+            }
+        }else {
+            DialogUtil.showDialog(context,"剩余量为0，您不能借再多的书了。",false);
+        }
+    }
+
+    public void deleteItem(int position){
+        bookArrayList.remove(position);
+        callbackToBorrowBookActivity.changeAmount(++maxAmount);
+        notifyItemRemoved(position);
+    }
+
+    public void deleteItemByBookId(int bookId){
+        int position = isExisted(bookId);
+        if(position != -1){
+            deleteItem(position);
+        }
+    }
+
+    public void updateItem(Book newBook){
+        int position = isExisted(newBook);
+        if(position == -1){
+            throw new NullPointerException("找不到需要更新的列表项：position = " + position);
+        }
+        else {
+            bookArrayList.set(position,newBook);
+            notifyItemChanged(position);
+        }
+    }
+    /**
+     * @Author: Wallace
+     * @Description: 方法描述
+     * @Date: Created 23:19 2021/4/27
+     * @Modified: by who yyyy-MM-dd
+     * @param restBooks 剩余的图书的id
+     * @return: void
+     */
+    public void updateItem(ArrayList<Integer> restBooks){
+        ArrayList<Book> books = new ArrayList<>();
+        for(int i : restBooks) {
+            for(Book book : bookArrayList){
+                if(book.getId().equals(i)){
+                    books.add(book);
+                    break;
+                }
+            }
+        }
+        // 更新数据集
+        bookArrayList.clear();
+        bookArrayList.addAll(books);
+        notifyDataSetChanged();
+    }
     @Override
     public int getHorizontalRange(RecyclerView.ViewHolder holder) {
         if(holder.itemView instanceof LinearLayout){
@@ -157,7 +260,7 @@ public class BorrowBookListAdapter extends RecyclerView.Adapter<BookViewHolder> 
 
     @Override
     public void updateItem() {
-        Log.e(TAG,"update!");
-        this.notifyDataSetChanged();
+/*        Log.e(TAG,"update!");
+        this.notifyDataSetChanged();*/
     }
 }

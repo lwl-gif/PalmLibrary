@@ -18,6 +18,9 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.example.ul.R;
 import com.example.ul.adapter.BookListAdapter;
 import com.example.ul.adapter.MySpinnerAdapter;
@@ -32,9 +35,6 @@ import com.example.ul.util.UserManager;
 import com.example.ul.view.MySearchView;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -347,76 +347,65 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
     public void success(Response response, int code) throws IOException {
         //获取服务器响应字符串
         String result = response.body().string().trim();
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = new JSONObject(result);
-            //返回值为true,说明请求被拦截
-            if(HttpUtil.requestIsIntercepted(jsonObject)){
-                String message = jsonObject.getString("message");
-                String c = jsonObject.getString("code");
-                String tip = jsonObject.getString("tip");
-                Message msg = new Message();
-                Bundle data = new Bundle();
-                data.putString("code",c);
-                data.putString("tip",tip);
-                data.putString("message",message);
-                msg.setData(data);
-                msg.what = REQUEST_INTERCEPTED;
-                myHandler.sendMessage(msg);
-            }else {
-                switch (code) {
-                    case GET_TYPE:
-                        try {
-                            //将整个信息拆分
-                            JSONArray jsonArraySpinners = jsonObject.getJSONArray("dataArray");
-                            jsonArraySelectBy = jsonArraySpinners.getJSONArray(0);
-                            jsonArraySelectBy.put(jsonArraySelectBy.length(),"null");
-                            jsonArrayOrderBy = jsonArraySpinners.getJSONArray(1);
-                            jsonArrayOrderBy.put(jsonArrayOrderBy.length(),"null");
-                            jsonArrayLibrary = jsonArraySpinners.getJSONArray(2);
-                            jsonArrayLibrary.put(jsonArrayLibrary.length(),"null");
-                            jsonArrayState = jsonArraySpinners.getJSONArray(3);
-                            jsonArrayState.put(jsonArrayState.length(),"null");
-                            JSONArray jsonArrayType = jsonArraySpinners.getJSONArray(4);
-                            belongs1.clear();
-                            belongs2.clear();
-                            for(int i = 0; i < jsonArrayType.length();i ++){
-                                JSONArray belong = jsonArrayType.getJSONArray(i);
-                                String belong1 = belong.getString(0);
-                                String belong2 = belong.getString(1);
-                                String[] arrayStr = belong2.split(",");
-                                List<String> list = new ArrayList<String>(Arrays.asList(arrayStr));
-                                list.add("null");
-                                belongs1.add(belong1);
-                                belongs2.add(list);
-                            }
-                            List<String> list = new ArrayList<>();
-                            list.add("null");
-                            belongs1.add("null");
-                            belongs2.add(list);
-                            //发消息通知主线程进行UI更新
-                            myHandler.sendEmptyMessage(GET_TYPE);
-                        } catch (JSONException e) {
-                            myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
-                        }
-                        break;
-                    case GET_BOOK_LIST:
-                        try {
-                            jsonArray = (JSONArray) jsonObject.get("object");
-                            //发消息通知主线程进行UI更新
-                            myHandler.sendEmptyMessage(GET_BOOK_LIST);
-                        } catch (JSONException e) {
-                            myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
-                        }
-                        break;
-                    default:
-                        myHandler.sendEmptyMessage(UNKNOWN_REQUEST);
-                }
+        JSONObject jsonObject = JSON.parseObject(result);
+        //返回值为true,说明请求被拦截
+        if (HttpUtil.requestIsIntercepted(jsonObject)) {
+            String message = jsonObject.getString("message");
+            String c = jsonObject.getString("code");
+            String tip = jsonObject.getString("tip");
+            Message msg = new Message();
+            Bundle data = new Bundle();
+            data.putString("code", c);
+            data.putString("tip", tip);
+            data.putString("message", message);
+            msg.setData(data);
+            msg.what = REQUEST_INTERCEPTED;
+            myHandler.sendMessage(msg);
+        } else {
+            switch (code) {
+                case GET_TYPE:
+                    //将整个信息拆分
+                    JSONArray jsonArraySpinners = jsonObject.getJSONArray("dataArray");
+                    jsonArraySelectBy = jsonArraySpinners.getJSONArray(0);
+                    jsonArraySelectBy.add(jsonArraySelectBy.size(), "null");
+                    jsonArrayOrderBy = jsonArraySpinners.getJSONArray(1);
+                    jsonArrayOrderBy.add(jsonArrayOrderBy.size(), "null");
+                    jsonArrayLibrary = jsonArraySpinners.getJSONArray(2);
+                    jsonArrayLibrary.add(jsonArrayLibrary.size(), "null");
+                    jsonArrayState = jsonArraySpinners.getJSONArray(3);
+                    jsonArrayState.add(jsonArrayState.size(), "null");
+                    JSONArray jsonArrayType = jsonArraySpinners.getJSONArray(4);
+                    belongs1.clear();
+                    belongs2.clear();
+                    for (int i = 0; i < jsonArrayType.size(); i++) {
+                        JSONArray belong = jsonArrayType.getJSONArray(i);
+                        String belong1 = belong.getString(0);
+                        String belong2 = belong.getString(1);
+                        String[] arrayStr = belong2.split(",");
+                        List<String> list = new ArrayList<String>(Arrays.asList(arrayStr));
+                        list.add("null");
+                        belongs1.add(belong1);
+                        belongs2.add(list);
+                    }
+                    List<String> list = new ArrayList<>();
+                    list.add("null");
+                    belongs1.add("null");
+                    belongs2.add(list);
+                    //发消息通知主线程进行UI更新
+                    myHandler.sendEmptyMessage(GET_TYPE);
+                    break;
+                case GET_BOOK_LIST:
+
+                    jsonArray = (JSONArray) jsonObject.get("object");
+                    //发消息通知主线程进行UI更新
+                    myHandler.sendEmptyMessage(GET_BOOK_LIST);
+                    break;
+                default:
+                    myHandler.sendEmptyMessage(UNKNOWN_REQUEST);
             }
-        } catch (JSONException e) {
-            myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
         }
     }
+
 
     @Override
     public void failed(IOException e, int code) {

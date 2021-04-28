@@ -7,7 +7,6 @@
     android:background="#EDEACF"
     tools:context=".activity.BorrowBookActivity">
 
-
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline"
         android:layout_width="wrap_content"
@@ -19,7 +18,7 @@
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/iv_return"
+        app:layout_constraintBottom_toTopOf="@+id/btn_return"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -57,6 +56,17 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/title_permission" />
 
+            <Button
+                android:id="@+id/btn_borrow"
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:background="@drawable/btn03"
+                android:text="@string/borrowBook"
+                app:layout_constraintBottom_toBottomOf="@+id/title_permission"
+                app:layout_constraintEnd_toEndOf="@+id/title_permission"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
             <!--读者id-->
             <TextView
                 android:id="@+id/textView64"
@@ -267,11 +277,11 @@
     </ScrollView>
 
     <Button
-        android:id="@+id/iv_return"
+        android:id="@+id/btn_return"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@drawable/btn01"
-        android:text="@string/borrowBook"
+        android:background="@drawable/btn01_white"
+        android:text="@string/returnBook"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintHorizontal_bias="0.0"
@@ -280,16 +290,16 @@
         app:layout_constraintVertical_bias="1.0" />
 
     <Button
-        android:id="@+id/iv_borrow"
+        android:id="@+id/btn_add_borrow_book"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@drawable/btn01"
-        android:text="@string/returnBook"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_return"
+        android:background="@drawable/btn01_red"
+        android:text="@string/addBorrowBook"
+        app:layout_constraintBottom_toBottomOf="@+id/btn_return"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@id/guideline"
-        app:layout_constraintTop_toTopOf="@+id/iv_return"
+        app:layout_constraintTop_toTopOf="@+id/btn_return"
         app:layout_constraintVertical_bias="1.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,7 @@
 package com.example.ul.librarian.main.activity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -9,6 +10,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.EditText;
@@ -53,7 +55,7 @@ import okhttp3.Response;
  * @Date: Created 16:54 2021/4/21
  * @Modified: by who yyyy-MM-dd
  */
-public class LReaderDetailActivity extends AppCompatActivity implements HttpUtil.MyCallback, ImageAdapterItemListener {
+public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallback, ImageAdapterItemListener {
 
     private static final String TAG = "LReaderDetailActivity";
     //自定义消息代码
@@ -175,6 +177,7 @@ public class LReaderDetailActivity extends AppCompatActivity implements HttpUtil
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityManager.getInstance().addActivity(this);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_l_reader_detail);
         ButterKnife.bind(this);
         // 获取token

@@ -1,12 +1,14 @@
 package com.example.ul.librarian.main.activity;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,6 +20,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.example.ul.R;
 import com.example.ul.activity.ShowPictureActivity;
 import com.example.ul.adapter.ImagesAdapter;
@@ -34,10 +39,6 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.entity.LocalMedia;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
@@ -46,6 +47,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -59,7 +61,8 @@ import okhttp3.Response;
  * @Date: Created in 22:25 2021/3/28
  * @Modified By:
  */
-public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.MyCallback, ImageAdapterItemListener {
+@SuppressLint("NonConstantResourceId")
+public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback, ImageAdapterItemListener {
 
     private static final String TAG = "LBookDetailActivity";
     /**未知请求*/
@@ -72,8 +75,6 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
     private static final int GET_BOOK_DETAIL = 801;
     /**获取书本详情成功，有数据需要渲染*/
     private static final int GET_BOOK_DETAIL_FILL = 8011;
-    /**获取书本详情失败或无数据需要渲染*/
-    private static final int GET_BOOK_DETAIL_NOT_FILL = 8010;
     /**添加书本*/
     private static final int ADD_BOOK = 802;
     /**添加书本成功*/
@@ -136,7 +137,6 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
     public EditText tHot;
     @BindView(R.id.l_bookState)
     public TextView tState;
-    private RecyclerView recyclerView;
     private ImagesAdapter imagesAdapter;
     private Button bBack,bEdit,bSubmit,bDelete;
     /**当前书本id*/
@@ -188,6 +188,7 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityManager.getInstance().addActivity(this);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_l_book_detail);
         ButterKnife.bind(this);
         //初始化
@@ -202,14 +203,14 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
      * @return: void
      */
     private void init() {
-        //获取token
+        // 获取token
         UserManager userManager = UserManager.getInstance();
         UserInfo userInfo = userManager.getUserInfo(this);
         String token = userInfo.getToken();
         // 先发送获取分类的请求
         String getTypeUrl = HttpUtil.BASE_URL + "book/getDetailType";
         HttpUtil.getRequest(token,getTypeUrl,this,GET_TYPE);
-        recyclerView = findViewById(R.id.recyclerView);
+        RecyclerView recyclerView = findViewById(R.id.recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         recyclerView.setLayoutManager(gridLayoutManager);
         imagesAdapter = new ImagesAdapter(this,token,this);
@@ -304,7 +305,7 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
 
     /**
      * @Author: Wallace
-     * @Description:为 各个Spinner填充信息及绑定选中事件
+     * @Description: 为各个Spinner填充信息及绑定选中事件
      * @Date: Created in 13:16 2021/3/31
      * @Modified By:
      * @return: void
@@ -389,84 +390,80 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
     }
 
     private void fillBookDetail() {
-        try {
-            this.id = this.jsonObjectBookDetail.getString("id");
-            this.tId.setText(this.id);
-            this.tName.setText(this.jsonObjectBookDetail.getString("name"));
-            this.tAuthor.setText(this.jsonObjectBookDetail.getString("author"));
-            this.tIsbn.setText(this.jsonObjectBookDetail.getString("isbn"));
-            //改变列表的默认值
-            String tLibrary = this.jsonObjectBookDetail.getString("library");
-            for(int i = 0;i < spinnerLibrary.getCount(); i++){
-                String s = (String) spinnerLibrary.getItemAtPosition(i);
-                if(s != null && s.equals(tLibrary)){
-                    spinnerLibrary.setSelection(i,true);
-                    break;
-                }
+        this.id = this.jsonObjectBookDetail.getString("id");
+        this.tId.setText(this.id);
+        this.tName.setText(this.jsonObjectBookDetail.getString("name"));
+        this.tAuthor.setText(this.jsonObjectBookDetail.getString("author"));
+        this.tIsbn.setText(this.jsonObjectBookDetail.getString("isbn"));
+        //改变列表的默认值
+        String tLibrary = this.jsonObjectBookDetail.getString("library");
+        for (int i = 0; i < spinnerLibrary.getCount(); i++) {
+            String s = (String) spinnerLibrary.getItemAtPosition(i);
+            if (s != null && s.equals(tLibrary)) {
+                spinnerLibrary.setSelection(i, true);
+                break;
             }
-            this.tLocation.setText(this.jsonObjectBookDetail.getString("location"));
-            this.tCallNumber.setText(this.jsonObjectBookDetail.getString("callNumber"));
-            this.tTheme.setText(this.jsonObjectBookDetail.getString("theme"));
-            this.tDesc.setText(this.jsonObjectBookDetail.getString("description"));
-            //改变列表的默认值
-            String tType = this.jsonObjectBookDetail.getString("typeName");
-            for(int i = 0;i < spinnerType.getCount(); i++){
-                String s = (String) spinnerType.getItemAtPosition(i);
-                if(s.equals(tType)){
-                    spinnerType.setSelection(i,true);
-                    break;
-                }
+        }
+        this.tLocation.setText(this.jsonObjectBookDetail.getString("location"));
+        this.tCallNumber.setText(this.jsonObjectBookDetail.getString("callNumber"));
+        this.tTheme.setText(this.jsonObjectBookDetail.getString("theme"));
+        this.tDesc.setText(this.jsonObjectBookDetail.getString("description"));
+        //改变列表的默认值
+        String tType = this.jsonObjectBookDetail.getString("typeName");
+        for (int i = 0; i < spinnerType.getCount(); i++) {
+            String s = (String) spinnerType.getItemAtPosition(i);
+            if (s.equals(tType)) {
+                spinnerType.setSelection(i, true);
+                break;
             }
-            this.tHouse.setText(this.jsonObjectBookDetail.getString("house"));
-            this.tHot.setText(this.jsonObjectBookDetail.getString("hot"));
-            this.tState.setText(this.jsonObjectBookDetail.getString("state"));
-            this.tPrice.setText(this.jsonObjectBookDetail.getString("price"));
-            JSONObject belong = new JSONObject(this.jsonObjectBookDetail.getString("classification"));
-            // 改变列表的默认值
-            String tFirst = belong.getString("first");
-            for(int i = 0;i < spinnerFirst.getCount(); i++){
-                String s = (String) spinnerFirst.getItemAtPosition(i);
-                if(s != null && s.equals(tFirst)){
-                    spinnerFirst.setSelection(i,true);
-                    break;
-                }
+        }
+        this.tHouse.setText(this.jsonObjectBookDetail.getString("house"));
+        this.tHot.setText(this.jsonObjectBookDetail.getString("hot"));
+        this.tState.setText(this.jsonObjectBookDetail.getString("state"));
+        this.tPrice.setText(this.jsonObjectBookDetail.getString("price"));
+        JSONObject belong = JSON.parseObject(this.jsonObjectBookDetail.getString("classification"));
+        // 改变列表的默认值
+        String tFirst = belong.getString("first");
+        for (int i = 0; i < spinnerFirst.getCount(); i++) {
+            String s = (String) spinnerFirst.getItemAtPosition(i);
+            if (s != null && s.equals(tFirst)) {
+                spinnerFirst.setSelection(i, true);
+                break;
             }
-            // 改变列表的默认值
-            String tThird = belong.getString("third");
-            for(int i = 0;i < spinnerThird.getCount(); i++){
-                String s = (String) spinnerThird.getItemAtPosition(i);
-                if(s != null && s.equals(tThird)){
-                    spinnerThird.setSelection(i,true);
-                    break;
-                }
+        }
+        // 改变列表的默认值
+        String tThird = belong.getString("third");
+        for (int i = 0; i < spinnerThird.getCount(); i++) {
+            String s = (String) spinnerThird.getItemAtPosition(i);
+            if (s != null && s.equals(tThird)) {
+                spinnerThird.setSelection(i, true);
+                break;
             }
-            String d = this.jsonObjectBookDetail.getString("date");
-            String n = "null";
-            if(d == null || n.equals(d) || "".equals(d)){
-                this.tDate.setText(null);
-            }else {
-                long l = Long.parseLong(d);
-                Date date = new Date(l);
-                @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-                String tvDate = format.format(date);
-                this.tDate.setText(tvDate);
+        }
+        String d = this.jsonObjectBookDetail.getString("date");
+        String n = "null";
+        if (d == null || n.equals(d) || "".equals(d)) {
+            this.tDate.setText(null);
+        } else {
+            long l = Long.parseLong(d);
+            Date date = new Date(l);
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            String tvDate = format.format(date);
+            this.tDate.setText(tvDate);
+        }
+        // 获取图片名，构造出获取图片的url
+        // 获取图片的基本url
+        String baseUrl = HttpUtil.BASE_URL + "book/getBookImage/";
+        String images = jsonObjectBookDetail.getString("images");
+        JSONArray jsonArray1 = jsonObjectBookDetail.getJSONArray("pictures");
+        if (jsonArray1 != null && jsonArray1.size() > 0) {
+            ArrayList<String> arrayList = new ArrayList<>();
+            for (int i = 0; i < jsonArray1.size(); i++) {
+                String url = baseUrl + images + "/" + jsonArray1.get(i);
+                arrayList.add(url);
             }
-            // 获取图片名，构造出获取图片的url
-            // 获取图片的基本url
-            String baseUrl = HttpUtil.BASE_URL + "book/getBookImage/";
-            String images = jsonObjectBookDetail.getString("images");
-            JSONArray jsonArray1 = jsonObjectBookDetail.getJSONArray("pictures");
-            if (jsonArray1 != null && jsonArray1.length() > 0) {
-                ArrayList<String> arrayList = new ArrayList<>();
-                for (int i = 0; i < jsonArray1.length(); i++) {
-                    String url = baseUrl + images + "/" + jsonArray1.get(i);
-                    arrayList.add(url);
-                }
-                Log.e(TAG, "fillBookDetail: arrayList = " + arrayList.toString());
-                imagesAdapter.setImageNameUrlList(arrayList);
-            }
-        } catch (JSONException e) {
-            Toast.makeText(this, "主线程解析数据时异常！", Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "fillBookDetail: arrayList = " + arrayList.toString());
+            imagesAdapter.setImageNameUrlList(arrayList);
         }
     }
 
@@ -665,129 +662,106 @@ public class LBookDetailActivity extends AppCompatActivity implements HttpUtil.M
     @Override
     public void success(Response response, int code) throws IOException {
         // 获取服务器响应字符串
-        String result = response.body().string().trim();
+        String result = Objects.requireNonNull(response.body()).string().trim();
+        JSONObject jsonObject = JSON.parseObject(result);
+        String message;
+        String tip;
+        String c;
+        Bundle data;
         switch (code) {
             case GET_TYPE:
-                try {
-                    JSONObject jsonObject = new JSONObject(result);
-                    String message = jsonObject.getString("message");
-                    // 将整个信息拆分
-                    JSONArray jsonArraySpinners = jsonObject.getJSONArray("dataArray");
-                    jsonArrayLibrary = jsonArraySpinners.getJSONArray(0);
-                    JSONArray jsonArray0 = jsonArraySpinners.getJSONArray(1);
-                    jsonArrayType = jsonArraySpinners.getJSONArray(2);
-                    firsts.clear();
-                    thirds.clear();
-                    for(int i = 0; i < jsonArray0.length();i ++){
-                        JSONArray belong = jsonArray0.getJSONArray(i);
-                        String first = belong.getString(0);
-                        String third = belong.getString(1);
-                        String[] arrayStr = third.split(",");
-                        List<String> list = new ArrayList<String>(Arrays.asList(arrayStr));
-                        firsts.add(first);
-                        thirds.add(list);
-                    }
-                    //发消息通知主线程进行UI更新
-                    myHandler.sendEmptyMessage(GET_TYPE);
-                } catch (JSONException e) {
-                    myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
+                // 将整个信息拆分
+                JSONArray jsonArraySpinners = jsonObject.getJSONArray("dataArray");
+                jsonArrayLibrary = jsonArraySpinners.getJSONArray(0);
+                JSONArray jsonArray0 = jsonArraySpinners.getJSONArray(1);
+                jsonArrayType = jsonArraySpinners.getJSONArray(2);
+                firsts.clear();
+                thirds.clear();
+                for (int i = 0; i < jsonArray0.size(); i++) {
+                    JSONArray belong = jsonArray0.getJSONArray(i);
+                    String first = belong.getString(0);
+                    String third = belong.getString(1);
+                    String[] arrayStr = third.split(",");
+                    List<String> list = new ArrayList<String>(Arrays.asList(arrayStr));
+                    firsts.add(first);
+                    thirds.add(list);
                 }
+                //发消息通知主线程进行UI更新
+                myHandler.sendEmptyMessage(GET_TYPE);
                 break;
             case GET_BOOK_DETAIL:
-                try {
-                    JSONObject jsonObject = new JSONObject(result);
-                    String message = jsonObject.getString("message");
-                    String tip = null;
-                    if("查询成功！".equals(message)){
-                        tip = jsonObject.getString("tip");
-                        if("null".equals(tip)){
-                            //查询成功，获取书籍数据，通知主线程渲染前端
-                            jsonObjectBookDetail = jsonObject.getJSONObject("object");
-                            myHandler.sendEmptyMessage(GET_BOOK_DETAIL_FILL);
-                            break;
-                        }
-                    } else {
-                        String c = jsonObject.getString("code");
-                        tip = jsonObject.getString("tip");
-                        Message msg = new Message();
-                        Bundle data = new Bundle();
-                        data.putString("code",c);
-                        data.putString("tip",tip);
-                        data.putString("message",message);
-                        msg.setData(data);
-                        msg.what = GET_BOOK_DETAIL_FILL;
-                        myHandler.sendMessage(msg);
+                message = jsonObject.getString("message");
+                if ("查询成功！".equals(message)) {
+                    tip = jsonObject.getString("tip");
+                    if ("null".equals(tip)) {
+                        //查询成功，获取书籍数据，通知主线程渲染前端
+                        jsonObjectBookDetail = jsonObject.getJSONObject("object");
+                        myHandler.sendEmptyMessage(GET_BOOK_DETAIL_FILL);
+                        break;
                     }
-                } catch (JSONException e) {
-                    myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
-                    e.printStackTrace();
+                } else {
+                    tip = jsonObject.getString("tip");
+                    c = jsonObject.getString("code");
+                    Message msg = new Message();
+                    data = new Bundle();
+                    data.putString("code", c);
+                    data.putString("tip", tip);
+                    data.putString("message", message);
+                    msg.setData(data);
+                    msg.what = GET_BOOK_DETAIL_FILL;
+                    myHandler.sendMessage(msg);
                 }
                 break;
             case ADD_BOOK:
-                try {
-                    JSONObject jsonObject = new JSONObject(result);
-                    String message = jsonObject.getString("message");
-                    String c = jsonObject.getString("code");
-                    Message msg = new Message();
-                    Bundle data = new Bundle();
-                    data.putString("code",c);
-                    data.putString("message",message);
-                    msg.setData(data);
-                    if("添加成功！".equals(message)){
-                        msg.what = ADD_BOOK_SUCCESS;
-                    }else {
-                        String tip = jsonObject.getString("tip");
-                        data.putString("tip",tip);
-                        msg.what = ADD_BOOK_FAIL;
-                    }
-                    myHandler.sendMessage(msg);
-                } catch (JSONException e) {
-                    myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
+                message = jsonObject.getString("message");
+                c = jsonObject.getString("code");
+                Message msg = new Message();
+                data = new Bundle();
+                data.putString("code", c);
+                data.putString("message", message);
+                msg.setData(data);
+                if ("添加成功！".equals(message)) {
+                    msg.what = ADD_BOOK_SUCCESS;
+                } else {
+                    tip = jsonObject.getString("tip");
+                    data.putString("tip", tip);
+                    msg.what = ADD_BOOK_FAIL;
                 }
+                myHandler.sendMessage(msg);
                 break;
             case UPDATE_BOOK:
-                try {
-                    JSONObject jsonObject = new JSONObject(result);
-                    String message = jsonObject.getString("message");
-                    String c = jsonObject.getString("code");
-                    Message msg = new Message();
-                    Bundle data = new Bundle();
-                    data.putString("code",c);
-                    data.putString("message",message);
-                    msg.setData(data);
-                    if("更新成功！".equals(message)){
-                        msg.what = UPDATE_BOOK_SUCCEED;
-                    }else {
-                        String tip = jsonObject.getString("tip");
-                        data.putString("tip",tip);
-                        msg.what = UPDATE_BOOK_FAIL;
-                    }
-                    myHandler.sendMessage(msg);
-                } catch (JSONException e) {
-                    myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
+                message = jsonObject.getString("message");
+                c = jsonObject.getString("code");
+                msg = new Message();
+                data = new Bundle();
+                data.putString("code", c);
+                data.putString("message", message);
+                msg.setData(data);
+                if ("更新成功！".equals(message)) {
+                    msg.what = UPDATE_BOOK_SUCCEED;
+                } else {
+                    tip = jsonObject.getString("tip");
+                    data.putString("tip", tip);
+                    msg.what = UPDATE_BOOK_FAIL;
                 }
+                myHandler.sendMessage(msg);
                 break;
             case DELETE_BOOK:
-                try {
-                    JSONObject jsonObject = new JSONObject(result);
-                    String message = jsonObject.getString("message");
-                    String c = jsonObject.getString("code");
-                    Message msg = new Message();
-                    Bundle data = new Bundle();
-                    data.putString("code",c);
-                    data.putString("message",message);
-                    msg.setData(data);
-                    if("删除成功！".equals(message)){
-                        msg.what = DELETE_BOOK_SUCCEED;
-                    }else {
-                        String tip = jsonObject.getString("tip");
-                        data.putString("tip",tip);
-                        msg.what = DELETE_BOOK_FAIL;
-                    }
-                    myHandler.sendMessage(msg);
-                } catch (JSONException e) {
-                    myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
+                message = jsonObject.getString("message");
+                c = jsonObject.getString("code");
+                msg = new Message();
+                data = new Bundle();
+                data.putString("code", c);
+                data.putString("message", message);
+                msg.setData(data);
+                if ("删除成功！".equals(message)) {
+                    msg.what = DELETE_BOOK_SUCCEED;
+                } else {
+                    tip = jsonObject.getString("tip");
+                    data.putString("tip", tip);
+                    msg.what = DELETE_BOOK_FAIL;
                 }
+                myHandler.sendMessage(msg);
                 break;
             default:
                 myHandler.sendEmptyMessage(UNKNOWN_REQUEST);

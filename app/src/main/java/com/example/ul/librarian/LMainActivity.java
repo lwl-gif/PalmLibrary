@@ -12,11 +12,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.alibaba.fastjson.JSON;
+
 import com.example.ul.R;
 import com.example.ul.activity.BorrowBookActivity;
 import com.example.ul.librarian.main.activity.LBookDetailActivity;
 import com.example.ul.librarian.main.activity.LReaderDetailActivity;
 import com.example.ul.callback.CallbackToMainActivity;
+import com.example.ul.model.Reader;
 import com.example.ul.myscan.android.CaptureActivity;
 import com.example.ul.myscan.bean.ZxingConfig;
 import com.example.ul.myscan.common.Constant;
@@ -33,9 +36,9 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
+/**
+ * @author luoweili
+ */
 public class LMainActivity extends AppCompatActivity implements CallbackToMainActivity {
 
     private static final String TAG = "LMainActivity";
@@ -115,6 +118,7 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
                 config.setShowFlashLight(true);
                 //是否显示闪光灯
                 intent.putExtra(Constant.INTENT_ZXING_CONFIG, config);
+                intent.putExtra("title","扫电子借阅卡");
                 startActivityForResult(intent, REQUEST_CODE_SCAN);
                 return true;
             default:
@@ -200,17 +204,14 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
         if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
             if (data != null) {
                 // 扫码的结果
-                String content = data.getStringExtra(Constant.CODED_CONTENT);
-                try {
-                    JSONObject jsonObject = new JSONObject(content);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                Log.e(TAG, "onActivityResult: content = " + content);
+//                String content = data.getStringExtra(Constant.CODED_CONTENT);
+//                Reader reader = JSON.parseObject(content,Reader.class);
+//                Log.e(TAG, "onActivityResult: reader = " + reader);
                 Intent intent = new Intent(LMainActivity.this, BorrowBookActivity.class);
+//                intent.putExtra("readerId", Objects.requireNonNull(reader).getId());
                 intent.putExtra("readerId","0121710880503");
                 startActivity(intent);
-                LMainActivity.this.finish();
+//                LMainActivity.this.finish();
             }
         }
     }

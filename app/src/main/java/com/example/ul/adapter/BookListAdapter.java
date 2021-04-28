@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.alibaba.fastjson.JSONArray;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
@@ -19,8 +20,6 @@ import com.example.ul.R;
 import com.example.ul.callback.CallbackToBookFragment;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
-import org.json.JSONException;
 
 /**
  * @Author: Wallace
@@ -85,57 +84,53 @@ public class BookListAdapter extends RecyclerView.Adapter<BookViewHolder> {
     @SuppressLint("ResourceAsColor")
     @Override
     public void onBindViewHolder(@NonNull BookViewHolder holder, int position) {
-        try {
-            // 从数据源中取值
-            String itemId = jsonArray.optJSONObject(holder.getLayoutPosition()).getString(id);
-            String itemName = jsonArray.optJSONObject(holder.getLayoutPosition()).getString(name);
-            String itemAuthor = jsonArray.optJSONObject(holder.getLayoutPosition()).getString(author);
-            String itemDescription = jsonArray.optJSONObject(holder.getLayoutPosition()).getString(description);
-            String itemHot = jsonArray.optJSONObject(holder.getLayoutPosition()).getString(hot);
-            String itemState = jsonArray.optJSONObject(holder.getLayoutPosition()).getString(state);
-            String itemTheme = jsonArray.optJSONObject(holder.getLayoutPosition()).getString(theme);
-            String itemIsbn = jsonArray.optJSONObject(holder.getLayoutPosition()).getString(isbn);
-            String itemLibrary = jsonArray.optJSONObject(holder.getLayoutPosition()).getString(library);
-            String itemImages = jsonArray.optJSONObject(holder.getLayoutPosition()).getString(images);
-            // 给列表项组件赋值
-            holder.id.setText(itemId);
-            holder.name.setText(itemName);
-            holder.author.setText(itemAuthor);
-            holder.description.setText(itemDescription);
-            holder.hot.setText(itemHot);
-            holder.state.setText(itemState);
-            // 不同状态配不同的颜色
-            if (state1.equals(itemState)) {
-                holder.state.setTextColor(Color.GREEN);
-            } else if (state2.equals(itemState)) {
-                holder.state.setTextColor(Color.BLUE);
-            } else if (state3.equals(itemState)) {
-                holder.state.setTextColor(Color.RED);
-            } else {
-                holder.state.setTextColor(Color.BLACK);
-            }
-            holder.theme.setText(itemTheme);
-            holder.isbn.setText(itemIsbn);
-            holder.library.setText(itemLibrary);
-            // 获取图片
-            JSONArray jsonArray1 = jsonArray.optJSONObject(holder.getLayoutPosition()).getJSONArray("pictures");
-            String url = baseUrl + itemImages;
-            if (jsonArray1.length() > 0) {
-                String pictureName = jsonArray1.getString(0);
-                url = url + "/" + pictureName;
-                Log.e(TAG, "onBindViewHolder: holder.getLayoutPosition() = "+ holder.getLayoutPosition());
-                Log.e(TAG, "onBindViewHolder: url = "+ url);
-            }
-            GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
-                    .addHeader("Authorization", this.token)
-                    .build());
-            Glide.with(context)
-                    .applyDefaultRequestOptions(requestOptions)
-                    .load(glideUrl)
-                    .into(holder.bookImage);
-        } catch (JSONException e) {
-            Log.e(TAG, "onBindViewHolder: 列表"+holder.getLayoutPosition()+"项绑定数据时异常");
+        // 从数据源中取值
+        String itemId = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(id);
+        String itemName = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(name);
+        String itemAuthor = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(author);
+        String itemDescription = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(description);
+        String itemHot = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(hot);
+        String itemState = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(state);
+        String itemTheme = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(theme);
+        String itemIsbn = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(isbn);
+        String itemLibrary = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(library);
+        String itemImages = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(images);
+        // 给列表项组件赋值
+        holder.id.setText(itemId);
+        holder.name.setText(itemName);
+        holder.author.setText(itemAuthor);
+        holder.description.setText(itemDescription);
+        holder.hot.setText(itemHot);
+        holder.state.setText(itemState);
+        // 不同状态配不同的颜色
+        if (state1.equals(itemState)) {
+            holder.state.setTextColor(Color.GREEN);
+        } else if (state2.equals(itemState)) {
+            holder.state.setTextColor(Color.BLUE);
+        } else if (state3.equals(itemState)) {
+            holder.state.setTextColor(Color.RED);
+        } else {
+            holder.state.setTextColor(Color.BLACK);
         }
+        holder.theme.setText(itemTheme);
+        holder.isbn.setText(itemIsbn);
+        holder.library.setText(itemLibrary);
+        // 获取图片
+        JSONArray jsonArray1 = jsonArray.getJSONObject(holder.getLayoutPosition()).getJSONArray("pictures");
+        String url = baseUrl + itemImages;
+        if (jsonArray1.size() > 0) {
+            String pictureName = jsonArray1.getString(0);
+            url = url + "/" + pictureName;
+            Log.e(TAG, "onBindViewHolder: holder.getLayoutPosition() = " + holder.getLayoutPosition());
+            Log.e(TAG, "onBindViewHolder: url = " + url);
+        }
+        GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
+                .addHeader("Authorization", this.token)
+                .build());
+        Glide.with(context)
+                .applyDefaultRequestOptions(requestOptions)
+                .load(glideUrl)
+                .into(holder.bookImage);
         holder.bookRoot.setOnClickListener(view -> callbackToBookFragment.bookListClickPosition(holder.id.getText().toString().trim()));
     }
 
@@ -144,6 +139,6 @@ public class BookListAdapter extends RecyclerView.Adapter<BookViewHolder> {
         if(jsonArray==null){
             return 0;
         }
-        return jsonArray.length();
+        return jsonArray.size();
     }
 }

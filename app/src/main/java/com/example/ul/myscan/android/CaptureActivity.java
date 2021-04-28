@@ -49,17 +49,12 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback,
     private ViewfinderView viewfinderView;
     private ImageView flashLightIv;
     private TextView flashLightTv;
-    private ImageView backIv;
-    private ConstraintLayout flashLightLayout;
-    private ConstraintLayout albumLayout;
-    private ConstraintLayout bottomLayout;
     private boolean hasSurface;
     private InactivityTimer inactivityTimer;
     private BeepManager beepManager;
     private CameraManager cameraManager;
     private CaptureActivityHandler handler;
     private SurfaceHolder surfaceHolder;
-
 
     public ViewfinderView getViewfinderView() {
         return viewfinderView;
@@ -93,16 +88,19 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback,
             window.setStatusBarColor(Color.BLACK);
         }
         /*先获取配置信息*/
+        Bundle bundle = getIntent().getExtras();
         try {
-            config = (ZxingConfig) getIntent().getExtras().get(Constant.INTENT_ZXING_CONFIG);
+            config = (ZxingConfig) bundle.get(Constant.INTENT_ZXING_CONFIG);
         } catch (Exception e) {
             Log.i("config", e.toString());
         }
         if (config == null) {
             config = new ZxingConfig();
         }
+        // 获取标题
+        String title = bundle.getString("title");
         setContentView(R.layout.activity_capture);
-        initView();
+        initView(title);
         hasSurface = false;
         inactivityTimer = new InactivityTimer(this);
         beepManager = new BeepManager(this);
@@ -110,22 +108,23 @@ public class CaptureActivity extends Activity implements SurfaceHolder.Callback,
         beepManager.setVibrate(config.isShake());
     }
 
-
-    private void initView() {
+    private void initView(String title) {
         previewView = findViewById(R.id.preview_view);
         previewView.setOnClickListener(this);
         viewfinderView = findViewById(R.id.viewfinderView);
         viewfinderView.setZxingConfig(config);
-        backIv = findViewById(R.id.backIv);
+        ImageView backIv = findViewById(R.id.backIv);
         backIv.setOnClickListener(this);
         flashLightIv = findViewById(R.id.flashLightIv);
         flashLightTv = findViewById(R.id.flashLightTv);
-        flashLightLayout = findViewById(R.id.view1);
+        ConstraintLayout flashLightLayout = findViewById(R.id.view1);
         flashLightLayout.setOnClickListener(this);
-        albumLayout = findViewById(R.id.view2);
+        ConstraintLayout albumLayout = findViewById(R.id.view2);
         albumLayout.setOnClickListener(this);
-        bottomLayout = findViewById(R.id.topLayout);
-        switchVisibility(bottomLayout, config.isShowbottomLayout());
+        ConstraintLayout topLayout = findViewById(R.id.topLayout);
+        TextView tvTitle = findViewById(R.id.title);
+        tvTitle.setText(title);
+        switchVisibility(topLayout, config.isShowbottomLayout());
         switchVisibility(flashLightLayout, config.isShowFlashLight());
         switchVisibility(albumLayout, config.isShowAlbum());
         /*有闪光灯就显示手电筒按钮  否则不显示*/

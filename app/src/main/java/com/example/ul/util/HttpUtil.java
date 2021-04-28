@@ -3,14 +3,13 @@ package com.example.ul.util;
 import android.content.Context;
 import androidx.annotation.NonNull;
 
+import com.alibaba.fastjson.JSONObject;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.request.FutureTarget;
 import com.example.ul.config.ThreadPoolConfig;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -185,7 +184,62 @@ public class HttpUtil {
     }
 
     /**
-     * @param token      所携带的token
+     * POST 方法
+     */
+    public static void postRequest(String authorization, String url, HashMap<String, Object> params, MyCallback callback, int code, String ss) {
+        FutureTask<String> task = new FutureTask<>(() -> {
+            MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+            // 先把键值对放入表单
+            for (Map.Entry<String, Object> stringObjectEntry : params.entrySet()) {
+                String key = (String) stringObjectEntry.getKey();
+                // 判断是否为字符串类型的列表
+                Object value = stringObjectEntry.getValue();
+                if(value instanceof ArrayList){
+                    ArrayList<String> arrayList = (ArrayList) value;
+                    for(String s : arrayList){
+                        builder.addFormDataPart(key, s);
+                    }
+                }else if(value instanceof String){
+                    // 把键值对添加到表单
+                    builder.addFormDataPart(key, (String)value);
+                }
+            }
+            //构建请求体
+            RequestBody requestBody = builder.build();
+            //声明http请求
+            Request request;
+            //构建http请求
+            Request.Builder rBuilder = new Request.Builder();
+            if (authorization != null && authorization.length() > 0) {
+                request = rBuilder.addHeader("Authorization", authorization).url(url).post(requestBody).build();
+            } else {
+                request = rBuilder.url(url).post(requestBody).build();
+            }
+            //异步请求
+            Call call = okHttpClient.newCall(request);
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                    callback.failed(e, code);
+                }
+
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    callback.success(response, code);
+                }
+            });
+            return null;
+        });
+        //提交任务
+        threadPool.submit(task);
+        try {
+            task.get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * @param authorization      所携带的token
      * @param url        请求地址
      * @param params     请求参数（键值对）
      * @param imagesPath 所携带的图片全路径
@@ -198,7 +252,7 @@ public class HttpUtil {
      * @Modified By:
      * @return: void
      */
-    public static void postRequest(String token, String url, HashMap<String, String> params, List<String> imagesPath, MyCallback callback, int code) {
+    public static void postRequest(String authorization, String url, HashMap<String, String> params, List<String> imagesPath, MyCallback callback, int code) {
         FutureTask<String> task = new FutureTask<>(() -> {
             // {我的理解:每一对键值对都是一个分区，因为后端通过键名(@RequestParam(value = "key"))就可以取到对于的值了，
             // 所以没必要特意指明这块分区的name;
@@ -206,14 +260,14 @@ public class HttpUtil {
             // 存放文件的每个分区都要指明分区的name}
             // 创建表单类型的分区请求体
             MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-            //先把键值对放入表单
+            // 先把键值对放入表单
             for (Map.Entry<String, String> stringStringEntry : params.entrySet()) {
                 String key = (String) stringStringEntry.getKey();
                 String value = (String) stringStringEntry.getValue();
-                //把键值对添加到表单
+                // 把键值对添加到表单
                 builder.addFormDataPart(key, value);
             }
-            //遍历传入的文件地址，获取文件
+            // 遍历传入的文件地址，获取文件
             for (String s : imagesPath) {
                 File file = new File(s);
                 /*把所有的文件都添加到“images”这块区域里面。
@@ -229,8 +283,8 @@ public class HttpUtil {
             Request request;
             //构建http请求
             Request.Builder rBuilder = new Request.Builder();
-            if (token != null && token.length() > 0) {
-                request = rBuilder.addHeader("Authorization", token).url(url).post(requestBody).build();
+            if (authorization != null && authorization.length() > 0) {
+                request = rBuilder.addHeader("Authorization", authorization).url(url).post(requestBody).build();
             } else {
                 request = rBuilder.url(url).post(requestBody).build();
             }
@@ -261,14 +315,14 @@ public class HttpUtil {
     /**
      * DELETE方法
      */
-    public static void deleteRequest(String token, String url, MyCallback callback, int code) {
+    public static void deleteRequest(String authorization, String url, MyCallback callback, int code) {
         FutureTask<String> task = new FutureTask<>(() -> {
             //创建请求对象
             Request request;
             Request.Builder builder = new Request.Builder();
             builder.method("DELETE", null);
-            if (token != null && token.length() > 0) {
-                request = builder.addHeader("Authorization", token).url(url).build();
+            if (authorization != null && authorization.length() > 0) {
+                request = builder.addHeader("Authorization", authorization).url(url).build();
             } else {
                 request = builder.url(url).build();
             }
@@ -298,7 +352,7 @@ public class HttpUtil {
     /**
      * PUT 方法
      */
-    public static void putRequest(String token, String url, HashMap<String, String> params, MyCallback callback, int code) {
+    public static void putRequest(String authorization, String url, HashMap<String, String> params, MyCallback callback, int code) {
         FutureTask<String> task = new FutureTask<>(() -> {
             MediaType MultiPart_Form_Data = MediaType.parse("multipart/form-data; charset=utf-8");
             MultipartBody.Builder multiBuilder = new MultipartBody.Builder();
@@ -313,8 +367,8 @@ public class HttpUtil {
             RequestBody multiBody = multiBuilder.build();
             Request request;
             Request.Builder rBuilder = new Request.Builder();
-            if (token != null && token.length() > 0) {
-                request = rBuilder.addHeader("Authorization", token).url(url).put(multiBody).build();
+            if (authorization != null && authorization.length() > 0) {
+                request = rBuilder.addHeader("Authorization", authorization).url(url).put(multiBody).build();
             } else {
                 request = rBuilder.url(url).put(multiBody).build();
             }
@@ -341,7 +395,7 @@ public class HttpUtil {
         }
     }
 
-    public static void putRequest(String token, String url, HashMap<String, String> params, List<String> imagesPath, MyCallback callback, int code) {
+    public static void putRequest(String authorization, String url, HashMap<String, String> params, List<String> imagesPath, MyCallback callback, int code) {
         FutureTask<String> task = new FutureTask<>(() -> {
             MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
             //先把键值对放入表单
@@ -362,8 +416,8 @@ public class HttpUtil {
             Request request;
             //构建http请求
             Request.Builder rBuilder = new Request.Builder();
-            if (token != null && token.length() > 0) {
-                request = rBuilder.addHeader("Authorization", token).url(url).put(requestBody).build();
+            if (authorization != null && authorization.length() > 0) {
+                request = rBuilder.addHeader("Authorization", authorization).url(url).put(requestBody).build();
             } else {
                 request = rBuilder.url(url).put(requestBody).build();
             }
@@ -392,6 +446,7 @@ public class HttpUtil {
     }
 
     public interface MyCallback {
+
         void success(Response response, int code) throws IOException;
 
         void failed(IOException e, int code);
@@ -423,16 +478,9 @@ public class HttpUtil {
      * 判断请求是否被服务器拦截
      */
     public static boolean requestIsIntercepted(JSONObject jsonObject) {
-        try {
-            String tip = jsonObject.getString("tip");
-            String r = "请求被拦截！";
-            if (r.equals(tip)) {
-                return true;
-            }
-        } catch (JSONException e) {
-            return false;
-        }
-        return false;
+        String tip = jsonObject.getString("tip");
+        String r = "请求被拦截！";
+        return r.equals(tip);
     }
 }
 

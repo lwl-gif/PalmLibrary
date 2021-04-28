@@ -2,6 +2,7 @@ package com.example.ul.reader.main.activity;
 
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.EditText;
@@ -59,7 +61,8 @@ import okhttp3.Response;
  * @Date: Created 10:08 2021/3/7
  * @Modified: by who yyyy-MM-dd
  */
-public class RReaderDetailActivity extends AppCompatActivity implements HttpUtil.MyCallback, ImageAdapterItemListener {
+@SuppressLint("NonConstantResourceId")
+public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallback, ImageAdapterItemListener {
 
     private static final String TAG = "RReaderDetailActivity";
     //自定义消息代码
@@ -220,6 +223,7 @@ public class RReaderDetailActivity extends AppCompatActivity implements HttpUtil
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityManager.getInstance().addActivity(this);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_r_reader_detall);
         ButterKnife.bind(this);
         rdTitle.setText("我的详情");

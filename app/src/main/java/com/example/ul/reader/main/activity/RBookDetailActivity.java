@@ -5,11 +5,13 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 
 import okhttp3.Response;
 /**
@@ -42,7 +45,7 @@ import okhttp3.Response;
  * @Date: Created in 16:20 2021/3/22
  * @Modified By:
  */
-public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.MyCallback, ImageAdapterItemListener {
+public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback, ImageAdapterItemListener {
 
     private static final String TAG = "RBookDetailActivity";
     /**未知请求*/
@@ -133,6 +136,7 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityManager.getInstance().addActivity(this);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_r_book_detail);
         // 判断传进来的id是否为空
         id = this.getIntent().getStringExtra("id");
@@ -288,7 +292,7 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
         //服务器返回的数据
         String result = null;
         //获取服务器响应字符串
-        result = response.body().string().trim();
+        result = Objects.requireNonNull(response.body()).string().trim();
         switch (code) {
             case GET_BOOK_DETAIL:
                 try {
@@ -297,7 +301,7 @@ public class RBookDetailActivity extends AppCompatActivity implements HttpUtil.M
                     String tip = null;
                     if("查询成功！".equals(message)){
                         tip = jsonObject.getString("tip");
-                        if(tip == null || "null".equals(tip)){
+                        if("null".equals(tip)){
                             //查询成功，获取书籍数据，通知主线程渲染前端
                             jsonObjectBookDetail = jsonObject.getJSONObject("object");
                             myHandler.sendEmptyMessage(GET_BOOK_DETAIL_FILL);

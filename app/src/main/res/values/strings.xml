@@ -90,7 +90,7 @@
     <string name="apply_reader_permission">申请借阅权限</string>
     <string name="delete_reader">删除读者信息</string>
     <string name="reader_picture">图片信息</string>
-
+    <!--                                     -->
 
     <string name="borrowTime">借阅时间</string>
     <string name="returnTime">还书时间</string>
@@ -118,7 +118,7 @@
     <string name="menu_main">主要业务</string>
     <string name="menu_myself">个人信息</string>
     <string name="menu_setting">个人设置</string>
-
+    <!--                                      -->
     <string name="title_activity_l_main">LMainActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -133,12 +133,12 @@
     <string name="aboutUs">关于我们</string>
     <string name="bookList">书籍列表</string>
     <string name="delete">删除</string>
-
+    <!--                                    -->
     <string name="l_tab_text_1">公告管理</string>
     <string name="l_tab_text_2">缴费处理</string>
     <string name="l_tab_text_3">读者管理</string>
     <string name="l_tab_text_4">图书管理</string>
-
+    <!--                                    -->
     <string name="role_librarian">管理员</string>
     <string name="librarianId">工号</string>
     <string name="librarianName">姓名</string>
@@ -181,9 +181,10 @@
     <string name="close_flash">关闭手电筒</string>
     <string name="gallery">相册</string>
     <string name="scan_failed_tip">图片解析失败，换个图片试试.</string>
-
-    <string name="returnBook">还书</string>
-    <string name="borrowBook">借书</string>
+    <!--                                      -->
+    <string name="returnBook">扫码还书</string>
+    <string name="addBorrowBook">扫码添加图书</string>
+    <string name="borrowBook">完成借书</string>
 
 
 </resources>
