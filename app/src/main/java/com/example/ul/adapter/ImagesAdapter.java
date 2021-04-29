@@ -1,17 +1,17 @@
 package com.example.ul.adapter;
 
-import android.annotation.SuppressLint;
+
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.os.Parcel;
 
+import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
-import android.view.LayoutInflater;
+
 import android.view.View;
-import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -23,7 +23,6 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.example.ul.R;
 import com.example.ul.callback.ImageAdapterItemListener;
@@ -36,8 +35,6 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import okhttp3.Request;
-import okhttp3.RequestBody;
 
 /**
  * @Author: Wallace
@@ -45,31 +42,25 @@ import okhttp3.RequestBody;
  * @Date: 2021/4/13 21:10
  * @Modified: By yyyy-MM-dd
  */
-
 public class ImagesAdapter extends ImagesOnlyReadAdapter implements Parcelable {
 
     private static final String TAG = "ImagesAdapter";
-    protected Context context;
     /**
      * 选择的本地图片
      */
-    protected ArrayList<LocalMedia> selectList;
-    /**
-     * 本适配器展示的所有图片的本地存储路径
-     */
-    protected ArrayList<String> imagesPath;
-    /**
-     * 当前是否处于删除状态
-     */
-    protected boolean deleting = false;
-    /**
-     * 当前是否第一次删除图片
-     */
-    protected boolean firstDelete = true;
+    private ArrayList<LocalMedia> selectList;
     /**
      * 本适配器拥有的所有图片的url+uri
      */
-    protected ArrayList<String> glideLoad;
+    private ArrayList<String> glideLoad;
+    /**
+     * 当前是否处于删除状态
+     */
+    private boolean deleting = false;
+    /**
+     * 当前是否第一次删除图片
+     */
+    private boolean firstDelete = true;
 
     public ImagesAdapter(Context context,String token, ImageAdapterItemListener imageAdapterItemListener) {
         super(context,token,imageAdapterItemListener);
@@ -101,12 +92,29 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter implements Parcelable {
 
     protected ImagesAdapter(Parcel in) {
         super(in);
-        selectList = in.createTypedArrayList(LocalMedia.CREATOR);
+        token = in.readString();
         imageNameUrlList = in.createStringArrayList();
-        glideLoad = in.createStringArrayList();
         imagesPath = in.createStringArrayList();
+        selectList = in.createTypedArrayList(LocalMedia.CREATOR);
+        glideLoad = in.createStringArrayList();
         deleting = in.readByte() != 0;
         firstDelete = in.readByte() != 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(token);
+        dest.writeStringList(imageNameUrlList);
+        dest.writeStringList(imagesPath);
+        dest.writeTypedList(selectList);
+        dest.writeStringList(glideLoad);
+        dest.writeByte((byte) (deleting ? 1 : 0));
+        dest.writeByte((byte) (firstDelete ? 1 : 0));
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<ImagesAdapter> CREATOR = new Creator<ImagesAdapter>() {
@@ -138,22 +146,34 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter implements Parcelable {
     @Override
     public void setImageNameUrlList(ArrayList<String> imageNameUrlList) {
         this.imageNameUrlList = imageNameUrlList;
-        String path = this.glideLoad.get(this.glideLoad.size() - 1);
-        this.glideLoad.clear();
-        this.imagesPath.clear();
+        String path = glideLoad.get(glideLoad.size() - 1);
+        glideLoad.clear();
+        imagesPath.clear();
         for (int i = 0; i < this.imageNameUrlList.size(); i++) {
             String url = this.imageNameUrlList.get(i);
-            this.glideLoad.add(url);
-            this.imagesPath.add(null);
+            glideLoad.add(url);
+            imagesPath.add(null);
         }
         for (int i = 0; i < this.selectList.size(); i++) {
             LocalMedia localMedia = this.selectList.get(i);
-            this.glideLoad.add(localMedia.getPath());
-            this.imagesPath.add(localMedia.getPath());
+            glideLoad.add(localMedia.getPath());
+            imagesPath.add(localMedia.getPath());
         }
-        this.glideLoad.add(path);
-        this.imagesPath.add(path);
+        glideLoad.add(path);
+        imagesPath.add(path);
+        Log.e(TAG, "setImageNameUrlList: imagesPath.size() = "+imagesPath.size());
         notifyDataSetChanged();
+    }
+
+    @Override
+    public ArrayList<String> getImagesPath() {
+        Log.e(TAG, "getImagesPath: imagesPath.size() = "+imagesPath.size());
+        if(imagesPath.size() > 0){
+            for (int i = 0; i < imagesPath.size(); i++){
+                Log.e(TAG, "getImagesPath: imagesPath["+i+"] = " + imagesPath.get(i));
+            }
+        }
+        return imagesPath;
     }
 
     public boolean getDeleting(){
@@ -165,7 +185,7 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter implements Parcelable {
         if(!this.deleting){
             setFirstDelete(true);
         }
-        notifyItemRangeChanged(0, ImagesAdapter.this.glideLoad.size());
+        notifyItemRangeChanged(0, glideLoad.size());
     }
 
     public boolean isFirstDelete() {
@@ -176,23 +196,15 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter implements Parcelable {
         this.firstDelete = firstDelete;
     }
 
-    @NonNull
-    @Override
-    public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        @SuppressLint("InflateParams") View view = LayoutInflater.from(context).inflate(R.layout.image_tiem, null);
-        return new ImageViewHolder(view);
-    }
-
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, final int position) {
         Log.e(TAG, "onBindViewHolder: position = "+position);
-        String url = glideLoad.get(position);
-        final GlideUrl glideUrl;
+        String url = glideLoad.get(holder.getLayoutPosition());
         RequestManager requestManager = Glide.with(context).applyDefaultRequestOptions(requestOptions);
         RequestBuilder<Drawable> requestBuilder;
         // 加载网络图片
         if(position < this.imageNameUrlList.size()) {
-            glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
+            final GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
                     .addHeader("Authorization", this.token)
                     .build());
             requestBuilder = requestManager.load(glideUrl);
@@ -234,13 +246,9 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter implements Parcelable {
             imageAdapterItemListener.onClickToShow(holder.getLayoutPosition());
         });
         //如果不是最后一个item
-        if (holder.getLayoutPosition() < ImagesAdapter.this.getItemCount() - 1) {
+        if (holder.getLayoutPosition() < getItemCount() - 1) {
             holder.imageButton.setOnLongClickListener(view -> {
-                if (ImagesAdapter.this.deleting) {
-                    ImagesAdapter.this.setDeleting(false);
-                } else {
-                    ImagesAdapter.this.setDeleting(true);
-                }
+                ImagesAdapter.this.setDeleting(!ImagesAdapter.this.deleting);
                 return true;
             });
             //当前处于删除图片状态，显示删除的图标
@@ -277,20 +285,5 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter implements Parcelable {
         if(glideLoad.size() == 1){
             setDeleting(false);
         }
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeTypedList(selectList);
-        parcel.writeStringList(imageNameUrlList);
-        parcel.writeStringList(glideLoad);
-        parcel.writeStringList(imagesPath);
-        parcel.writeByte((byte) (deleting ? 1 : 0));
-        parcel.writeByte((byte) (firstDelete ? 1 : 0));
     }
 }

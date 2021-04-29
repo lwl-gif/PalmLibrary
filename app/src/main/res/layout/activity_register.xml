@@ -11,7 +11,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/register"
-        android:textSize="30sp"
+        android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,8 +22,9 @@
         android:id="@+id/textView6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="您的身份："
-        android:textSize="24sp"
+        android:text="@string/yourRole"
+        android:textSize="18sp"
+        android:textColor="#5391F4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -50,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:checked="true"
-            android:text="在校学生"
+            android:text="@string/student"
             android:textColor="@color/blue" />
 
         <RadioButton
@@ -58,7 +59,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="校外读者"
+            android:text="@string/other"
             android:textColor="@color/red" />
 
     </RadioGroup>
@@ -91,21 +92,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="点击获取验证码"
-            android:textSize="18sp" />
+            android:text="@string/getCode"
+            android:textSize="14sp" />
 
         <EditText
             android:id="@+id/registerVerificationCode"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:background="@android:drawable/edit_text"
-            android:gravity="left"
-            android:inputType="text"
+            android:gravity="center"
+            android:inputType="number"
             android:singleLine="true"
-            android:textSize="24sp" />
+            android:textSize="14sp" />
     </LinearLayout>
     <!--返回、重置和提交按钮-->
     <LinearLayout
@@ -124,8 +125,8 @@
             android:layout_height="match_parent"
             android:layout_margin="10dp"
             android:gravity="center"
-            android:text="返回"
-            android:textSize="24sp" />
+            android:text="@string/goBack"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/registerClear"
@@ -133,18 +134,19 @@
             android:layout_height="match_parent"
             android:layout_margin="10dp"
             android:gravity="center"
-            android:text="清空"
-            android:textSize="24sp" />
+            android:text="@string/reset"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/registerSubmit"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_margin="10dp"
             android:layout_weight="1"
             android:gravity="center"
-            android:text="提交"
-            android:textSize="24sp" />
+            android:text="@string/submit"
+            android:textSize="14sp" />
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

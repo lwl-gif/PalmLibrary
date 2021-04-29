@@ -18,6 +18,9 @@ import com.example.ul.fragment.BookFragment;
 import com.example.ul.librarian.LMainActivity;
 
 
+/**
+ * @author luoweili
+ */
 public class DialogUtil {
 
     /**定义一个显示消息的对话框*/
@@ -95,21 +98,15 @@ public class DialogUtil {
         //设置图标，图片id即可
         builder.setIcon(R.mipmap.ic_launcher);
         //设置确定按钮
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                imagesAdapter.removeItem(position);
-                imagesAdapter.setFirstDelete(false);
-                dialog.dismiss(); //关闭dialog
-            }
+        builder.setPositiveButton("确定", (dialog, which) -> {
+            imagesAdapter.removeItem(position);
+            imagesAdapter.setFirstDelete(false);
+            dialog.dismiss(); //关闭dialog
         });
         //设置取消按钮
-        builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                imagesAdapter.setFirstDelete(false);
-                dialog.dismiss();
-            }
+        builder.setNegativeButton("取消", (dialog, which) -> {
+            imagesAdapter.setFirstDelete(false);
+            dialog.dismiss();
         });
         //参数都设置完成了，创建并显示出来
         builder.create().show();

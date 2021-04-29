@@ -614,7 +614,7 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
             else {
                 Intent intent = new Intent(LBookDetailActivity.this, ShowPictureActivity.class);
                 Bundle bundle = new Bundle();
-                bundle.putString("TAG",TAG);
+                bundle.putString("TAG",LBookDetailActivity.TAG);
                 bundle.putParcelable("Adapter", imagesAdapter);
                 bundle.putInt("position",position);
                 intent.putExtras(bundle);

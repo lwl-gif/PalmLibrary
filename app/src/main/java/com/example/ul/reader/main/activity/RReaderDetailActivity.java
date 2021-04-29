@@ -1,6 +1,5 @@
 package com.example.ul.reader.main.activity;
 
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -9,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -18,7 +18,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -54,7 +53,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import okhttp3.Response;
-
 /**
  * @Author: Wallace
  * @Description: 读者查看自己详情的活动
@@ -98,8 +96,7 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
     private JSONObject jsonObject = null;
     /**是否正在编辑基本信息*/
     private boolean writingBasic = false;
-    /**是否正在编辑权限信息*/
-    private boolean writingPermission = false;
+    private String token;
     /**文本*/
     @BindView(R.id.readerDetail_title)
     public TextView rdTitle;
@@ -155,7 +152,7 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
     MyHandler myHandler = new MyHandler(new WeakReference(this));
 
     static class MyHandler extends Handler {
-        private WeakReference<RReaderDetailActivity> readerDetailActivity;
+        private final WeakReference<RReaderDetailActivity> readerDetailActivity;
 
         public MyHandler(WeakReference<RReaderDetailActivity> readerDetailActivity) {
             this.readerDetailActivity = readerDetailActivity;
@@ -168,14 +165,14 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
             if (what == UNKNOWN_REQUEST_ERROR || what == REQUEST_FAIL) {
                 Bundle bundle = msg.getData();
                 Toast.makeText(myActivity, bundle.getString("reason"), Toast.LENGTH_SHORT).show();
-            }else if (what == REQUEST_BUT_FAIL_READ_DATA) {
+            } else if (what == REQUEST_BUT_FAIL_READ_DATA) {
                 Toast.makeText(myActivity, "子线程解析数据异常！", Toast.LENGTH_SHORT).show();
-            } else if (what == GET_READER_DETAIL_SUCCEED){
-                myActivity.fillData();
+            } else if (what == GET_READER_DETAIL_SUCCEED) {
                 Toast.makeText(myActivity, "查询成功！", Toast.LENGTH_SHORT).show();
-            } else if(what == UPDATE_BASIC_INFORMATION_SUCCEED){
-                Toast.makeText(myActivity,"更新成功！",Toast.LENGTH_LONG).show();
-            } else if(what == ACCOUNT_OFFLINE_SUCCEED){
+                myActivity.fillData();
+            } else if (what == UPDATE_BASIC_INFORMATION_SUCCEED) {
+                Toast.makeText(myActivity, "更新成功！", Toast.LENGTH_LONG).show();
+            } else if (what == ACCOUNT_OFFLINE_SUCCEED) {
                 UserInfo userInfo = UserManager.getInstance().getUserInfo(myActivity);
                 //退出，且清除数据
                 userInfo.setRole(null);
@@ -186,34 +183,32 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 SharedPreferences.Editor editor = sp.edit();
                 editor.putString("username", null);
                 editor.putString("password", null);
-                editor.putString("role",null);
-                editor.putString("token",null);
+                editor.putString("role", null);
+                editor.putString("token", null);
                 boolean commit = editor.commit();
-                if(commit){
+                if (commit) {
                     //销毁所有活动
                     ActivityManager.getInstance().exit();
-                }else {
+                } else {
                     //能退出，但不清除数据
-                    Toast.makeText(myActivity,"程序退出时数据清理异常！",Toast.LENGTH_LONG).show();
+                    Toast.makeText(myActivity, "程序退出时数据清理异常！", Toast.LENGTH_LONG).show();
                     //销毁所有活动
                     ActivityManager.getInstance().exit();
                 }
-            }else if(what == ACCOUNT_OFFLINE_FAIL){
+            } else if (what == ACCOUNT_OFFLINE_FAIL) {
                 //能退出，但不清除数据
-                Toast.makeText(myActivity,"连接服务器异常！保存数据并退出！",Toast.LENGTH_LONG).show();
+                Toast.makeText(myActivity, "连接服务器异常！保存数据并退出！", Toast.LENGTH_LONG).show();
                 //销毁所有活动
                 ActivityManager.getInstance().exit();
             } else {
                 Bundle data = msg.getData();
-                if(what == GET_READER_DETAIL_FAIL){
-                    DialogUtil.showDialog(myActivity,TAG,data,false);
-                }else if(what == CLOSE_ACCOUNT){
+                if (what == GET_READER_DETAIL_FAIL) {
+                    DialogUtil.showDialog(myActivity, TAG, data, false);
+                } else if (what == CLOSE_ACCOUNT) {
                     //读者销户后，退出到登录界面
-                    DialogUtil.showDialog(myActivity,TAG,data,true);
-                }else if(what == UPDATE_BASIC_INFORMATION_FAIL){
-                    DialogUtil.showDialog(myActivity,TAG,data,false);
-                }else {
-                    DialogUtil.showDialog(myActivity,TAG,data,true);
+                    DialogUtil.showDialog(myActivity, TAG, data, true);
+                } else {
+                    DialogUtil.showDialog(myActivity, TAG, data, what != UPDATE_BASIC_INFORMATION_FAIL);
                 }
             }
         }
@@ -230,7 +225,7 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
         // 获取token
         UserManager userManager = UserManager.getInstance();
         UserInfo userInfo = userManager.getUserInfo(this);
-        String token = userInfo.getToken();
+        token = userInfo.getToken();
         imagesAdapter = new ImagesAdapter(this,token,this);
         recyclerView = findViewById(R.id.recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
@@ -238,26 +233,12 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
         recyclerView.setLayoutManager(gridLayoutManager);
         // 返回按钮绑定返回事件
         buttonBack.setOnClickListener(view -> {
-            finish();
+            RReaderDetailActivity.this.finish();
         });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // 屏幕亮起时开始初始化
         init();
-        if(jsonObject == null || jsonObject.length()<0) {
-            // 发送请求
-            // 获取token
-            UserManager userManager = UserManager.getInstance();
-            UserInfo userInfo = userManager.getUserInfo(this);
-            String token = userInfo.getToken();
-            String url = HttpUtil.BASE_URL + "reader/selectAllById";
-            HttpUtil.getRequest(token, url, this, GET_READER_DETAIL);
-        }else {
-            fillData();
-        }
+        // 发送请求
+        String url = HttpUtil.BASE_URL + "reader/selectAllById";
+        HttpUtil.getRequest(token, url, this, GET_READER_DETAIL);
     }
 
     /**
@@ -355,12 +336,13 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
         // 定义读者身份验证的几种状态
         String checkedState = "checked";
         String checkingState = "checking";
+        String state = null;
         // 解析数据
         try {
             rdId.setText(jsonObject.getString("id"));
             rdName.setText(jsonObject.getString("name"));
             String sex = "0".equals(jsonObject.getString("sex")) ? "女" : "男";
-            //改变列表的值
+            // 改变列表的值
             for (int i = 0; i < rdSex.getCount(); i++) {
                 String s = (String) rdSex.getItemAtPosition(i);
                 if (sex.equals(s)) {
@@ -377,9 +359,12 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
             rdEmail.setText(jsonObject.getString("email"));
             rdAge.setText(jsonObject.getString("age"));
             JSONObject readerPermission = jsonObject.getJSONObject("readerPermission");
-            String state = readerPermission.getString("state");
+            state = readerPermission.getString("state");
+            Log.e(TAG, "fillData: state = " + state);
             // 读者身份已审核通过
             if (checkedState.equals(state)) {
+                // 标题换一下
+                rdTitle.setText(R.string.checkedReader);
                 // 补充读者权限信息
                 String credit = readerPermission.getString("credit");
                 String amount = readerPermission.getString("amount");
@@ -409,6 +394,8 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
             }
             // 读者身份正在审核中
             else if (checkingState.equals(state)) {
+                // 标题换一下
+                rdTitle.setText(R.string.checkingReader);
                 // 获取证件类型信息
                 String typeName = readerPermission.getString("typeName");
                 for (int i = 0; i < rdType.getCount(); i++) {
@@ -420,13 +407,13 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 }
                 // 把已提交的证件照展示出来
                 String imagePath = readerPermission.getString("image");
-                JSONArray pictureNames = jsonObject.getJSONArray("pictures");
+                JSONArray pictureNames = readerPermission.getJSONArray("pictures");
                 String httpBaseUrl = HttpUtil.BASE_URL + "reader/reader_type_picture/checking/" + imagePath + "/" ;
                 ArrayList<String> imageNameUrlList = new ArrayList<>();
                 for(int i = 0; i < pictureNames.length(); i++){
-                    imageNameUrlList.add(httpBaseUrl+pictureNames.get(i));
+                    imageNameUrlList.add(httpBaseUrl+pictureNames.getString(i));
                 }
-                this.imagesAdapter.setImageNameUrlList(imageNameUrlList);
+                imagesAdapter.setImageNameUrlList(imageNameUrlList);
                 // 可选择证件类型
                 rdType.setFocusable(true);
                 rdType.setClickable(true);
@@ -434,14 +421,17 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
             }
             // 读者未进行身份审核
             else{
+                // 标题换一下
+                rdTitle.setText(R.string.uncheckedReader);
                 // 可选择证件类型
                 rdType.setFocusable(true);
                 rdType.setClickable(true);
                 rdType.setEnabled(true);
             }
-            secondInit(state);
         } catch (JSONException e) {
-            Toast.makeText(this,"主程序解析数据时异常！",Toast.LENGTH_LONG).show();
+            Toast.makeText(RReaderDetailActivity.this,"主程序解析数据时异常！",Toast.LENGTH_LONG).show();
+        } finally {
+            secondInit(state);
         }
     }
     /**
@@ -449,84 +439,80 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
      * @Description: 获取信息之后再次对按钮的属性进行调整
      * @Date: Created 22:39 2021/4/4
      * @Modified: by who yyyy-MM-dd
-     * @param needApplyPermission 判断是否需要申请权限的按钮
+     * @param state 判断是否需要申请权限的按钮
      * @return: void
      */
-    private void secondInit(String needApplyPermission) {
-        UserManager userManager = UserManager.getInstance();
-        UserInfo userInfo = userManager.getUserInfo(this);
-        String token = userInfo.getToken();
-        buttonDelete.setVisibility(View.VISIBLE);
-        buttonDelete.setOnClickListener(view -> {
-            String url = HttpUtil.BASE_URL + "reader/deleteById";
-            HttpUtil.deleteRequest(token,url,this,CLOSE_ACCOUNT);
-        });
-        buttonEditBasicInformation.setVisibility(View.VISIBLE);
-        buttonEditBasicInformation.setOnClickListener(view -> {
-            //如果当前正在编辑
-            if (writingBasic) {
-                //发送请求
-                HashMap<String, String> map = new HashMap<>();
-                map.put("name", rdName.getText().toString().trim());
-                map.put("sex", rdSex.getSelectedItem().toString().trim());
-                map.put("age", rdAge.getText().toString().trim());
-                map.put("department", rdDepartment.getText().toString().trim());
-                map.put("classroom", rdClassroom.getText().toString().trim());
-                map.put("username", rdUsername.getText().toString().trim());
-                map.put("password", rdPassword.getText().toString().trim());
-                map.put("phone", rdPhone.getText().toString().trim());
-                map.put("email", rdEmail.getText().toString().trim());
-                String url = HttpUtil.BASE_URL + "reader/updateById";
-                HttpUtil.putRequest(token, url, map, this, UPDATE_BASIC_INFORMATION);
-                writingBasic = false;
-            } else {
-                writingBasic = true;
-            }
-            isAllowEdit();
-        });
-        buttonQuitAndClean.setVisibility(View.VISIBLE);
-        buttonQuitAndClean.setOnClickListener(view -> {
-            //使用Map封装请求参数
-            HashMap<String, String> map = new HashMap<>();
-            map.put("skip", "null");
-            //定义发送的请求url
-            String url = HttpUtil.BASE_URL + "quit";
-            HttpUtil.postRequest(token, url, map, this, ACCOUNT_OFFLINE);
-        });
-        // 定义读者身份验证的几种状态
-        String checkedState = "checked";
-        String uncheckState = "unchecked";
-        // 已审核
-        if(needApplyPermission.equals(checkedState)){
-            buttonApplyReaderPermission.setVisibility(View.GONE);
+    private void secondInit(String state) {
+        if(state == null){
+            DialogUtil.showDialog(RReaderDetailActivity.this,"未检测到您的身份信息，请推出。",true);
         }else {
-            buttonApplyReaderPermission.setVisibility(View.VISIBLE);
-            buttonApplyReaderPermission.setOnClickListener(view -> {
-                // 申请权限
-                if (writingPermission) {
-                    writingPermission = false;
-                    // 发送请求
+            buttonDelete.setVisibility(View.VISIBLE);
+            buttonDelete.setOnClickListener(view -> {
+                String url = HttpUtil.BASE_URL + "reader/deleteById";
+                HttpUtil.deleteRequest(token, url, this, CLOSE_ACCOUNT);
+            });
+            buttonEditBasicInformation.setVisibility(View.VISIBLE);
+            buttonEditBasicInformation.setOnClickListener(view -> {
+                //如果当前正在编辑
+                if (writingBasic) {
+                    //发送请求
+                    HashMap<String, String> map = new HashMap<>();
+                    map.put("name", rdName.getText().toString().trim());
+                    map.put("sex", rdSex.getSelectedItem().toString().trim());
+                    map.put("age", rdAge.getText().toString().trim());
+                    map.put("department", rdDepartment.getText().toString().trim());
+                    map.put("classroom", rdClassroom.getText().toString().trim());
+                    map.put("username", rdUsername.getText().toString().trim());
+                    map.put("password", rdPassword.getText().toString().trim());
+                    map.put("phone", rdPhone.getText().toString().trim());
+                    map.put("email", rdEmail.getText().toString().trim());
+                    String url = HttpUtil.BASE_URL + "reader/updateById";
+                    HttpUtil.putRequest(token, url, map, this, UPDATE_BASIC_INFORMATION);
+                    writingBasic = false;
+                } else {
+                    writingBasic = true;
+                }
+                isAllowEdit();
+            });
+            buttonQuitAndClean.setVisibility(View.VISIBLE);
+            buttonQuitAndClean.setOnClickListener(view -> {
+                //使用Map封装请求参数
+                HashMap<String, String> map = new HashMap<>();
+                map.put("skip", "null");
+                //定义发送的请求url
+                String url = HttpUtil.BASE_URL + "quit";
+                HttpUtil.postRequest(token, url, map, this, ACCOUNT_OFFLINE);
+            });
+            // 定义读者身份验证的几种状态
+            String checkedState = "checked";
+            String uncheckState = "unchecked";
+            // 已审核
+            if (state.equals(checkedState)) {
+                buttonApplyReaderPermission.setVisibility(View.GONE);
+            } else {
+                buttonApplyReaderPermission.setVisibility(View.VISIBLE);
+                buttonApplyReaderPermission.setOnClickListener(view -> {
+                    // 申请权限
                     // 使用Map封装请求参数
                     HashMap<String, String> hashMap = new HashMap<>();
                     // 获取证件类型名称
                     String rdTypeName = (String) this.rdType.getSelectedItem();
-                    hashMap.put("type",rdTypeName);
+                    hashMap.put("type", rdTypeName);
                     // 获取要提交的图片的全路径
-                    List<String> list = this.imagesAdapter.getImagesPath();
-                    List<String> tempList = list.subList(0,list.size()-1);
-                    String url = HttpUtil.BASE_URL + "readerPermission/apply";
-                    HttpUtil.postRequest(token,url,hashMap,tempList,this,APPLY_PERMISSION);
-                } else {
-                    writingPermission = true;
+                    List<String> list = imagesAdapter.getImagesPath();
+                    if(list.size() <= 0){
+                        DialogUtil.showDialog(this,"需上传照片。",false);
+                    }else {
+                        List<String> tempList = list.subList(0, list.size() - 1);
+                        String url = HttpUtil.BASE_URL + "readerPermission/apply";
+                        HttpUtil.postRequest(token, url, hashMap, tempList, this, APPLY_PERMISSION);
+                    }
+                });
+                // 未审核
+                if (state.equals(uncheckState)) {
+                    String msg = "检测到您尚未申请借阅权限，选择证件类型，上传证件的正反面照片，经管理员审核通过后可开启借阅权限！";
+                    DialogUtil.showDialog(this, msg, false);
                 }
-                rdType.setFocusable(writingPermission);
-                rdType.setClickable(writingPermission);
-                rdType.setEnabled(writingPermission);
-            });
-            // 未审核
-            if (needApplyPermission.equals(uncheckState)) {
-                String msg = "检测到您尚未申请借阅权限，选择证件类型，上传证件的正反面照片，经管理员审核通过后可开启借阅权限！";
-                DialogUtil.showDialog(this, msg, false);
             }
         }
     }
@@ -589,19 +575,18 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
         super.onDestroy();
         ActivityManager.getInstance().removeActivity(this);
     }
-
+    /**
+     * @Author: Wallace
+     * @Description: 先判断是不是最后一个item
+     * 1.不是最后一个item,则开启一个Activity，用大图来展示当前的图片
+     * 2.是最后一个item，则选择图片添加
+     * @Date: Created in 21:41 2021/4/11
+     * @Modified By:
+     * @param position item的位置
+     * @return: void
+     */
     @Override
     public void onClickToShow(int position) {
-        /**
-         * @Author:Wallace
-         * @Description: 先判断是不是最后一个item
-         * 1.不是最后一个item,则开启一个Activity，用大图来展示当前的图片
-         * 2.是最后一个item，则选择图片添加
-         * @Date:Created in 21:41 2021/4/11
-         * @Modified By:
-         * @param position item的位置
-         * @return: void
-         */
         // 当前不处于删除状态
         if(!imagesAdapter.getDeleting()){
             if(position == imagesAdapter.getItemCount()-1) {
@@ -649,11 +634,9 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
             }
             else {
                 Intent intent = new Intent(RReaderDetailActivity.this, ShowPictureActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("TAG",TAG);
-                bundle.putParcelable("Adapter", imagesAdapter);
-                bundle.putInt("position",position);
-                intent.putExtras(bundle);
+                intent.putExtra("TAG", TAG);
+                intent.putExtra("position",position);
+                intent.putExtra("Adapter", imagesAdapter);
                 startActivity(intent);
             }
         }

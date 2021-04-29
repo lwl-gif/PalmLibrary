@@ -119,7 +119,7 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
                 }else {
                     View view = View.inflate(myActivity,R.layout.dialog_view,null);
                     TextView tvFrom = view.findViewById(R.id.dialog_from);
-                    tvFrom.setText(TAG);
+                    tvFrom.setText(RBookDetailActivity.TAG);
                     TextView tvCode = view.findViewById(R.id.dialog_code);
                     tvCode.setText(code);
                     TextView tvMessage = view.findViewById(R.id.dialog_message);
@@ -268,7 +268,7 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
     public void onClickToShow(int position) {
         Intent intent = new Intent(RBookDetailActivity.this, ShowPictureActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putString("TAG",TAG);
+        bundle.putString("TAG",RBookDetailActivity.TAG);
         bundle.putParcelable("Adapter", imagesOnlyReadAdapter);
         bundle.putInt("position",position);
         intent.putExtras(bundle);

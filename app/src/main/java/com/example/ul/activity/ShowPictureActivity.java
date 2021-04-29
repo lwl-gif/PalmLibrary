@@ -1,7 +1,9 @@
 package com.example.ul.activity;
 
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -34,6 +36,7 @@ import static android.content.ContentValues.TAG;
  * @Modified By:
  * @return:
  */
+@SuppressLint("NonConstantResourceId")
 public class ShowPictureActivity extends Activity{
 
     private static final String TAG = "ShowPictureActivity";
@@ -53,7 +56,9 @@ public class ShowPictureActivity extends Activity{
     /**当前是第几张图片*/
     private int position;
     /**图片总数*/
-    private int total;
+    private int total = -1;
+    /**来源*/
+    private String tag;
     private RequestOptions requestOptions = new RequestOptions().error(R.mipmap.error0);
     /**定义手势监听对象*/
     private GestureDetector gestureDetector;
@@ -65,25 +70,45 @@ public class ShowPictureActivity extends Activity{
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_show_picture);
         ButterKnife.bind(this);
-        imageButton.setOnClickListener(view -> ShowPictureActivity.this.finish());
-        Bundle bundle = getIntent().getExtras();
+        Intent intent = getIntent();
+        Log.e(TAG, "onCreate: intent" + intent);
         // 获取来源
-        String tag = bundle.getString("TAG");
+        tag = intent.getStringExtra("TAG");
+        Log.e(TAG, "onCreate:tag = " + tag);
         if(tag.equals(IMAGES_PATH_FROM[0]) || tag.equals(IMAGES_PATH_FROM[1]) ){
             // 获取数据
-            ImagesAdapter imagesAdapter = (ImagesAdapter) bundle.getParcelable("Adapter");
-            imagesPath = imagesAdapter.getImagesPath();
+            ImagesAdapter imagesAdapter = (ImagesAdapter) intent.getParcelableExtra("Adapter");
+            if (imagesAdapter != null) {
+                imagesPath = imagesAdapter.getImagesPath();
+                Log.e(TAG, "onCreate: imagesPath = " + imagesPath);
+                Log.e(TAG, "onCreate: imagesPath.size() = " + imagesPath.size());
+                total = imagesPath.size() - 1;
+            }
         }else {
             // 获取数据
-            ImagesOnlyReadAdapter imagesOnlyReadAdapter = (ImagesOnlyReadAdapter) bundle.getParcelable("Adapter");
-            imagesPath = imagesOnlyReadAdapter.getImagesPath();
+            ImagesOnlyReadAdapter imagesOnlyReadAdapter = (ImagesOnlyReadAdapter) intent.getParcelableExtra("Adapter");
+            if (imagesOnlyReadAdapter != null) {
+                imagesPath = imagesOnlyReadAdapter.getImagesPath();
+                Log.e(TAG, "onCreate: imagesPath = " + imagesPath);
+                Log.e(TAG, "onCreate: imagesPath.size() = " + imagesPath.size());
+                total = imagesPath.size();
+            }
         }
-        total = imagesPath.size();
+        Log.e(TAG, "onCreate: total = " + total);
+        if(total == -1){
+            finish();
+        }
         // 获取点击位置
-        position = bundle.getInt("position") + 1;
+        position = intent.getIntExtra("position",0) + 1;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        imageButton.setOnClickListener(view -> ShowPictureActivity.this.finish());
         tvNow.setText(String.valueOf(position));
         tvAll.setText(String.valueOf(total));
-        Glide.with(this).applyDefaultRequestOptions(requestOptions).load(imagesPath.get(position -1)).into(imageView);
+        Glide.with(this).applyDefaultRequestOptions(requestOptions).load(imagesPath.get(position - 1)).into(imageView);
         //设置手势监听由SimpleOnGestureListener处理
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             //当识别的手势是滑动手势时回调onFinger方法

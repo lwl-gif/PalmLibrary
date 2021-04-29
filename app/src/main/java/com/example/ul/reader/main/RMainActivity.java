@@ -1,5 +1,6 @@
 package com.example.ul.reader.main;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -39,6 +40,7 @@ public class RMainActivity extends AppCompatActivity implements CallbackToMainAc
         return true;
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()){
@@ -48,7 +50,6 @@ public class RMainActivity extends AppCompatActivity implements CallbackToMainAc
                 startActivity(intent);
                 return true;
             case R.id.menu_Setting:
-
                 //打开个人设置页面
                 return true;
             case R.id.menu_Scan:

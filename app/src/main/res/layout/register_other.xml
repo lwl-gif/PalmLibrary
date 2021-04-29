@@ -14,14 +14,15 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="身份证号:"
-            android:textSize="24sp" />
+            android:textColor="#5391F4"
+            android:textSize="18sp" />
         <EditText
             android:id="@+id/registerId"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@android:drawable/edit_text"
-            android:gravity="left"
+            android:gravity="start"
             android:inputType="text"
             android:singleLine="true"
             android:textSize="18sp" />
@@ -37,15 +38,16 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="账        号:"
-            android:textSize="24sp" />
+            android:textColor="#5391F4"
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/registerUsername"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@android:drawable/edit_text"
-            android:gravity="left"
+            android:gravity="start"
             android:inputType="text"
             android:singleLine="true"
             android:textSize="18sp" />
@@ -60,15 +62,16 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="密        码:"
-            android:textSize="24sp" />
+            android:textColor="#5391F4"
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/registerPassword"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@android:drawable/edit_text"
-            android:gravity="left"
+            android:gravity="start"
             android:inputType="textPassword"
             android:singleLine="true"
             android:textSize="18sp" />
@@ -83,15 +86,16 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="确认密码:"
-            android:textSize="24sp" />
+            android:textColor="#5391F4"
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/registerConfirmPassword"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@android:drawable/edit_text"
-            android:gravity="left"
+            android:gravity="start"
             android:inputType="textPassword"
             android:singleLine="true"
             android:textSize="18sp" />
@@ -106,16 +110,17 @@
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="电子邮箱:"
-            android:textSize="24sp" />
+            android:textColor="#5391F4"
+            android:textSize="18sp" />
 
         <EditText
             android:id="@+id/registerEmail"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:background="@android:drawable/edit_text"
-            android:gravity="left"
-            android:inputType="text"
+            android:gravity="start"
+            android:inputType="textEmailAddress"
             android:singleLine="true"
             android:textSize="18sp" />
     </LinearLayout>

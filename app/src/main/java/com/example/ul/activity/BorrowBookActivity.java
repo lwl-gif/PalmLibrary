@@ -78,7 +78,7 @@ public class BorrowBookActivity extends Activity implements HttpUtil.MyCallback,
      */
     private static final int UNKNOWN_REQUEST_ERROR = 1200;
     /**
-     * 网络异常，请求失败
+     * 请求失败
      */
     private static final int REQUEST_FAIL = 12000;
     /**
@@ -384,7 +384,7 @@ public class BorrowBookActivity extends Activity implements HttpUtil.MyCallback,
         String c = jsonObject.getString("code");
         Message msg = new Message();
         Bundle data = new Bundle();
-        //返回值为true,说明请求被拦截
+        // 返回值为true,说明请求被拦截
         if (HttpUtil.requestIsIntercepted(jsonObject)) {
             data.putString("code", c);
             data.putString("tip", t);
@@ -397,7 +397,7 @@ public class BorrowBookActivity extends Activity implements HttpUtil.MyCallback,
                 case GET_READER_PERMISSION:
                     readerPermission = JSON.parseObject(jsonObject.getString("object"), ReaderPermission.class);
                     msg.what = GET_READER_PERMISSION;
-                    //发消息通知主线程进行UI更新
+                    // 发消息通知主线程进行UI更新
                     myHandler.sendMessage(msg);
                     break;
                 case TEST_BOOK_STATUS:
@@ -407,7 +407,6 @@ public class BorrowBookActivity extends Activity implements HttpUtil.MyCallback,
                         msg.setData(data);
                         msg.what = TEST_BOOK_STATUS_OK;
                         //发消息通知主线程进行UI更新
-                        myHandler.sendMessage(msg);
                     } else {
                         JSONObject jsonObject1 = jsonObject.getJSONObject("dataObject");
                         data.putString("message", m);
@@ -415,8 +414,8 @@ public class BorrowBookActivity extends Activity implements HttpUtil.MyCallback,
                         msg.setData(data);
                         msg.what = TEST_BOOK_STATUS_NO;
                         //发消息通知主线程进行UI更新
-                        myHandler.sendMessage(msg);
                     }
+                    myHandler.sendMessage(msg);
                     break;
                 case BORROW_BOOK:
                     JSONObject jsonObject1 = jsonObject.getJSONObject("dataObject");
@@ -459,7 +458,7 @@ public class BorrowBookActivity extends Activity implements HttpUtil.MyCallback,
     public void failed(IOException e, int code) {
         Message message = new Message();
         Bundle bundle = new Bundle();
-        String reason = null;
+        String reason;
         if (e instanceof SocketTimeoutException) {
             reason = "连接超时";
             message.what = REQUEST_FAIL;

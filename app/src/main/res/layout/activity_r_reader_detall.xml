@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/orange"
+    android:background="#5BC3F6"
     tools:context=".reader.main.activity.RReaderDetailActivity">
 
     <TextView
@@ -12,7 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:padding="8dp"
+        android:padding="5dp"
         android:text="@string/myDetail"
         android:textColor="@color/blue"
         android:textSize="18sp"
@@ -25,14 +25,14 @@
 
     <ImageButton
         android:id="@+id/button_back"
-        android:layout_width="40dp"
+        android:layout_width="50dp"
         android:layout_height="0dp"
+        android:background="@drawable/abc_vector_test"
         app:layout_constraintBottom_toBottomOf="@+id/readerDetail_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/readerDetail_title"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/abc_vector_test" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
         android:id="@+id/scrollView"
@@ -40,6 +40,7 @@
         android:layout_height="0dp"
         android:layout_marginStart="2dp"
         android:layout_marginEnd="2dp"
+        android:layout_marginBottom="4dp"
         android:background="#EDEACF"
         app:layout_constraintBottom_toTopOf="@id/button_quitAndClean"
         app:layout_constraintEnd_toEndOf="parent"
@@ -148,9 +149,9 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:entries="@array/sex"
-                android:gravity="center"
                 android:prompt="@string/yourSex"
                 android:spinnerMode="dialog"
+                android:textAlignment="center"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView58"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -370,10 +371,12 @@
 
             <Button
                 android:id="@+id/button_edit_basic_information"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
                 android:layout_margin="5dp"
-                android:padding="5dp"
+                android:background="@drawable/btn01_theme"
+                android:paddingStart="40dp"
+                android:paddingEnd="40dp"
                 android:text="@string/edit_basic_information"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -386,6 +389,7 @@
                 android:id="@+id/title_permission"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:background="@color/teal_200"
                 android:gravity="center"
                 android:padding="5dp"
@@ -539,9 +543,9 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:entries="@array/readerType"
-                android:gravity="center"
                 android:prompt="@string/yourReaderType"
                 android:spinnerMode="dialog"
+                android:textAlignment="center"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView69"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -585,10 +589,12 @@
 
             <Button
                 android:id="@+id/button_apply_reader_permission"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
                 android:layout_margin="5dp"
-                android:padding="5dp"
+                android:background="@drawable/btn01_theme"
+                android:paddingStart="40dp"
+                android:paddingEnd="40dp"
                 android:text="@string/apply_reader_permission"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -603,21 +609,25 @@
     <Button
         android:id="@+id/button_quitAndClean"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_margin="5dp"
+        android:background="@drawable/btn01_theme"
         android:padding="5dp"
         android:text="@string/quitAndClean"
+        android:textColor="@color/red"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/readerDetail_title"
         app:layout_constraintStart_toEndOf="@id/button_delete"
+        app:layout_constraintTop_toBottomOf="@+id/readerDetail_title"
         app:layout_constraintVertical_bias="1.0" />
 
     <Button
         android:id="@+id/button_delete"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
+        android:background="@drawable/btn01_theme"
         android:text="@string/closeAccount"
+        android:textColor="@color/red"
         app:layout_constraintBottom_toBottomOf="@+id/button_quitAndClean"
         app:layout_constraintEnd_toStartOf="@+id/button_quitAndClean"
         app:layout_constraintHorizontal_bias="0.0"

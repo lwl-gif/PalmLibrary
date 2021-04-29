@@ -67,11 +67,24 @@ public class ImagesOnlyReadAdapter extends RecyclerView.Adapter<ImageViewHolder>
     }
 
     protected ImagesOnlyReadAdapter(Parcel in) {
+        token = in.readString();
         imageNameUrlList = in.createStringArrayList();
         imagesPath = in.createStringArrayList();
     }
 
-    public static final Parcelable.Creator<ImagesOnlyReadAdapter> CREATOR = new Parcelable.Creator<ImagesOnlyReadAdapter>() {
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(token);
+        dest.writeStringList(imageNameUrlList);
+        dest.writeStringList(imagesPath);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<ImagesOnlyReadAdapter> CREATOR = new Creator<ImagesOnlyReadAdapter>() {
         @Override
         public ImagesOnlyReadAdapter createFromParcel(Parcel in) {
             return new ImagesOnlyReadAdapter(in);
@@ -84,9 +97,6 @@ public class ImagesOnlyReadAdapter extends RecyclerView.Adapter<ImageViewHolder>
     };
 
     public ArrayList<String> getImagesPath() {
-        for (int i = 0; i < imagesPath.size(); i++){
-            Log.e(TAG, "getImagesPath: imagesPath["+i+"] = " + imagesPath.get(i));
-        }
         return this.imagesPath;
     }
 
@@ -155,16 +165,4 @@ public class ImagesOnlyReadAdapter extends RecyclerView.Adapter<ImageViewHolder>
     public int getItemCount() {
         return this.imageNameUrlList.size();
     }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeStringList(imageNameUrlList);
-        parcel.writeStringList(imagesPath);
-    }
-
 }
