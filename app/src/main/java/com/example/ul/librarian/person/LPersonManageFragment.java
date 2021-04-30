@@ -34,7 +34,6 @@ import okhttp3.Response;
 public class LPersonManageFragment extends Fragment implements HttpUtil.MyCallback{
 
     private static final String TAG = "LPersonManageFragment";
-    //自定义消息代码
     /**未知请求*/
     private static final int UNKNOWN_REQUEST = 700;
     /**请求失败*/
@@ -98,7 +97,7 @@ public class LPersonManageFragment extends Fragment implements HttpUtil.MyCallba
                 }
                 if(what == ACCOUNT_OFFLINE_FAIL){
                     //能退出，但不清除数据
-                    Toast.makeText(myActivity,"网络异常！保存数据并退出！",Toast.LENGTH_LONG);
+                    Toast.makeText(myActivity,"网络异常！保存数据并退出！",Toast.LENGTH_LONG).show();
                 }
                 //销毁所有活动
                 ActivityManager.getInstance().exit();
@@ -157,28 +156,28 @@ public class LPersonManageFragment extends Fragment implements HttpUtil.MyCallba
         query();
     }
 
-    //查询个人信息
+    /**查询个人信息*/
     private void query(){
         //从SharedPreferences中获取用户信息
         UserManager userManager = UserManager.getInstance();
         UserInfo userInfo = userManager.getUserInfo(getActivity());
         String role = userInfo.getRole();
         String token = userInfo.getToken();
-        //定义发送的请求url
+        // 定义发送的请求url
         String url = HttpUtil.BASE_URL + role + "/" + "info";
         HttpUtil.getRequest(token,url,this,GET_PERSON_DETAIL);
     }
 
-    //填充数据
+    /**填充数据*/
     private void fill(){
         if(jsonObject!=null){
-            //组件赋值
+            // 组件赋值
             try {
                 tId.setText(jsonObject.getString("id"));
                 tName.setText(jsonObject.getString("name"));
-                //获取性别代号
+                // 获取性别代号
                 String sex = jsonObject.getString("sex");
-                if(sex.equals("1")){
+                if("1".equals(sex)){
                     tSex.setText("男");
                 }else {
                     tSex.setText("女");
@@ -207,9 +206,9 @@ public class LPersonManageFragment extends Fragment implements HttpUtil.MyCallba
                     jsonObject = new JSONObject(result);
                     String message = jsonObject.getString("message");
                     String tip = null;
-                    if(message.equals("查询成功！")){
+                    if("查询成功！".equals(message)){
                         tip = jsonObject.getString("tip");
-                        if(tip == null || tip.equals("null")){
+                        if("null".equals(tip)){
                             //查询成功，获取书籍数据，通知主线程渲染前端
                             jsonObject = jsonObject.getJSONObject("object");
                             myHandler.sendEmptyMessage(GET_PERSON_DETAIL_FILL);

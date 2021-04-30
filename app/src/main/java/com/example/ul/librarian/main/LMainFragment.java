@@ -15,6 +15,9 @@ import com.google.android.material.tabs.TabLayout;
 
 import java.util.Objects;
 
+/**
+ * @author luoweili
+ */
 public class LMainFragment extends Fragment {
 
     private static final String LAG = "LMainFragment";
@@ -27,7 +30,6 @@ public class LMainFragment extends Fragment {
         ViewPager viewPager = rootView.findViewById(R.id.l_main_fragment_view_pager);
         viewPager.setAdapter(lMainFragmentPagerAdapter);
         TabLayout tabs = rootView.findViewById(R.id.tabs);
-        Drawable d = null;
         tabs.setupWithViewPager(viewPager);
         for (int i = 0; i < tabs.getTabCount(); i++) {
             Objects.requireNonNull(tabs.getTabAt(i)).setCustomView(lMainFragmentPagerAdapter.getTabView(i));

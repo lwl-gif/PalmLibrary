@@ -186,15 +186,12 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 editor.putString("role", null);
                 editor.putString("token", null);
                 boolean commit = editor.commit();
-                if (commit) {
-                    //销毁所有活动
-                    ActivityManager.getInstance().exit();
-                } else {
+                if (!commit) {
                     //能退出，但不清除数据
                     Toast.makeText(myActivity, "程序退出时数据清理异常！", Toast.LENGTH_LONG).show();
-                    //销毁所有活动
-                    ActivityManager.getInstance().exit();
                 }
+                //销毁所有活动
+                ActivityManager.getInstance().exit();
             } else if (what == ACCOUNT_OFFLINE_FAIL) {
                 //能退出，但不清除数据
                 Toast.makeText(myActivity, "连接服务器异常！保存数据并退出！", Toast.LENGTH_LONG).show();
@@ -207,7 +204,9 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 } else if (what == CLOSE_ACCOUNT) {
                     //读者销户后，退出到登录界面
                     DialogUtil.showDialog(myActivity, TAG, data, true);
-                } else {
+                } else if(what == APPLY_PERMISSION){
+                    DialogUtil.showDialog(myActivity, TAG, data, false);
+                }else {
                     DialogUtil.showDialog(myActivity, TAG, data, what != UPDATE_BASIC_INFORMATION_FAIL);
                 }
             }
@@ -232,9 +231,7 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
         recyclerView.setAdapter(imagesAdapter);
         recyclerView.setLayoutManager(gridLayoutManager);
         // 返回按钮绑定返回事件
-        buttonBack.setOnClickListener(view -> {
-            RReaderDetailActivity.this.finish();
-        });
+        buttonBack.setOnClickListener(view -> RReaderDetailActivity.this.finish());
         init();
         // 发送请求
         String url = HttpUtil.BASE_URL + "reader/selectAllById";
@@ -396,6 +393,10 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
             else if (checkingState.equals(state)) {
                 // 标题换一下
                 rdTitle.setText(R.string.checkingReader);
+                // 可选择证件类型
+                rdType.setFocusable(true);
+                rdType.setClickable(true);
+                rdType.setEnabled(true);
                 // 获取证件类型信息
                 String typeName = readerPermission.getString("typeName");
                 for (int i = 0; i < rdType.getCount(); i++) {
@@ -408,16 +409,12 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 // 把已提交的证件照展示出来
                 String imagePath = readerPermission.getString("image");
                 JSONArray pictureNames = readerPermission.getJSONArray("pictures");
-                String httpBaseUrl = HttpUtil.BASE_URL + "reader/reader_type_picture/checking/" + imagePath + "/" ;
+                String httpBaseUrl = HttpUtil.BASE_URL + "reader/reader_type_picture/checking/" + imagePath + "/";
                 ArrayList<String> imageNameUrlList = new ArrayList<>();
-                for(int i = 0; i < pictureNames.length(); i++){
-                    imageNameUrlList.add(httpBaseUrl+pictureNames.getString(i));
+                for (int i = 0; i < pictureNames.length(); i++) {
+                    imageNameUrlList.add(httpBaseUrl + pictureNames.getString(i));
                 }
                 imagesAdapter.setImageNameUrlList(imageNameUrlList);
-                // 可选择证件类型
-                rdType.setFocusable(true);
-                rdType.setClickable(true);
-                rdType.setEnabled(true);
             }
             // 读者未进行身份审核
             else{
@@ -499,11 +496,10 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                     String rdTypeName = (String) this.rdType.getSelectedItem();
                     hashMap.put("type", rdTypeName);
                     // 获取要提交的图片的全路径
-                    List<String> list = imagesAdapter.getImagesPath();
-                    if(list.size() <= 0){
+                    ArrayList<String> tempList = imagesAdapter.getImagesPath();
+                    if(tempList.size() <= 0){
                         DialogUtil.showDialog(this,"需上传照片。",false);
                     }else {
-                        List<String> tempList = list.subList(0, list.size() - 1);
                         String url = HttpUtil.BASE_URL + "readerPermission/apply";
                         HttpUtil.postRequest(token, url, hashMap, tempList, this, APPLY_PERMISSION);
                     }
@@ -636,7 +632,7 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 Intent intent = new Intent(RReaderDetailActivity.this, ShowPictureActivity.class);
                 intent.putExtra("TAG", TAG);
                 intent.putExtra("position",position);
-                intent.putExtra("Adapter", imagesAdapter);
+                intent.putExtra("imagesPath", imagesAdapter.getImagesPath());
                 startActivity(intent);
             }
         }
@@ -652,10 +648,9 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                     imagesAdapter.setSelectList((ArrayList<LocalMedia>) PictureSelector.obtainMultipleResult(data));
                     break;
                 default:
-                    break;
+                    imagesAdapter.setSelectList(new ArrayList<>());
             }
         }
-
     }
 
     @Override
@@ -747,7 +742,22 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 }
                 break;
             case APPLY_PERMISSION:
-
+                try {
+                    JSONObject jsonObject = new JSONObject(result);
+                    String message = jsonObject.getString("message");
+                    String c = jsonObject.getString("code");
+                    String tip = jsonObject.getString("tip");
+                    Message msg = new Message();
+                    Bundle data = new Bundle();
+                    data.putString("code",c);
+                    data.putString("message",message);
+                    data.putString("tip",tip);
+                    msg.setData(data);
+                    msg.what = APPLY_PERMISSION;
+                    myHandler.sendMessage(msg);
+                } catch (JSONException e) {
+                    myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
+                }
                 break;
             default:
                 Message msg = new Message();
@@ -766,7 +776,7 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
         }else {
             Message message = new Message();
             Bundle bundle = new Bundle();
-            String reason = null;
+            String reason;
             if (e instanceof SocketTimeoutException) {
                 reason = "连接超时";
                 message.what = REQUEST_FAIL;

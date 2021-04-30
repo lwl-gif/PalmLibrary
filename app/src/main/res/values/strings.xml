@@ -186,7 +186,7 @@
     <string name="expiredRecord">过期记录</string>
     <string name="nowBorrow">当前借阅</string>
     <string name="nowReserve">当前预约</string>
-    <string name="readerAmountAutoFill">18</string>
+    <string name="readerAmountAutoFill">16</string>
     <string name="readerAmountHint">请给他设置一个初始借阅量</string>
     <string name="readerCreditAutoFill">100</string>
     <string name="readerCreditHint">请给他设置一个初始信誉分</string>

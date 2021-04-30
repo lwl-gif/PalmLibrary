@@ -138,7 +138,7 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
     @BindView(R.id.l_bookState)
     public TextView tState;
     private ImagesAdapter imagesAdapter;
-    private Button bBack,bEdit,bSubmit,bDelete;
+    private Button bEdit;
     /**当前书本id*/
     private String id = null;
     /**当前是否启动了编辑*/
@@ -152,32 +152,33 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         @Override
         public void handleMessage(Message msg){
             int what = msg.what;
+            LBookDetailActivity myActivity = lBookDetailActivity.get();
             if(what == UNKNOWN_REQUEST) {
-                Toast.makeText(lBookDetailActivity.get(),"未知请求，无法处理！",Toast.LENGTH_SHORT).show();
+                Toast.makeText(myActivity,"未知请求，无法处理！",Toast.LENGTH_SHORT).show();
             }
             else if(what == REQUEST_FAIL){
-                Toast.makeText(lBookDetailActivity.get(),"网络异常！",Toast.LENGTH_SHORT).show();
+                Toast.makeText(myActivity,"网络异常！",Toast.LENGTH_SHORT).show();
             }else if(what == REQUEST_BUT_FAIL_READ_DATA){
-                Toast.makeText(lBookDetailActivity.get(),"子线程解析数据异常！",Toast.LENGTH_SHORT).show();
+                Toast.makeText(myActivity,"子线程解析数据异常！",Toast.LENGTH_SHORT).show();
             }else if(what == GET_TYPE){
-                lBookDetailActivity.get().fillSpinnerData();
+                myActivity.fillSpinnerData();
             }else if (what == GET_BOOK_DETAIL_FILL) {
-                lBookDetailActivity.get().fillBookDetail();
+                myActivity.fillBookDetail();
             } else {
                 Bundle data = msg.getData();
                 String code = data.getString("code");
                 String message = data.getString("message");
                 if(what == ADD_BOOK_SUCCESS){
-                    lBookDetailActivity.get().clear();
-                    Toast.makeText(lBookDetailActivity.get(), message, Toast.LENGTH_LONG).show();
+                    myActivity.clear();
+                    Toast.makeText(myActivity, message, Toast.LENGTH_LONG).show();
                 }else if(what == UPDATE_BOOK_SUCCEED){
-                    Toast.makeText(lBookDetailActivity.get(), message, Toast.LENGTH_LONG).show();
+                    Toast.makeText(myActivity, message, Toast.LENGTH_LONG).show();
                 }else if(what == DELETE_BOOK_SUCCEED){
-                    Toast.makeText(lBookDetailActivity.get(), message, Toast.LENGTH_LONG).show();
-                    lBookDetailActivity.get().finish();
+                    Toast.makeText(myActivity, message, Toast.LENGTH_LONG).show();
+                    myActivity.finish();
                 }
                 else {
-                    DialogUtil.showDialog(lBookDetailActivity.get(),TAG,data,false);
+                    DialogUtil.showDialog(myActivity,TAG,data,false);
                 }
             }
         }
@@ -194,7 +195,6 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         //初始化
         init();
     }
-
     /**
      * @Author: Wallace
      * @Description: 根据有无id值，有两种初始化方式，对应新添书籍和书籍详情两种打开方式。
@@ -215,7 +215,7 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         recyclerView.setLayoutManager(gridLayoutManager);
         imagesAdapter = new ImagesAdapter(this,token,this);
         recyclerView.setAdapter(imagesAdapter);
-        bBack = findViewById(R.id.l_bookDetail_back);
+        Button bBack = findViewById(R.id.l_bookDetail_back);
         bBack.setOnClickListener(view -> {
             finish();
         });
@@ -225,14 +225,14 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
             writing = !writing;
             isAllowEdit();
         });
-        bSubmit = findViewById(R.id.l_bookDetail_submit);
+        Button bSubmit = findViewById(R.id.l_bookDetail_submit);
         //判断传进来的id是否为空，若为空，则说明是添加新书，若不为空则说明是查看书本详情
         id = this.getIntent().getStringExtra("id");
         if(id != null){
             writing = false;
             tTitle.setText("书籍详情");
             bSubmit.setText(R.string.update);
-            bDelete = findViewById(R.id.l_bookDetail_delete);
+            Button bDelete = findViewById(R.id.l_bookDetail_delete);
             bDelete.setVisibility(View.VISIBLE);
             // 绑定删除请求
             bDelete.setOnClickListener(view -> {
@@ -272,11 +272,9 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
             hashMap.put("hot",tHot.getText().toString().trim());
             hashMap.put("state",tState.getText().toString().trim());
             // 获取要提交的图片的全路径
-            List<String> list = this.imagesAdapter.getImagesPath();
-            List<String> tempList = list.subList(0,list.size()-1);
+            ArrayList<String> tempList = this.imagesAdapter.getImagesPath();
             if(id != null){     // 绑定更新图书请求
                 String url = HttpUtil.BASE_URL + "book/updateBook";
-
                 HttpUtil.putRequest(token,url,hashMap,tempList,this,UPDATE_BOOK);
             }else {             // 绑定添加图书请求
                 String url = HttpUtil.BASE_URL + "book/addBook";
@@ -302,7 +300,6 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         spinnerFirst.setSelection(0,true);
         spinnerThird.setSelection(0,true);
     }
-
     /**
      * @Author: Wallace
      * @Description: 为各个Spinner填充信息及绑定选中事件
@@ -456,15 +453,15 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         String baseUrl = HttpUtil.BASE_URL + "book/getBookImage/";
         String images = jsonObjectBookDetail.getString("images");
         JSONArray jsonArray1 = jsonObjectBookDetail.getJSONArray("pictures");
+        ArrayList<String> arrayList = new ArrayList<>();
         if (jsonArray1 != null && jsonArray1.size() > 0) {
-            ArrayList<String> arrayList = new ArrayList<>();
             for (int i = 0; i < jsonArray1.size(); i++) {
                 String url = baseUrl + images + "/" + jsonArray1.get(i);
                 arrayList.add(url);
             }
-            Log.e(TAG, "fillBookDetail: arrayList = " + arrayList.toString());
-            imagesAdapter.setImageNameUrlList(arrayList);
         }
+        Log.e(TAG, "fillBookDetail: arrayList = " + arrayList.toString());
+        imagesAdapter.setImageNameUrlList(arrayList);
     }
 
     /**
@@ -613,11 +610,9 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
             }
             else {
                 Intent intent = new Intent(LBookDetailActivity.this, ShowPictureActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putString("TAG",LBookDetailActivity.TAG);
-                bundle.putParcelable("Adapter", imagesAdapter);
-                bundle.putInt("position",position);
-                intent.putExtras(bundle);
+                intent.putExtra("TAG", TAG);
+                intent.putExtra("position",position);
+                intent.putExtra("imagesPath", imagesAdapter.getImagesPath());
                 startActivity(intent);
             }
         }
@@ -693,7 +688,7 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
                 message = jsonObject.getString("message");
                 if ("查询成功！".equals(message)) {
                     tip = jsonObject.getString("tip");
-                    if ("null".equals(tip)) {
+                    if ("".equals(tip)) {
                         //查询成功，获取书籍数据，通知主线程渲染前端
                         jsonObjectBookDetail = jsonObject.getJSONObject("object");
                         myHandler.sendEmptyMessage(GET_BOOK_DETAIL_FILL);

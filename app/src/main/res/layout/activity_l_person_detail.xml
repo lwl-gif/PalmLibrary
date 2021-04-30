@@ -6,36 +6,35 @@
     android:background="@drawable/main_background"
     android:scaleX="1">
 
-    <ScrollView
-        android:id="@+id/scrollView"
+    <TextView
+        android:id="@+id/l_person_title"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:alpha="0.9"
-        android:background="#EDEACF"
-        app:layout_constraintBottom_toTopOf="@+id/btn_out"
+        android:layout_height="wrap_content"
+        android:background="@color/cyan"
+        android:gravity="center"
+        android:padding="5dp"
+        android:text="@string/role_librarian"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/l_person_title"
         app:layout_constraintVertical_bias="0.0">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/l_person_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/cyan"
-                android:gravity="center"
-                android:padding="5dp"
-                android:text="@string/role_librarian"
-                android:textSize="18sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0" />
 
             <!--输入工号的行-->
             <TextView
@@ -52,7 +51,7 @@
                 app:layout_constraintEnd_toEndOf="@+id/l_person_workplace"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/l_person_title"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.0" />
 
             <TextView
@@ -185,7 +184,6 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_marginStart="5dp"
-                android:layout_marginLeft="5dp"
                 android:gravity="center"
                 android:padding="5dp"
                 android:textSize="14sp"
@@ -217,7 +215,6 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="5dp"
-                android:layout_marginLeft="5dp"
                 android:gravity="center"
                 android:padding="5dp"
                 android:textSize="14sp"
@@ -227,7 +224,6 @@
                 app:layout_constraintTop_toTopOf="@+id/l_person_username" />
 
             <!--输入权限级别的行-->
-
             <TextView
                 android:id="@+id/l_person_permission"
                 android:layout_width="0dp"
@@ -249,7 +245,6 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_marginStart="5dp"
-                android:layout_marginLeft="5dp"
                 android:gravity="center"
                 android:padding="5dp"
                 android:textSize="14sp"
@@ -258,43 +253,38 @@
                 app:layout_constraintStart_toEndOf="@+id/l_person_permission"
                 app:layout_constraintTop_toTopOf="@+id/l_person_permission" />
 
+            <!--定义修改按钮的行-->
+            <Button
+                android:id="@+id/btn_out"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_margin="5dp"
+                android:background="@drawable/btn01_theme"
+                android:text="@string/quitAndClean"
+                android:textColor="@color/red"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/l_person_permission" />
+
+            <Button
+                android:id="@+id/btn_reload"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
+                android:text="@string/buttonUpdate"
+                android:textColor="@color/cyan"
+                android:textSize="14sp"
+                app:layout_constraintBottom_toBottomOf="@+id/btn_out"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/btn_out"
+                app:layout_constraintTop_toTopOf="@+id/btn_out" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>
-    <!--定义修改按钮的行-->
-    <Button
-        android:id="@+id/btn_out"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginLeft="32dp"
-        android:layout_marginEnd="32dp"
-        android:layout_marginRight="32dp"
-        android:layout_marginBottom="8dp"
-        android:padding="2dp"
-        android:text="@string/quitAndClean"
-        android:textColor="@color/cyan"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toTopOf="@+id/btn_reload"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <Button
-        android:id="@+id/btn_reload"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/buttonUpdate"
-        android:textColor="@color/cyan"
-        android:textSize="12sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/btn_out"
-        app:layout_constraintStart_toStartOf="@+id/btn_out"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

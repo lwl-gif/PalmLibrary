@@ -11,7 +11,7 @@
         android:id="@+id/l_bookDetail_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/cyan"
+        android:background="#5391F4"
         android:gravity="center"
         android:padding="5dp"
         android:text="@string/myDetail"
@@ -22,6 +22,21 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/l_bookDetail_delete"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:background="@drawable/btn01_theme"
+        android:text="@string/delete_book"
+        android:textSize="12sp"
+        android:textColor="@color/red"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/l_bookDetail_title"
         app:layout_constraintVertical_bias="0.0" />
 
     <ScrollView
@@ -590,9 +605,10 @@
     <Button
         android:id="@+id/l_bookDetail_submit"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:text="@string/submit"
         android:textSize="12sp"
+        android:background="@drawable/btn01_theme"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintLeft_toRightOf="@id/l_bookDetail_edit"
@@ -615,26 +631,12 @@
         android:id="@+id/l_bookDetail_back"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:background="@drawable/btn02"
+        android:background="@drawable/btn01_white"
         android:text="@string/back"
+        android:textColor="@color/red"
         app:layout_constraintBottom_toBottomOf="@+id/l_bookDetail_submit"
         app:layout_constraintRight_toLeftOf="@+id/l_bookDetail_edit"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/l_bookDetail_submit" />
-
-    <Button
-        android:id="@+id/l_bookDetail_delete"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/btn03"
-        android:text="@string/delete_book"
-        android:textSize="12sp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/l_bookDetail_title"
-        app:layout_constraintVertical_bias="0.0" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

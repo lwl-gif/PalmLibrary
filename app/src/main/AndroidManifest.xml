@@ -42,7 +42,7 @@
         android:theme="@style/Theme.MyApplication1"
         android:usesCleartextTraffic="true"
         tools:replace="android:theme">
-        <activity android:name=".activity.BorrowBookActivity"></activity>
+        <activity android:name=".activity.BorrowBookActivity" />
         <activity android:name=".librarian.main.activity.LReaderDetailActivity" />
         <activity android:name=".activity.ShowPictureActivity" />
         <activity android:name=".activity.AutoLoginActivity">

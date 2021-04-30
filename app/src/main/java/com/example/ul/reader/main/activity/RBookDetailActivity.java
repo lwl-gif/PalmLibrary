@@ -267,11 +267,9 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
     @Override
     public void onClickToShow(int position) {
         Intent intent = new Intent(RBookDetailActivity.this, ShowPictureActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("TAG",RBookDetailActivity.TAG);
-        bundle.putParcelable("Adapter", imagesOnlyReadAdapter);
-        bundle.putInt("position",position);
-        intent.putExtras(bundle);
+        intent.putExtra("TAG", TAG);
+        intent.putExtra("position",position);
+        intent.putExtra("imagesPath", imagesOnlyReadAdapter.getImagesPath());
         startActivity(intent);
     }
 

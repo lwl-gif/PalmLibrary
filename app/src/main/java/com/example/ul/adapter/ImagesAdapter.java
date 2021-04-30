@@ -42,9 +42,11 @@ import java.util.concurrent.TimeoutException;
  * @Date: 2021/4/13 21:10
  * @Modified: By yyyy-MM-dd
  */
-public class ImagesAdapter extends ImagesOnlyReadAdapter implements Parcelable {
+public class ImagesAdapter extends ImagesOnlyReadAdapter {
 
     private static final String TAG = "ImagesAdapter";
+
+    private Context context;
     /**
      * 选择的本地图片
      */
@@ -63,8 +65,9 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter implements Parcelable {
     private boolean firstDelete = true;
 
     public ImagesAdapter(Context context,String token, ImageAdapterItemListener imageAdapterItemListener) {
-        super(context,token,imageAdapterItemListener);
+        super(context, token, imageAdapterItemListener);
         this.context = context;
+        this.token = token;
         this.imageAdapterItemListener = imageAdapterItemListener;
         Resources resources = context.getResources();
         // "添加图片"按钮的文件路径
@@ -92,9 +95,6 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter implements Parcelable {
 
     protected ImagesAdapter(Parcel in) {
         super(in);
-        token = in.readString();
-        imageNameUrlList = in.createStringArrayList();
-        imagesPath = in.createStringArrayList();
         selectList = in.createTypedArrayList(LocalMedia.CREATOR);
         glideLoad = in.createStringArrayList();
         deleting = in.readByte() != 0;
@@ -103,18 +103,10 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(token);
-        dest.writeStringList(imageNameUrlList);
-        dest.writeStringList(imagesPath);
         dest.writeTypedList(selectList);
         dest.writeStringList(glideLoad);
         dest.writeByte((byte) (deleting ? 1 : 0));
         dest.writeByte((byte) (firstDelete ? 1 : 0));
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
     }
 
     public static final Creator<ImagesAdapter> CREATOR = new Creator<ImagesAdapter>() {
@@ -161,19 +153,16 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter implements Parcelable {
         }
         glideLoad.add(path);
         imagesPath.add(path);
-        Log.e(TAG, "setImageNameUrlList: imagesPath.size() = "+imagesPath.size());
         notifyDataSetChanged();
     }
 
     @Override
     public ArrayList<String> getImagesPath() {
-        Log.e(TAG, "getImagesPath: imagesPath.size() = "+imagesPath.size());
-        if(imagesPath.size() > 0){
-            for (int i = 0; i < imagesPath.size(); i++){
-                Log.e(TAG, "getImagesPath: imagesPath["+i+"] = " + imagesPath.get(i));
-            }
+        ArrayList<String> arrayList = new ArrayList<>();
+        for(int i = 0; i < imagesPath.size() - 1; i++){
+            arrayList.add(imagesPath.get(i));
         }
-        return imagesPath;
+        return arrayList;
     }
 
     public boolean getDeleting(){
@@ -226,6 +215,7 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter implements Parcelable {
                             String imagePath = task.get(10, TimeUnit.SECONDS);
                             ImagesAdapter.this.imagesPath.set(holder.getLayoutPosition(), imagePath);
                         } catch (ExecutionException | InterruptedException | TimeoutException e) {
+                            e.printStackTrace();
                             ImagesAdapter.this.imagesPath.set(holder.getLayoutPosition(), null);
                         }
                     }

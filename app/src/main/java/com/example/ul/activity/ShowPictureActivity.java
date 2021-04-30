@@ -49,16 +49,11 @@ public class ShowPictureActivity extends Activity{
     @BindView(R.id.imageView)
     public ImageView imageView;
     public ArrayList<String> imagesPath;
-    private static final String[] IMAGES_PATH_FROM = new String[]{
-            "RReaderDetailActivity","LBookDetailActivity",
-            "RBookDetailActivity"
-    };
+
     /**当前是第几张图片*/
     private int position;
     /**图片总数*/
     private int total = -1;
-    /**来源*/
-    private String tag;
     private RequestOptions requestOptions = new RequestOptions().error(R.mipmap.error0);
     /**定义手势监听对象*/
     private GestureDetector gestureDetector;
@@ -73,31 +68,16 @@ public class ShowPictureActivity extends Activity{
         Intent intent = getIntent();
         Log.e(TAG, "onCreate: intent" + intent);
         // 获取来源
-        tag = intent.getStringExtra("TAG");
+        String tag = intent.getStringExtra("TAG");
         Log.e(TAG, "onCreate:tag = " + tag);
-        if(tag.equals(IMAGES_PATH_FROM[0]) || tag.equals(IMAGES_PATH_FROM[1]) ){
-            // 获取数据
-            ImagesAdapter imagesAdapter = (ImagesAdapter) intent.getParcelableExtra("Adapter");
-            if (imagesAdapter != null) {
-                imagesPath = imagesAdapter.getImagesPath();
-                Log.e(TAG, "onCreate: imagesPath = " + imagesPath);
-                Log.e(TAG, "onCreate: imagesPath.size() = " + imagesPath.size());
-                total = imagesPath.size() - 1;
-            }
+        // 获取数据
+        imagesPath = intent.getStringArrayListExtra("imagesPath");
+        if(imagesPath != null && tag != null){
+            total = imagesPath.size();
         }else {
-            // 获取数据
-            ImagesOnlyReadAdapter imagesOnlyReadAdapter = (ImagesOnlyReadAdapter) intent.getParcelableExtra("Adapter");
-            if (imagesOnlyReadAdapter != null) {
-                imagesPath = imagesOnlyReadAdapter.getImagesPath();
-                Log.e(TAG, "onCreate: imagesPath = " + imagesPath);
-                Log.e(TAG, "onCreate: imagesPath.size() = " + imagesPath.size());
-                total = imagesPath.size();
-            }
-        }
-        Log.e(TAG, "onCreate: total = " + total);
-        if(total == -1){
             finish();
         }
+        Log.e(TAG, "onCreate: total = " + total);
         // 获取点击位置
         position = intent.getIntExtra("position",0) + 1;
     }

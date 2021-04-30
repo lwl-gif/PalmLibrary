@@ -55,10 +55,10 @@ import okhttp3.Response;
  * @Date: Created 16:54 2021/4/21
  * @Modified: by who yyyy-MM-dd
  */
+@SuppressLint("NonConstantResourceId")
 public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallback, ImageAdapterItemListener {
 
     private static final String TAG = "LReaderDetailActivity";
-    //自定义消息代码
     /**未知错误*/
     private static final int UNKNOWN_REQUEST_ERROR = 1100;
     /**请求失败*/
@@ -158,8 +158,8 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 Toast.makeText(myActivity, "子线程解析数据异常！", Toast.LENGTH_SHORT).show();
             }else if (what == GET_READER_DETAIL_SUCCEED){
                 myActivity.fillData();
-                Toast.makeText(myActivity, "查询成功！", Toast.LENGTH_SHORT).show();
             }else if(what == PERMISSION_LEVEL) {
+                Toast.makeText(myActivity, "权限级别查询成功！", Toast.LENGTH_SHORT).show();
                 myActivity.binding();
             }else if(what == CHECK_OK || what == CHECK_NO){
                 Bundle bundle = msg.getData();
@@ -312,7 +312,7 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 rdType.setText(typeName);
                 // 把已提交的证件照展示出来
                 String imagePath = readerPermission.getString("image");
-                JSONArray pictureNames = jsonObject.getJSONArray("pictures");
+                JSONArray pictureNames = readerPermission.getJSONArray("pictures");
                 String httpBaseUrl = HttpUtil.BASE_URL + "reader/reader_type_picture/checking/" + imagePath + "/" ;
                 ArrayList<String> imageNameUrlList = new ArrayList<>();
                 for(int i = 0; i < pictureNames.length(); i++){
@@ -394,27 +394,30 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
             }
-
             // 在内容改变时，调整内容在合理范围内（0~100）
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 //先判断 rdCredit.getText()是否为空才能使用Integer.parseInt，否则会报异常。
                 try {
                     if (Integer.parseInt(String.valueOf(rdCredit.getText())) < min) {
-                        rdCredit.setText(min);
+                        rdCredit.setText(String.valueOf(min));
                     }
                     if (Integer.parseInt(String.valueOf(rdCredit.getText())) > max) {
-                        rdCredit.setText(max);
+                        rdCredit.setText(String.valueOf(max));
                     }
                 } catch (NumberFormatException numberFormatException) {
-                    rdCredit.setText(max);
+                    rdCredit.setText(String.valueOf(min));
                     Toast.makeText(LReaderDetailActivity.this, "请输入0~100内的数字", Toast.LENGTH_LONG).show();
                 }
             }
-
             @Override
             public void afterTextChanged(Editable editable) {
-                int result = Integer.parseInt(editable.toString());
+                int result;
+                try{
+                    result = Integer.parseInt(editable.toString());
+                }catch (NumberFormatException numberFormatException){
+                    result = 0;
+                }
                 // 初始为最低权限
                 int position = permissionLevel.length() - 1;
                 for (int i = 0; i < creditLevel.length(); i++) {
@@ -436,6 +439,8 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 }
             }
         });
+        String credit = "100";
+        rdCredit.setText(credit);
     }
 
     @Override
@@ -444,23 +449,20 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
         readerId = null;
         ActivityManager.getInstance().removeActivity(this);
     }
-
+    /**
+     * @Author:Wallace
+     * @Description: 开启一个Activity，用大图来展示当前的图片
+     * @Date: Created in 21:41 2021/4/11
+     * @Modified By:
+     * @param position item的位置
+     * @return: void
+     */
     @Override
     public void onClickToShow(int position) {
-        /**
-         * @Author:Wallace
-         * @Description: 开启一个Activity，用大图来展示当前的图片
-         * @Date:Created in 21:41 2021/4/11
-         * @Modified By:
-         * @param position item的位置
-         * @return: void
-         */
         Intent intent = new Intent(LReaderDetailActivity.this, ShowPictureActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("TAG", TAG);
-        bundle.putParcelable("Adapter", imagesOnlyReadAdapter);
-        bundle.putInt("position", position);
-        intent.putExtras(bundle);
+        intent.putExtra("TAG", TAG);
+        intent.putExtra("position",position);
+        intent.putExtra("imagesPath", imagesOnlyReadAdapter.getImagesPath());
         startActivity(intent);
     }
 
@@ -521,7 +523,7 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
             case PERMISSION_LEVEL:
                 try {
                     JSONObject jsonObject = new JSONObject(result);
-                    JSONObject jsonObject1 = jsonObject.getJSONObject("object");
+                    JSONObject jsonObject1 = jsonObject.getJSONObject("dataObject");
                     this.permissionLevel = jsonObject1.getJSONArray("permissionLevel");
                     this.creditLevel = jsonObject1.getJSONArray("creditLevel");
                     myHandler.sendEmptyMessage(PERMISSION_LEVEL);

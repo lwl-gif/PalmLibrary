@@ -18,10 +18,12 @@ import com.example.ul.librarian.main.fragment.LApplicationManageFragment;
 import com.example.ul.librarian.main.fragment.LNotificationFragment;
 import com.example.ul.librarian.main.fragment.LReaderManageFragment;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
- * @Author:Wallace
+ * @Author: Wallace
  * @Description:
- * @Date:2021/3/23 22:46
+ * @Date: 2021/3/23 22:46
  * @Modified By:
  */
 public class LMainFragmentPagerAdapter extends FragmentPagerAdapter {
@@ -29,7 +31,7 @@ public class LMainFragmentPagerAdapter extends FragmentPagerAdapter {
     @StringRes
     private static final int[] TAB_TITLES = new int[]{R.string.l_tab_text_1, R.string.l_tab_text_2, R.string.l_tab_text_3, R.string.l_tab_text_4};
     @StringRes
-    private int[] TAB_IMAGE = {R.drawable.notice, R.drawable.apply, R.drawable.reader, R.drawable.book};
+    private final int[] TAB_IMAGE = {R.drawable.notice, R.drawable.apply, R.drawable.reader, R.drawable.book};
 
     private final Fragment parentFragment;
 
@@ -38,7 +40,7 @@ public class LMainFragmentPagerAdapter extends FragmentPagerAdapter {
         this.parentFragment = parentFragment;
     }
 
-    @NonNull
+    @NotNull
     @Override
     public Fragment getItem(int position) {
         switch (position) {

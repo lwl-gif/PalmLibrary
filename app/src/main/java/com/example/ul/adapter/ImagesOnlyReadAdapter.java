@@ -97,7 +97,11 @@ public class ImagesOnlyReadAdapter extends RecyclerView.Adapter<ImageViewHolder>
     };
 
     public ArrayList<String> getImagesPath() {
-        return this.imagesPath;
+        ArrayList<String> arrayList = new ArrayList<>();
+        for(int i = 0; i < imagesPath.size()-1; i++){
+            arrayList.add(imagesPath.get(i));
+        }
+        return arrayList;
     }
 
     public void setImageNameUrlList(ArrayList<String> imageNameUrlList) {
@@ -147,7 +151,6 @@ public class ImagesOnlyReadAdapter extends RecyclerView.Adapter<ImageViewHolder>
                             } catch (ExecutionException | InterruptedException | TimeoutException e) {
                                 ImagesOnlyReadAdapter.this.imagesPath.set(holder.getLayoutPosition(), null);
                             }
-
                         }
                         return false;
                     }

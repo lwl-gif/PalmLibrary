@@ -191,7 +191,7 @@ public class HttpUtil {
             MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
             // 先把键值对放入表单
             for (Map.Entry<String, Object> stringObjectEntry : params.entrySet()) {
-                String key = (String) stringObjectEntry.getKey();
+                String key = stringObjectEntry.getKey();
                 // 判断是否为字符串类型的列表
                 Object value = stringObjectEntry.getValue();
                 if(value instanceof ArrayList){
@@ -252,7 +252,7 @@ public class HttpUtil {
      * @Modified By:
      * @return: void
      */
-    public static void postRequest(String authorization, String url, HashMap<String, String> params, List<String> imagesPath, MyCallback callback, int code) {
+    public static void postRequest(String authorization, String url, HashMap<String, String> params, ArrayList<String> imagesPath, MyCallback callback, int code) {
         FutureTask<String> task = new FutureTask<>(() -> {
             // {我的理解:每一对键值对都是一个分区，因为后端通过键名(@RequestParam(value = "key"))就可以取到对于的值了，
             // 所以没必要特意指明这块分区的name;

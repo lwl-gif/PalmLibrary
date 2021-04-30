@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/orange"
+    android:background="#5391F4"
     tools:context=".librarian.main.activity.LReaderDetailActivity">
 
     <androidx.constraintlayout.widget.Guideline
@@ -19,10 +19,11 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:padding="8dp"
+        android:padding="5dp"
         android:text="@string/readerDetail"
         android:textColor="@color/blue"
         android:textSize="18sp"
+        android:background="@drawable/border_theme"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -33,8 +34,10 @@
     <Button
         android:id="@+id/button_delete"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:text="@string/closeAccount"
+        android:textColor="@color/red"
+        android:background="@drawable/btn01_theme"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -43,14 +46,14 @@
 
     <ImageButton
         android:id="@+id/button_back"
-        android:layout_width="40dp"
+        android:layout_width="50dp"
         android:layout_height="0dp"
+        android:background="@drawable/abc_vector_test"
         app:layout_constraintBottom_toBottomOf="@+id/readerDetail_title"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/readerDetail_title"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/abc_vector_test" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ScrollView
         android:id="@+id/scrollView"
@@ -579,6 +582,7 @@
         android:layout_height="0dp"
         android:padding="5dp"
         android:text="@string/checkNo"
+        android:background="@drawable/btn01_theme"
         app:layout_constraintBottom_toBottomOf="@+id/button_checkOk"
         app:layout_constraintEnd_toStartOf="@+id/guideline"
         app:layout_constraintHorizontal_weight="1"
@@ -589,18 +593,17 @@
     <Button
         android:id="@+id/button_checkOk"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_margin="5dp"
         android:padding="5dp"
         android:text="@string/checkOk"
+        android:background="@drawable/btn01_theme"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_weight="2"
         app:layout_constraintStart_toStartOf="@+id/guideline"
         app:layout_constraintTop_toBottomOf="@+id/readerDetail_title"
         app:layout_constraintVertical_bias="1.0" />
-
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
