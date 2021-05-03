@@ -299,11 +299,10 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
                     String tip = null;
                     if("查询成功！".equals(message)){
                         tip = jsonObject.getString("tip");
-                        if("null".equals(tip)){
+                        if("".equals(tip)){
                             //查询成功，获取书籍数据，通知主线程渲染前端
                             jsonObjectBookDetail = jsonObject.getJSONObject("object");
                             myHandler.sendEmptyMessage(GET_BOOK_DETAIL_FILL);
-                            break;
                         }
                     } else {
                         String c = jsonObject.getString("code");
@@ -314,7 +313,7 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
                         data.putString("tip",tip);
                         data.putString("message",message);
                         msg.setData(data);
-                        msg.what = GET_BOOK_DETAIL_FILL;
+                        msg.what = GET_BOOK_DETAIL_NOT_FILL;
                         myHandler.sendMessage(msg);
                     }
                 } catch (JSONException e) {
