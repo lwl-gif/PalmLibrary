@@ -15,6 +15,10 @@ buildscript {
 
 allprojects {
     repositories {
+        // 支付宝支付
+        flatDir {
+            dirs 'libs'
+        }
         maven { url "https://jitpack.io" }
         google()
         jcenter()

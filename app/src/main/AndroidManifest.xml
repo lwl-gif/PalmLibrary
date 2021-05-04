@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:versionCode="1"
+    android:versionName="1.0"
     package="com.example.ul">
     <!--
     APP需要权限：
@@ -12,7 +14,8 @@
     6.写外部存储权限
     7.获取网络权限
     8.获取网络信息状态，如当前的网络连接是否有效
-    9.允许程序读取、写入外部存储，如SD卡上读、写文件
+    9.获取WIFI状态，如当前的WIFI连接是否有效
+    10.允许程序读取、写入外部存储，如SD卡上读、写文件
     -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FLASHLIGHT" />
@@ -24,6 +27,7 @@
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <!--
   硬件权限：
@@ -36,6 +40,7 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/main_background"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
@@ -53,6 +58,13 @@
             </intent-filter>
         </activity>
         <activity android:name=".myscan.android.CaptureActivity" />
+        <activity android:name=".pay.PayDemoActivity"/>
+        <activity
+            android:name=".pay.H5PayDemoActivity"
+            android:configChanges="orientation|keyboardHidden|navigation"
+            android:exported="false"
+            android:screenOrientation="behind" >
+        </activity>
         <activity android:name=".activity.ForgetPasswordActivity" />
         <activity android:name=".activity.LoginActivity" />
         <activity android:name=".activity.RegisterActivity" />
