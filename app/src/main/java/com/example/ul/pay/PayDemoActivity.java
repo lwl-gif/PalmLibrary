@@ -159,7 +159,7 @@ public class PayDemoActivity extends AppCompatActivity {
 				PayTask alipay = new PayTask(PayDemoActivity.this);
 				Map<String, String> result = alipay.payV2(orderInfo, true);
 				Log.i("msp", result.toString());
-				
+
 				Message msg = new Message();
 				msg.what = SDK_PAY_FLAG;
 				msg.obj = result;
