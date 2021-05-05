@@ -232,8 +232,8 @@ public class RApplicationManageFragment extends Fragment implements CallbackToRA
                     //为RecyclerView设置布局管理器
                 recyclerApplication.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
                     //将服务器响应包装成Adapter
-                    adapter = new ApplicationListAdapter(getActivity(),jsonArray,"id","name","readerId","readerName",
-                            "applicationDescription","applicationMoney",this);
+//                    adapter = new ApplicationListAdapter(getActivity(),jsonArray,"id","name","readerId","readerName",
+//                            "applicationDescription","applicationMoney",this);
                 recyclerApplication.setAdapter(adapter);
             }
         }

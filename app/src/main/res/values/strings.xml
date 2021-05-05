@@ -5,9 +5,10 @@
     <string name="imageName">图片名</string>
     <string name="symbol">/</string>
     <string name="math_0">0</string>
+    <string name="seconds_3">3秒</string>
 
     <string name="welcome1">掌上图书馆带您享受极致阅读体验</string>
-
+    <string name="app_starting">应用启动中…</string>
     <!--activity_login.xml-->
     <string name="welcome">欢迎使用移动图书管理系统</string>
     <string name="register">注册新用户</string>
@@ -89,8 +90,12 @@
     <string name="emptyString">null</string>
     <string name="bookPrice_0">0.00</string>
     <string name="auto_fill_readerId">系统自动生成</string>
-    <string name="pay">需支付(元):</string>
-
+    <string name="pay">待付(元):</string>
+    <string name="createTime">创建时间:</string>
+    <string name="payTime">支付时间:</string>
+    <string name="clickToPay"><![CDATA[去支付—>]]></string>
+    <string name="hasPay">已支付</string>
+    <string name="payId">单号:</string>
     <!--                                          -->
     <string name="basic_information">基本信息</string>
     <string name="readerId">读者号:</string>
@@ -115,8 +120,8 @@
     <string name="apply_reader_permission">申请借阅权限</string>
     <string name="delete_reader">删除读者信息</string>
     <string name="reader_picture">图片信息</string>
-    <!--                                     -->
 
+    <!--            borrow                  -->
     <string name="borrowTime">借阅时间</string>
     <string name="returnTime">还书时间</string>
     <string name="reserveTime">预约时间</string>
@@ -159,7 +164,6 @@
     <string name="bookList">书籍列表</string>
     <string name="delete">删除</string>
     <!--                                    -->
-    <string name="l_tab_text_1">公告管理</string>
     <string name="l_tab_text_2">缴费处理</string>
     <string name="l_tab_text_3">读者管理</string>
     <string name="l_tab_text_4">图书管理</string>

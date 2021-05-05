@@ -339,16 +339,16 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
     @Override
     public void onDetach() {
         super.onDetach();
-        //将接口赋值为null
+        // 将接口赋值为null
         listClickedCallbackMain = null;
     }
 
     @Override
     public void success(Response response, int code) throws IOException {
-        //获取服务器响应字符串
+        // 获取服务器响应字符串
         String result = response.body().string().trim();
         JSONObject jsonObject = JSON.parseObject(result);
-        //返回值为true,说明请求被拦截
+        // 返回值为true,说明请求被拦截
         if (HttpUtil.requestIsIntercepted(jsonObject)) {
             String message = jsonObject.getString("message");
             String c = jsonObject.getString("code");
@@ -395,7 +395,6 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
                     myHandler.sendEmptyMessage(GET_TYPE);
                     break;
                 case GET_BOOK_LIST:
-
                     jsonArray = (JSONArray) jsonObject.get("object");
                     //发消息通知主线程进行UI更新
                     myHandler.sendEmptyMessage(GET_BOOK_LIST);

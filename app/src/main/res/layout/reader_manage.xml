@@ -1,44 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/main_background"
-    android:scaleX="1">
+    android:background="#EDEACF">
 
     <TextView
         android:id="@+id/textSelect"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:background="@drawable/border_text_all"
         android:gravity="center"
         android:padding="5dp"
         android:text="@string/clickToCheck"
-        android:textSize="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="@+id/mySearchView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/mySearchView"
+        app:layout_constraintTop_toTopOf="@+id/mySearchView"
         app:layout_constraintVertical_bias="0.0" />
 
     <com.example.ul.view.MySearchView
         android:id="@+id/mySearchView"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="@+id/textSelect"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_white_all"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/textSelect"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/textSelect"/>
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/border"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -49,7 +48,7 @@
             android:id="@+id/reader_manage_RadioGroup"
             android:layout_width="match_parent"
             android:layout_height="25dp"
-            android:background="@drawable/layout_boundary"
+            android:background="@drawable/border_text_all"
             android:orientation="horizontal">
 
             <RadioButton
@@ -60,6 +59,7 @@
                 android:layout_weight="1"
                 android:button="@null"
                 android:gravity="center"
+                android:background="@drawable/border_text_all"
                 android:text="@string/allReaderType" />
 
             <RadioButton
@@ -70,6 +70,7 @@
                 android:layout_weight="1"
                 android:button="@null"
                 android:gravity="center"
+                android:background="@drawable/border_text_all"
                 android:text="@string/checkedReader" />
 
             <RadioButton
@@ -80,6 +81,7 @@
                 android:layout_weight="1"
                 android:button="@null"
                 android:gravity="center"
+                android:background="@drawable/border_text_all"
                 android:text="@string/uncheckedReader" />
 
             <RadioButton
@@ -90,13 +92,14 @@
                 android:layout_weight="1"
                 android:button="@null"
                 android:gravity="center"
+                android:background="@drawable/border_text_all"
                 android:text="@string/checkingReader" />
         </RadioGroup>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/layout_boundary"
+            android:background="@drawable/border_text_all"
             android:orientation="horizontal">
 
             <TextView
@@ -111,6 +114,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:entries="@array/orderBy"
+                android:gravity="center"
                 android:spinnerMode="dropdown" />
 
             <TextView
@@ -125,6 +129,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:entries="@array/selectBy"
+                android:gravity="center"
                 android:spinnerMode="dropdown" />
         </LinearLayout>
     </LinearLayout>

@@ -11,27 +11,8 @@
     <item android:top="1dp" android:bottom="1dp" android:left="1dp" android:right="1dp">
         <shape>
             <!--     View填充颜色 -->
-            <solid android:color="#EDEACF" />
+            <solid android:color="@color/body" />
         </shape>
     </item>
 </layer-list>
 
-<!--
-<item android:left="10dp">
-<shape>
-    &lt;!&ndash;     View填充颜色 &ndash;&gt;
-    <solid android:color="#FFFFFF" />
-</shape>
-</item>
-<item android:right="10dp">
-<shape>
-    &lt;!&ndash;     View填充颜色 &ndash;&gt;
-    <solid android:color="#FFFFFF" />
-</shape>
-</item>
-<item android:top="10dp">
-<shape>
-    &lt;!&ndash;     View填充颜色 &ndash;&gt;
-    <solid android:color="#FFFFFF" />
-</shape>
-</item>-->

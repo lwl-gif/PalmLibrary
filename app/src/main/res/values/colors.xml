@@ -15,6 +15,9 @@
     <color name="blue">#0000FF</color>
     <color name="cyan">#00FFFF</color>
     <color name="purple">#FF00FF</color>
+    <color name="body">#EDEACF</color>
+    <color name="body_second">#F5E2C2</color>
+    <color name="theme">#5391F4</color>
 
 <!--               zxing               -->
     <color name="contents_text">#000000</color>
@@ -29,4 +32,5 @@
     <color name="react">#ffffff</color>
     <color name="scanLineColor">#ffffff</color>
     <color name="defaultColor">#ffffff</color>
+
 </resources>

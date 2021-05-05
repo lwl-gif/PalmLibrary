@@ -5,7 +5,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
@@ -15,7 +14,6 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import com.example.ul.R;
 import com.example.ul.fragment.BookFragment;
 import com.example.ul.librarian.main.fragment.LApplicationManageFragment;
-import com.example.ul.librarian.main.fragment.LNotificationFragment;
 import com.example.ul.librarian.main.fragment.LReaderManageFragment;
 
 import org.jetbrains.annotations.NotNull;
@@ -29,9 +27,9 @@ import org.jetbrains.annotations.NotNull;
 public class LMainFragmentPagerAdapter extends FragmentPagerAdapter {
 
     @StringRes
-    private static final int[] TAB_TITLES = new int[]{R.string.l_tab_text_1, R.string.l_tab_text_2, R.string.l_tab_text_3, R.string.l_tab_text_4};
+    private static final int[] TAB_TITLES = new int[]{R.string.l_tab_text_2, R.string.l_tab_text_3, R.string.l_tab_text_4};
     @StringRes
-    private final int[] TAB_IMAGE = {R.drawable.notice, R.drawable.apply, R.drawable.reader, R.drawable.book};
+    private final int[] TAB_IMAGE = {R.drawable.apply, R.drawable.reader, R.drawable.book};
 
     private final Fragment parentFragment;
 
@@ -45,12 +43,10 @@ public class LMainFragmentPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return new LNotificationFragment();
-            case 1:
                 return new LApplicationManageFragment();
-            case 2:
+            case 1:
                 return new LReaderManageFragment();
-            case 3:
+            case 2:
                 return new BookFragment();
             default:
                 return null;
@@ -65,7 +61,7 @@ public class LMainFragmentPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 4;
+        return 3;
     }
 
     public View getTabView(int position){

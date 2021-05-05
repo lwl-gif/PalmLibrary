@@ -8,11 +8,11 @@
         </shape>
     </item>
     <!-- 给View的设置边框 -->
-    <item android:top="0.5dp" android:bottom="0.5dp" android:left="0.5dp" android:right="0.5dp">
+    <item android:top="1dp" android:bottom="1dp" android:left="1dp" android:right="1dp">
         <shape>
             <!--     View填充颜色 -->
-            <solid android:color="#EDEACF" />
+            <solid android:color="@color/body_second" />
         </shape>
     </item>
-
 </layer-list>
+

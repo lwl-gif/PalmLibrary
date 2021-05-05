@@ -48,7 +48,7 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
     private String start;
     private String end;
     private String box;
-    //列表项单击事件回调接口
+    // 列表项单击事件回调接口
     private CallbackToRBorrowFragment callbackToRBorrowFragment;
 
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -60,7 +60,7 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
          * @Description:
          * @Date:Created in 21:55 2021/3/10
          * @Modified By:
-          * @param context
+         * @param context
          * @param jsonArray
          * @param id
          * @param name

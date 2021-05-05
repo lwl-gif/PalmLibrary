@@ -14,7 +14,7 @@ import com.example.ul.R;
 /**
  * @Author:Wallace
  * @Description:
- * @Date:2021/3/21 17:57
+ * @Date: 2021/3/21 17:57
  * @Modified By:
  */
 public class MySpinnerAdapter extends BaseAdapter {

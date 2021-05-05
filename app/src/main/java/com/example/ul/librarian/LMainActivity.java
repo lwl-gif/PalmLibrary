@@ -42,6 +42,7 @@ import androidx.appcompat.widget.Toolbar;
 public class LMainActivity extends AppCompatActivity implements CallbackToMainActivity {
 
     private static final String TAG = "LMainActivity";
+
     private AppBarConfiguration mAppBarConfiguration;
     /**扫码请求码*/
     private final int REQUEST_CODE_SCAN = 1001;
@@ -164,12 +165,12 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
 
     /**查看是否开启摄像头权限*/
     private boolean initPermission() {
-        //需要在Android里面找到你要开的权限
+        // 需要在Android里面找到你要开的权限
         String permissions = Manifest.permission.CAMERA;
         boolean ret = false;
-        //Android 6.0以上才有动态权限
+        // Android 6.0以上才有动态权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            //permission granted 说明权限开了
+            // permission granted 说明权限开了
             ret = PermissionChecker.checkSelfPermission(LMainActivity.this, permissions) == PermissionChecker.PERMISSION_GRANTED;
         }
         return ret;
