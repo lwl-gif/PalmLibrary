@@ -2,7 +2,6 @@ package com.example.ul.librarian.main.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -10,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -56,7 +54,7 @@ import okhttp3.Response;
  * @Date: Created 13:04 2021/4/21
  * @Modified: by who yyyy-MM-dd
  */
-public class LReaderManageFragment extends Fragment implements CallbackToLReaderManageFragment,HttpUtil.MyCallback, SearchCallback {
+public class LReaderFragment extends Fragment implements CallbackToLReaderManageFragment,HttpUtil.MyCallback, SearchCallback {
 
     private static final String TAG = "LReadManageFragment";
     //自定义消息代码
@@ -92,9 +90,9 @@ public class LReaderManageFragment extends Fragment implements CallbackToLReader
     MyHandler myHandler = new MyHandler(new WeakReference(this));
 
     static class MyHandler extends Handler {
-        private WeakReference<LReaderManageFragment> lReaderManageFragment;
+        private WeakReference<LReaderFragment> lReaderManageFragment;
 
-        public MyHandler(WeakReference<LReaderManageFragment> lReaderManageFragment) {
+        public MyHandler(WeakReference<LReaderFragment> lReaderManageFragment) {
             this.lReaderManageFragment = lReaderManageFragment;
         }
         @Override

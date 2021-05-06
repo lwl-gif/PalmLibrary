@@ -543,7 +543,7 @@
         android:layout_height="0dp"
         android:layout_marginStart="100dp"
         android:layout_marginEnd="24dp"
-        android:background="#7A7C86"
+        android:background="@drawable/btn01_white"
         android:text="@string/back"
         android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="@+id/bookDetail_reserve"

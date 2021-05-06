@@ -19,6 +19,7 @@ import com.example.ul.activity.BorrowBookActivity;
 import com.example.ul.librarian.main.activity.LBookDetailActivity;
 import com.example.ul.librarian.main.activity.LReaderDetailActivity;
 import com.example.ul.callback.CallbackToMainActivity;
+import com.example.ul.model.Application;
 import com.example.ul.model.Reader;
 import com.example.ul.myscan.android.CaptureActivity;
 import com.example.ul.myscan.bean.ZxingConfig;
@@ -159,8 +160,10 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
     }
 
     @Override
-    public void clickToGetApplicationDetail(int i) {
-
+    public void clickToGetApplicationDetail(int id) {
+        Intent intent = new Intent(LMainActivity.this, Application.class);
+        intent.putExtra("id", id);
+        startActivity(intent);
     }
 
     /**查看是否开启摄像头权限*/

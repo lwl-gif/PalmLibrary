@@ -63,7 +63,7 @@ import okhttp3.Response;
 public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallback, ImageAdapterItemListener {
 
     private static final String TAG = "RReaderDetailActivity";
-    //自定义消息代码
+
     /**未知错误*/
     private static final int UNKNOWN_REQUEST_ERROR = 900;
     /**请求失败*/
@@ -668,7 +668,7 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
 
     @Override
     public void success(Response response, int code) throws IOException {
-        //获取服务器响应字符串
+        // 获取服务器响应字符串
         String result = response.body().string().trim();
         switch (code) {
             case GET_READER_DETAIL:

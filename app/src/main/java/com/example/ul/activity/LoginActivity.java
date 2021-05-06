@@ -35,8 +35,12 @@ import okhttp3.Response;
 public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallback{
 
     private static final String TAG = "LoginActivity";
+    /**未知请求*/
+    private static final int UNKNOWN_REQUEST = 10;
     /**请求失败*/
     private static final int REQUEST_FAIL = 100;
+    /**请求成功，但子线程解析数据失败*/
+    private static final int REQUEST_BUT_FAIL_READ_DATA = 101;
     /**登录请求的消息代码*/
     private static final int LOGIN_CODE = 11;
     /**登录成功*/
@@ -80,7 +84,7 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
                     }
                     myActivity.startActivity(intent);
                     break;
-                //登录失败
+                // 登录失败
                 case LOGIN_FAIL:
                     try {
                         String message = myActivity.jsonObject.getString("message");
@@ -102,7 +106,9 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
                     break;
                 case REQUEST_FAIL:
                     Toast.makeText(myActivity,"网络异常！",Toast.LENGTH_SHORT).show();
+                    break;
                 default:
+                    Toast.makeText(myActivity,"未知请求，无法处理！",Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -143,9 +149,9 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
             forget();
         });
         rg = findViewById(R.id.radioGroup1);
-        //给rg绑定监听事件
+        // 给rg绑定监听事件
         rg.setOnCheckedChangeListener((group,checkedId)->{
-            //根据用户选择的单选钮来动态改变role的值,同时改变username的hint属性值
+            // 根据用户选择的单选钮来动态改变role的值,同时改变username的hint属性值
             role = checkedId == R.id.radioButtonR ? roleReader:roleLibrarian;
             String str = checkedId == R.id.radioButtonR ? "学号/用户名":"工号/用户名";
             username.setHint(str);
@@ -155,13 +161,13 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
     void login(){
         String username1 = username.getText().toString().trim();
         String password1 = password.getText().toString().trim();
-        //使用HashMap封装请求参数
+        // 使用HashMap封装请求参数
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("username",username1);
         hashMap.put("password",password1);
         hashMap.put("role",role);
-        //定义发送的请求url
-        String url = HttpUtil.BASE_URL + "login/";
+        // 定义发送的请求url
+        String url = HttpUtil.BASE_URL + "login";
         HttpUtil.postRequest(null,url,hashMap,LoginActivity.this, LOGIN_CODE);
     }
 
@@ -172,13 +178,13 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
     }
 
     void register(){
-        //启动注册活动
+        // 启动注册活动
         Intent intent = new Intent(this, RegisterActivity.class);
         startActivity(intent);
     }
 
     void forget(){
-        //启动忘记密码活动
+        // 启动忘记密码活动
         Intent intent = new Intent(this, ForgetPasswordActivity.class);
         startActivity(intent);
     }
@@ -200,38 +206,28 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
     @Override
     public void success(Response response, int code) throws IOException {
         String result = null;
-        //获取服务器响应字符串
+        // 获取服务器响应字符串
         result = response.body().string().trim();
-        switch (code){
-            //登录请求
-            case LOGIN_CODE:
-                try {
-                    jsonObject = new JSONObject(result);
-                    if("登录成功！".equals(jsonObject.getString("message"))){
-                        UserInfo userInfo = UserManager.getInstance().getUserInfo(LoginActivity.this);
-                        //旧的token
-                        String token = userInfo.getToken();
-                        //查看是否有新的token传过来
-                        String isNewToken = new JSONObject(jsonObject.getString("dataObject")).getString("isNewToken");
-                        //新的token
-                        if("true".equals(isNewToken)){
-                            //获取新的token
-                            token = new JSONObject(jsonObject.getString("dataObject")).getString("token");
-                        }
-                        UserManager.getInstance().saveUserInfo(LoginActivity.this,username.getText().toString().trim(),password.getText().toString().trim(),role,token);
-                        //用handle发送消息，通知主线程可以登录
-                        myHandler.sendEmptyMessage(LOGIN_SUCCEED);
-                    }else {         //登录失败
-                        //用handle发送消息，通知主线程登录失败，进行后续操作
-                        myHandler.sendEmptyMessage(LOGIN_FAIL);
-                    }
-                } catch (Exception e) {
-                    DialogUtil.showDialog(this,"数据解析异常！",false);
-                    e.printStackTrace();
+        // 登录请求
+        if (code == LOGIN_CODE) {
+            try {
+                jsonObject = new JSONObject(result);
+                if ("登录成功！".equals(jsonObject.getString("message"))) {
+                    // 新的token
+                    String token = jsonObject.getString("object");
+                    UserManager.getInstance().saveUserInfo(LoginActivity.this, username.getText().toString().trim(), password.getText().toString().trim(), role, token);
+                    // 用handle发送消息，通知主线程可以登录
+                    myHandler.sendEmptyMessage(LOGIN_SUCCEED);
+                } else {         // 登录失败
+                    // 用handle发送消息，通知主线程登录失败，进行后续操作
+                    myHandler.sendEmptyMessage(LOGIN_FAIL);
                 }
-                break;
-            default:
-                DialogUtil.showDialog(this,"未知请求！无法处理",false);
+            } catch (Exception e) {
+                myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
+                e.printStackTrace();
+            }
+        } else {
+            myHandler.sendEmptyMessage(UNKNOWN_REQUEST);
         }
     }
 

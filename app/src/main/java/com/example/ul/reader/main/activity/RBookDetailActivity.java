@@ -251,7 +251,7 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
             String baseUrl = HttpUtil.BASE_URL + "book/getBookImage/";
             String images = jsonObjectBookDetail.getString("images");
             JSONArray jsonArray1 = jsonObjectBookDetail.getJSONArray("pictures");
-            if (jsonArray1 != null && jsonArray1.length() > 0) {
+            if (jsonArray1.length() > 0) {
                 ArrayList<String> arrayList = new ArrayList<>();
                 for (int i = 0; i < jsonArray1.length(); i++) {
                     String url = baseUrl + images + "/" + jsonArray1.get(i);

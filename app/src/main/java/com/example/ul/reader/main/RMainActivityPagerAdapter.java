@@ -8,14 +8,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import com.example.ul.R;
-import com.example.ul.reader.main.fragment.RApplicationManageFragment;
+import com.example.ul.reader.main.fragment.RApplicationFragment;
 import com.example.ul.fragment.BookFragment;
-import com.example.ul.reader.main.fragment.RBorrowManageFragment;
+import com.example.ul.reader.main.fragment.RBorrowFragment;
 import com.example.ul.reader.main.fragment.RShareFragment;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to
  * one of the sections/tabs/pages.
+ * @author luoweili
  */
 public class RMainActivityPagerAdapter extends FragmentPagerAdapter {
 
@@ -32,13 +33,13 @@ public class RMainActivityPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return new RBorrowManageFragment();
+                return new RBorrowFragment();
             case 1:
                 return new BookFragment();
             case 2:
                 return new RShareFragment();
             case 3:
-                return new RApplicationManageFragment();
+                return new RApplicationFragment();
             default:
                 return null;
         }

@@ -39,7 +39,6 @@
     <string name="step_2">2.点击“获取验证码”按钮，获取验证码；</string>
     <string name="step_3">3.输入验证码，点击“下一步”。</string>
 
-
     <string name="submit">提交</string>
     <string name="add">添加</string>
     <string name="update">更新</string>
@@ -95,7 +94,13 @@
     <string name="payTime">支付时间:</string>
     <string name="clickToPay"><![CDATA[去支付—>]]></string>
     <string name="hasPay">已支付</string>
+    <string name="goPay">缴费</string>
     <string name="payId">单号:</string>
+    <string name="applicationTitle">处罚记录详情</string>
+    <string name="endTime">预计还书:</string>
+    <string name="days">逾期天数:</string>
+    <string name="applicationLibrarianId">工号:</string>
+
     <!--                                          -->
     <string name="basic_information">基本信息</string>
     <string name="readerId">读者号:</string>
@@ -121,12 +126,17 @@
     <string name="delete_reader">删除读者信息</string>
     <string name="reader_picture">图片信息</string>
 
-    <!--            borrow                  -->
+    <!--          borrow,reservation.xml            -->
     <string name="borrowTime">借阅时间</string>
     <string name="returnTime">还书时间</string>
     <string name="reserveTime">预约时间</string>
     <string name="validTime">有效时间至</string>
     <string name="moreDetail">更多详情</string>
+    <string name="toLoss">挂失</string>
+    <string name="toRenew">续借</string>
+    <string name="toLent">转借</string>
+    <string name="quitReservation">放弃预约</string>
+    <string name="lookDescription">详情</string>
 
     <!--                                                   -->
     <string name="code">code:</string>
@@ -234,7 +244,7 @@
     <string name="error_missing_h5_pay_url">必须配置需要打开的url 站点，请在PayDemoActivity类的h5Pay中配置</string>
     <string name="error">错误</string>
     <string name="pay_cross_border">境外收单支付 Demo</string>
-    <string name="error_missing_global_partner_seller_rsa_private" >错误：需要配置 OrderUtils1_0_Global 中的 PARTNER、SELLER 和 RSA_PRIVATE</string>
+    <string name="error_missing_global_partner_seller_rsa_private">错误：需要配置 OrderUtils1_0_Global 中的 PARTNER、SELLER 和 RSA_PRIVATE</string>
     <string name="payment_inst_hk">付款方: HK</string>
     <string name="payment_inst_cn">付款方: CN</string>
 

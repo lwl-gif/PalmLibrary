@@ -1,5 +1,6 @@
 package com.example.ul.reader.main.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,6 +31,7 @@ import com.example.ul.util.HttpUtil;
 import com.example.ul.util.UserManager;
 import com.example.ul.view.MySearchView;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,60 +43,62 @@ import java.util.HashMap;
 import okhttp3.Response;
 
 /**
- * @Author:Wallace
- * @Description:
- * @Date:2021/3/9 20:29
+ * @Author: Wallace
+ * @Description: 读者借阅管理
+ * @Date: 2021/3/9 20:29
  * @Modified By:
  */
-public class RBorrowManageFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, CallbackToRBorrowFragment, SearchCallback,HttpUtil.MyCallback {
-    //自定义消息代码
-    //未知请求
-    private static final int UNKNOWN_REQUEST = 400;
-    //请求失败
-    private static final int REQUEST_FAIL = 4000;
-    //请求成功，但子线程解析数据失败
-    private static final int REQUEST_BUT_FAIL_READ_DATA = 4001;
-    //查询借阅、预约和已过期的记录
-    private static final int GET_RECORD = 401;
-    //查询成功，通知主线程渲染
-    private static final int GET_RECORD_SUCCESS_FILL = 40111;
-    //查询成功，但不需要渲染
-    private static final int GET_RECORD_SUCCESS_NOT_FILL = 40110;
-    //查询失败
-    private static final int GET_RECORD_FAIL = 4010;
+public class RBorrowFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, CallbackToRBorrowFragment, SearchCallback,HttpUtil.MyCallback {
 
     private static final String TAG = "RBorrowFragment";
-    //搜索框布局
+    /**未知请求*/
+    private static final int UNKNOWN_REQUEST = 400;
+    /**请求失败*/
+    private static final int REQUEST_FAIL = 4000;
+    /**请求成功，但子线程解析数据失败*/
+    private static final int REQUEST_BUT_FAIL_READ_DATA = 4001;
+    /**查询借阅、预约和已过期的记录*/
+    private static final int GET_RECORD = 401;
+    /**查询成功，通知主线程渲染*/
+    private static final int GET_RECORD_SUCCESS_FILL = 40111;
+    /**查询成功，但不需要渲染*/
+    private static final int GET_RECORD_SUCCESS_NOT_FILL = 40110;
+    /**查询失败*/
+    private static final int GET_RECORD_FAIL = 4010;
+
+    /**搜索框布局*/
     private MySearchView mySearchView;
-    //搜索框内容
+    /**搜索框内容*/
     String queryString = "null";
-    //“点击搜索”文本
+    /**搜索文本框*/
     private TextView textViewSelect;
-    //复选框——当前借阅\当前预约\过期记录
+    /**复选框——当前借阅\当前预约\过期记录*/
     private CheckBox checkBox1,checkBox2,checkBox3;
-    //checkBox选中标志
+    /**checkBox选中标志*/
     private boolean box1,box2,box3;
-    //文本框——当前借阅\当前预约\过期记录
+    /**文本框——当前借阅\当前预约\过期记录*/
     private TextView textView1,textView2,textView3;
-    //列表——当前借阅\当前预约\过期记录
+    /**列表——当前借阅\当前预约\过期记录*/
     private RecyclerView recyclerViewBorrow,recyclerViewReserve,recyclerExpired;
-    //服务器返回的信息
+    /**服务器返回的信息*/
     private JSONArray jsonArray;
-    //每个列表的数据
+    /**每个列表的数据*/
     private JSONArray jsonArrayBorrow;
     private JSONArray jsonArrayReserve;
     private JSONArray jsonArrayExpired;
-    //适配器
+    /**适配器*/
     private BorrowListAdapter adapter;
-    //
+    
     private CallbackToMainActivity listItemClickedCallbackActivity;
 
 
     static class MyHandler extends Handler {
-        private WeakReference<RBorrowManageFragment> rBorrowFragment;
-        public MyHandler(WeakReference<RBorrowManageFragment> rBorrowFragment){
+        private WeakReference<RBorrowFragment> rBorrowFragment;
+        
+        public MyHandler(WeakReference<RBorrowFragment> rBorrowFragment){
             this.rBorrowFragment = rBorrowFragment;
         }
+        
         @Override
         public void handleMessage(Message msg){
             int what = msg.what;
@@ -131,11 +135,12 @@ public class RBorrowManageFragment extends Fragment implements CompoundButton.On
     }
     MyHandler myHandler = new MyHandler(new WeakReference(this));
 
-    public void onAttach(Context context) {
+    @Override
+    public void onAttach(@NotNull Context context) {
         /**
-         * @Author:Wallace
-         * @Description:当该Fragment被添加到Context时回调该方法,该方法只被调用一次
-         * @Date:Created in 20:15 2021/3/10
+         * @Author: Wallace
+         * @Description: 当该Fragment被添加到Context时回调该方法,该方法只被调用一次
+         * @Date: Created in 20:15 2021/3/10
          * @Modified By:
          * @param context
          * @return: void
@@ -149,33 +154,31 @@ public class RBorrowManageFragment extends Fragment implements CompoundButton.On
         //把该Context当初listClickedCallback对象
         listItemClickedCallbackActivity = (CallbackToMainActivity) context;
     }
-
+    /**
+     * @Author: Wallace
+     * @Description: 创建fragment时被回调，该方法只会被调用一次
+     * @Date: Created in 20:16 2021/3/10
+     * @Modified By:
+     * @param savedInstanceState
+     * @return: void
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        /**
-         * @Author:Wallace
-         * @Description:创建fragment时被回调，该方法只会被调用一次
-         * @Date:Created in 20:16 2021/3/10
-         * @Modified By:
-         * @param savedInstanceState
-         * @return: void
-         */
         super.onCreate(savedInstanceState);
     }
-
+    /**
+     * @Author: Wallace
+     * @Description: 每次创建、绘制该fragment的View组件时调用的方法，Fragment将会显示该方法返回的View组件
+     * @Date: Created in 20:17 2021/3/10
+     * @Modified By:
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return: android.view.View
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        /**
-         * @Author:Wallace
-         * @Description:每次创建、绘制该fragment的View组件时调用的方法，Fragment将会显示该方法返回的View组件
-         * @Date:Created in 20:17 2021/3/10
-         * @Modified By:
-         * @param inflater
-         * @param container
-         * @param savedInstanceState
-         * @return: android.view.View
-         */
         View rootView = inflater.inflate(R.layout.borrow_manage, container, false);
         mySearchView = rootView.findViewById(R.id.mySearchView);
         textViewSelect = rootView.findViewById(R.id.textSelect);
@@ -212,82 +215,74 @@ public class RBorrowManageFragment extends Fragment implements CompoundButton.On
         recyclerExpired.setVisibility(View.GONE);
         return rootView;
     }
-
+    /**
+     * @Author: Wallace
+     * @Description: 当Fragment所在的Activity被启动完成后回调该方法
+     * @Date: Created in 20:18 2021/3/10
+     * @Modified By:
+     * @param savedInstanceState
+     * @return: void
+     */
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        /**
-         * @Author:Wallace
-         * @Description:当Fragment所在的Activity被启动完成后回调该方法
-         * @Date:Created in 20:18 2021/3/10
-         * @Modified By:
-         * @param savedInstanceState
-         * @return: void
-         */
         super.onActivityCreated(savedInstanceState);
     }
-
+    /**
+     * @Author: Wallace
+     * @Description: fragment高亮时被回调
+     * @Date: Created in 20:19 2021/3/10
+     * @Modified By:
+     * @param
+     * @return: void
+     */
     @Override
     public void onStart() {
-        /**
-         * @Author:Wallace
-         * @Description:启动fragment时被回调
-         * @Date:Created in 20:19 2021/3/10
-         * @Modified By:
-         * @param
-         * @return: void
-         */
         super.onStart();
     }
-
+    /**
+     * @Author: Wallace
+     * @Description: 停止fragment时被回调
+     * @Date: Created in 20:19 2021/3/10
+     * @Modified By:
+     * @return: void
+     */
     @Override
     public void onStop() {
-        /**
-         * @Author:Wallace
-         * @Description:停止fragment时被回调
-         * @Date:Created in 20:19 2021/3/10
-         * @Modified By:
-         * @param
-         * @return: void
-         */
         super.onStop();
     }
 
+    /**
+     * @Author: Wallace
+     * @Description: 销毁该fragment所包含的View组件时回调
+     * @Date: Created in 20:19 2021/3/10
+     * @Modified By:
+     * @return: void
+     */
     @Override
     public void onDestroyView() {
-        /**
-         * @Author:Wallace
-         * @Description:销毁该fragment所包含的View组件时回调
-         * @Date:Created in 20:19 2021/3/10
-         * @Modified By:
-         * @param
-         * @return: void
-         */
         super.onDestroyView();
     }
-
+    /**
+     * @Author: Wallace
+     * @Description: 销毁fragment时被回调，该方法只会执行一次
+     * @Date: Created in 20:20 2021/3/10
+     * @Modified By:
+     * @return: void
+     */
     @Override
     public void onDestroy() {
-        /**
-         * @Author:Wallace
-         * @Description:销毁fragment时被回调，该方法只会执行一次
-         * @Date:Created in 20:20 2021/3/10
-         * @Modified By:
-         * @param
-         * @return: void
-         */
         super.onDestroy();
     }
 
-
+    /**
+     * @Author: Wallace
+     * @Description: 当该Fragment从它所属的AContext中被删除、替换完成时回调该方法
+     * @Date: Created in 20:20 2021/3/10
+     * @Modified By:
+     * @return: void
+     */
+    @Override
     public void onDetach() {
-        /**
-         * @Author:Wallace
-         * @Description:当该Fragment从它所属的AContext中被删除、替换完成时回调该方法
-         * @Date:Created in 20:20 2021/3/10
-         * @Modified By:
-         * @param
-         * @return: void
-         */
         super.onDetach();
         //将接口赋值为null
         listItemClickedCallbackActivity = null;
@@ -297,59 +292,45 @@ public class RBorrowManageFragment extends Fragment implements CompoundButton.On
     public void searchAction(String s) {
         queryString = s;
     }
-
+    /**
+     * @Author: Wallace
+     * @Description: 根据搜索框内容以及复选框选中的条件进行查询
+     * @Date: Created in 20:43 2021/3/10
+     * @Modified By:
+     * @return: void
+     */
     private void query() {
-        /**
-         * @Author:Wallace
-         * @Description:根据搜索框内容以及复选框选中的条件进行查询
-         * @Date:Created in 20:43 2021/3/10
-         * @Modified By:
-         * @param
-         * @return: void
-         */
-        //搜索框的内容
-        if ((queryString == null) || (queryString.equals(""))) {
+        // 搜索框的内容
+        if ((queryString == null) || ("".equals(queryString))) {
             queryString = "null";
         }
-        //获取token
+        // 获取token
         UserManager userManager = UserManager.getInstance();
         UserInfo userInfo = userManager.getUserInfo(getActivity());
         String token = userInfo.getToken();
-        //定义发送的URL
+        // 定义发送的URL
         String url = HttpUtil.BASE_URL + "borrow/myBorrow";
-        //使用Map封装请求参数
+        // 使用Map封装请求参数
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("checkBox1", Boolean.toString(box1));
         hashMap.put("checkBox2", Boolean.toString(box2));
         hashMap.put("checkBox3", Boolean.toString(box3));
         hashMap.put("queryString", queryString);
-        // 拼接请求参数
-        StringBuffer buffer = new StringBuffer(url);
-        buffer.append('?');
-        for (HashMap.Entry<String, String> entry : hashMap.entrySet()) {
-            buffer.append(entry.getKey());
-            buffer.append('=');
-            buffer.append(entry.getValue());
-            buffer.append('&');
-        }
-        buffer.deleteCharAt(buffer.length() - 1);
-        url = buffer.toString();
+        url = HttpUtil.newUrl(url,hashMap);
         HttpUtil.getRequest(token, url, this, GET_RECORD);
     }
-
+    /**
+     * @Author: Wallace
+     * @Description: 根据复选框的情况将查询结果jsonArray渲染到界面
+     * @Date: Created in 20:43 2021/3/10
+     * @Modified By:
+     * @return: void
+     */
     private void fill() {
-        /**
-         * @Author:Wallace
-         * @Description:根据复选框的情况将查询结果jsonArray渲染到界面
-         * @Date:Created in 20:43 2021/3/10
-         * @Modified By:
-         * @param
-         * @return: void
-         */
-        if((jsonArray==null)||!(jsonArray.length()>0)){
-            Toast.makeText(getActivity(),"未获取到数据！",Toast.LENGTH_LONG);
+        if((jsonArray==null)||(jsonArray.length()<=0)){
+            Toast.makeText(getActivity(),"未获取到数据！",Toast.LENGTH_LONG).show();
         }else{
-            if(box1==true){
+            if(box1){
                 recyclerViewBorrow.setVisibility(View.VISIBLE);
                 if(jsonArrayBorrow.length()>0){
                     recyclerViewBorrow.setHasFixedSize(true);
@@ -361,7 +342,7 @@ public class RBorrowManageFragment extends Fragment implements CompoundButton.On
                     recyclerViewBorrow.setAdapter(adapter);
                 }
             }
-            if(box2==true){
+            if(box2){
                 recyclerViewReserve.setVisibility(View.VISIBLE);
                 if(jsonArrayReserve.length()>0){
                     recyclerViewReserve.setHasFixedSize(true);
@@ -373,7 +354,7 @@ public class RBorrowManageFragment extends Fragment implements CompoundButton.On
                     recyclerViewReserve.setAdapter(adapter);
                 }
             }
-            if(box3==true){
+            if(box3){
                 recyclerExpired.setVisibility(View.VISIBLE);
                 if(jsonArrayExpired.length()>0){
                     recyclerExpired.setHasFixedSize(true);
@@ -413,11 +394,13 @@ public class RBorrowManageFragment extends Fragment implements CompoundButton.On
 
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onCheckedChanged(CompoundButton checkBox, boolean checked) {
         switch (checkBox.getId()) {
+            // 选中当前借阅
             case R.id.checkBox1:
-                if (checked) {// 选中当前借阅
+                if (checked) {
                     box1 = true;
                     textView1.setVisibility(View.VISIBLE);
                     recyclerViewBorrow.setVisibility(View.VISIBLE);
@@ -427,8 +410,9 @@ public class RBorrowManageFragment extends Fragment implements CompoundButton.On
                     recyclerViewBorrow.setVisibility(View.GONE);
                 }
                 break;
+            // 选中当前预约
             case R.id.checkBox2:
-                if (checked) {// 选中当前预约
+                if (checked) {
                     box2 = true;
                     textView2.setVisibility(View.VISIBLE);
                     recyclerViewReserve.setVisibility(View.VISIBLE);
@@ -438,12 +422,13 @@ public class RBorrowManageFragment extends Fragment implements CompoundButton.On
                     recyclerViewReserve.setVisibility(View.GONE);
                 }
                 break;
+            // 选中过期记录
             case R.id.checkBox3:
-                if (checked) {// 选中过期记录
+                if (checked) {
                     box3 = true;
                     textView3.setVisibility(View.VISIBLE);
                     recyclerExpired.setVisibility(View.VISIBLE);
-                    Toast.makeText(getActivity(),"该功能未开发！",Toast.LENGTH_SHORT);
+                    Toast.makeText(getActivity(),"该功能未开发！",Toast.LENGTH_SHORT).show();
                 } else {
                     box3 = false;
                     textView3.setVisibility(View.GONE);
@@ -458,47 +443,45 @@ public class RBorrowManageFragment extends Fragment implements CompoundButton.On
 
     @Override
     public void success(Response response, int code) throws IOException {
-        //服务器返回的数据
+        // 服务器返回的数据
         JSONObject jsonObject;
         String result = null;
-        //获取服务器响应字符串
+        // 获取服务器响应字符串
         result = response.body().string().trim();
-        switch (code) {
-            //获取验证码请求
-            case GET_RECORD:
-                try {
-                    jsonObject = new JSONObject(result);
-                    String message = jsonObject.getString("message");
-                    String c = jsonObject.getString("code");
-                    String tip = jsonObject.getString("tip");
-                    Message msg = new Message();
-                    Bundle data = new Bundle();
-                    data.putString("code",c);
-                    data.putString("tip",tip);
-                    data.putString("message",message);
-                    msg.setData(data);
-                    if(message.equals("查询成功！")){
-                        jsonArray = jsonObject.getJSONArray("dataArray");
-                        //将整个信息拆分
-                        jsonArrayBorrow = jsonArray.getJSONArray(0);
-                        jsonArrayReserve = jsonArray.getJSONArray(1);
-                        jsonArrayExpired = jsonArray.getJSONArray(2);
-                        if(jsonArrayBorrow.length()+jsonArrayReserve.length()+jsonArrayExpired.length()==0){
-                            msg.what = GET_RECORD_SUCCESS_NOT_FILL;
-                        }
-                        //发消息通知主线程进行UI更新
-                        msg.what = GET_RECORD_SUCCESS_FILL;
-                    }else {
-                       msg.what = GET_RECORD_FAIL;
+        // 获取验证码请求
+        if (code == GET_RECORD) {
+            try {
+                jsonObject = new JSONObject(result);
+                String message = jsonObject.getString("message");
+                String c = jsonObject.getString("code");
+                String tip = jsonObject.getString("tip");
+                Message msg = new Message();
+                Bundle data = new Bundle();
+                data.putString("code", c);
+                data.putString("tip", tip);
+                data.putString("message", message);
+                msg.setData(data);
+                if ("查询成功！".equals(message)) {
+                    jsonArray = jsonObject.getJSONArray("dataArray");
+                    //将整个信息拆分
+                    jsonArrayBorrow = jsonArray.getJSONArray(0);
+                    jsonArrayReserve = jsonArray.getJSONArray(1);
+                    jsonArrayExpired = jsonArray.getJSONArray(2);
+                    if (jsonArrayBorrow.length() + jsonArrayReserve.length() + jsonArrayExpired.length() == 0) {
+                        msg.what = GET_RECORD_SUCCESS_NOT_FILL;
                     }
-                    myHandler.sendMessage(msg);
-                } catch (JSONException e) {
-                    myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
-                    e.printStackTrace();
+                    //发消息通知主线程进行UI更新
+                    msg.what = GET_RECORD_SUCCESS_FILL;
+                } else {
+                    msg.what = GET_RECORD_FAIL;
                 }
-                break;
-            default:
-                myHandler.sendEmptyMessage(UNKNOWN_REQUEST);
+                myHandler.sendMessage(msg);
+            } catch (JSONException e) {
+                myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
+                e.printStackTrace();
+            }
+        } else {
+            myHandler.sendEmptyMessage(UNKNOWN_REQUEST);
         }
     }
 

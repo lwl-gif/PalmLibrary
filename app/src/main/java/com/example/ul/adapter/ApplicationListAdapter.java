@@ -10,7 +10,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ul.R;
-import com.example.ul.callback.CallbackToMainActivity;
+import com.example.ul.callback.CallbackToApplicationFragment;
+import com.example.ul.callback.CallbackToApplicationFragment;
 import com.example.ul.model.Application;
 
 import org.jetbrains.annotations.NotNull;
@@ -36,15 +37,19 @@ public class ApplicationListAdapter extends RecyclerView.Adapter<ApplicationList
     /**数据源*/
     private ArrayList<Application> applications;
     /**列表项单击事件回调接口*/
-    private final CallbackToMainActivity callbackToMainActivity;
+    private final CallbackToApplicationFragment callbackToApplicationFragment;
     private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
-    public ApplicationListAdapter(Context context,ArrayList<Application> applications, CallbackToMainActivity callbackToMainActivity){
+    public ApplicationListAdapter(Context context,ArrayList<Application> applications, CallbackToApplicationFragment callbackToApplicationFragment){
         this.context = context;
         setApplications(applications);
-        this.callbackToMainActivity = callbackToMainActivity;
+        this.callbackToApplicationFragment = callbackToApplicationFragment;
     }
 
+    public ArrayList<Application> getApplications(){
+        return this.applications;
+    }
+    
     public void setApplications(ArrayList<Application> applications) {
        if(this.applications == null){
            this.applications = new ArrayList<>();
@@ -100,9 +105,9 @@ public class ApplicationListAdapter extends RecyclerView.Adapter<ApplicationList
             holder.payTime.setText(payTimeString);
         }
         // 列表项绑定单击事件
-        if(callbackToMainActivity!=null){
+        if(callbackToApplicationFragment!=null){
            holder.rootView.setOnClickListener(v -> {
-               callbackToMainActivity.clickToGetApplicationDetail(i);
+               callbackToApplicationFragment.clickToGetApplicationDetail(i);
            });
         }
     }

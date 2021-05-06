@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.ul"
     android:versionCode="1"
-    android:versionName="1.0"
-    package="com.example.ul">
+    android:versionName="1.0">
     <!--
     APP需要权限：
     1.相机权限
@@ -40,13 +40,14 @@
     <application
         android:allowBackup="true"
         android:icon="@drawable/main_background"
-        android:networkSecurityConfig="@xml/network_security_config"
         android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication1"
         android:usesCleartextTraffic="true"
         tools:replace="android:theme">
+        <activity android:name=".activity.ApplicationDetailActivity"></activity>
         <activity android:name=".activity.BorrowBookActivity" />
         <activity android:name=".librarian.main.activity.LReaderDetailActivity" />
         <activity android:name=".activity.ShowPictureActivity" />
@@ -58,13 +59,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".myscan.android.CaptureActivity" />
-        <activity android:name=".pay.PayDemoActivity"/>
+        <activity android:name=".pay.PayDemoActivity" />
         <activity
             android:name=".pay.H5PayDemoActivity"
             android:configChanges="orientation|keyboardHidden|navigation"
             android:exported="false"
-            android:screenOrientation="behind" >
-        </activity>
+            android:screenOrientation="behind"></activity>
         <activity android:name=".activity.ForgetPasswordActivity" />
         <activity android:name=".activity.LoginActivity" />
         <activity android:name=".activity.RegisterActivity" />

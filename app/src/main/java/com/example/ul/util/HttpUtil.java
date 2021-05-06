@@ -39,7 +39,13 @@ import okhttp3.Response;
  * @author luoweili
  */
 public class HttpUtil {
-    public static final String BASE_URL = "http://192.168.1.101:8080/ul/api/";
+
+//    public static final String BASE_URL = "http://192.168.1.101:8080/ul/api/";
+
+//    public static final String BASE_URL = "http://192.168.1.100:8080/ul/api/";
+
+    public static final String BASE_URL = "http://192.168.43.130:8080/ul/api/";
+
     /**
      * 创建线程池
      */

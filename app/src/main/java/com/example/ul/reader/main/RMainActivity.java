@@ -7,6 +7,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.ul.R;
+import com.example.ul.librarian.LMainActivity;
+import com.example.ul.model.Application;
 import com.example.ul.reader.main.activity.RBookDetailActivity;
 import com.example.ul.callback.CallbackToMainActivity;
 import com.example.ul.reader.main.activity.RReaderDetailActivity;
@@ -17,6 +19,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 
+/**
+ * @author luoweili
+ */
 public class RMainActivity extends AppCompatActivity implements CallbackToMainActivity {
 
     @Override
@@ -85,7 +90,9 @@ public class RMainActivity extends AppCompatActivity implements CallbackToMainAc
     }
 
     @Override
-    public void clickToGetApplicationDetail(int i) {
-
+    public void clickToGetApplicationDetail(int id) {
+        Intent intent = new Intent(RMainActivity.this, Application.class);
+        intent.putExtra("id", id);
+        startActivity(intent);
     }
 }

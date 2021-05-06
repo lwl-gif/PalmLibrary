@@ -17,6 +17,6 @@ public interface CallbackToMainActivity {
     void clickToGetBorrowDetail(int i);
 
     /**点击缴费列表项时回调的接口*/
-    void clickToGetApplicationDetail(int i);
+    void clickToGetApplicationDetail(int id);
 
 }

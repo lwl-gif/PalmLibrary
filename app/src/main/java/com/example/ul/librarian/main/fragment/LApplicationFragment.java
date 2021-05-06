@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +19,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.example.ul.R;
 import com.example.ul.adapter.ApplicationListAdapter;
+import com.example.ul.callback.CallbackToApplicationFragment;
 import com.example.ul.callback.CallbackToMainActivity;
 import com.example.ul.callback.SearchCallback;
 import com.example.ul.librarian.LMainActivity;
@@ -38,7 +38,6 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 import okhttp3.Response;
 
@@ -48,7 +47,7 @@ import okhttp3.Response;
  * @Date: 2021/3/6 14:24
  * @Modified By:
  */
-public class LApplicationManageFragment extends Fragment implements HttpUtil.MyCallback, SearchCallback {
+public class LApplicationFragment extends Fragment implements CallbackToApplicationFragment,HttpUtil.MyCallback, SearchCallback {
 
     private static final String TAG = "LApplicationManage";
     /**未知错误*/
@@ -80,14 +79,20 @@ public class LApplicationManageFragment extends Fragment implements HttpUtil.MyC
 
     @Override
     public void searchAction(String s) {
-        
+        queryString = s;
+    }
+
+    @Override
+    public void clickToGetApplicationDetail(int i) {
+        int id = adapter.getApplications().get(i).getId();
+        callbackToMainActivity.clickToGetApplicationDetail(id);
     }
 
     static class MyHandler extends Handler {
 
-        private WeakReference<LApplicationManageFragment> lApplicationManageFragment;
+        private WeakReference<LApplicationFragment> lApplicationManageFragment;
 
-        public MyHandler(WeakReference<LApplicationManageFragment> lApplicationManageFragment) {
+        public MyHandler(WeakReference<LApplicationFragment> lApplicationManageFragment) {
             this.lApplicationManageFragment = lApplicationManageFragment;
         }
 
@@ -102,7 +107,6 @@ public class LApplicationManageFragment extends Fragment implements HttpUtil.MyC
                 Toast.makeText(myActivity, "子线程解析数据异常！", Toast.LENGTH_SHORT).show();
             }else if(what == GET_APPLICATION_LIST_FILL){
                 Bundle bundle = msg.getData();
-
                 ArrayList<Application> applications = bundle.getParcelableArrayList("applications");
                 lApplicationManageFragment.get().fill(applications);
             }else if(what == GET_APPLICATION_LIST_NOT_FILL){
@@ -144,18 +148,19 @@ public class LApplicationManageFragment extends Fragment implements HttpUtil.MyC
         textView.setOnClickListener(view -> {
             query();
         });
-        adapter = new ApplicationListAdapter(getParentFragment().getActivity(),new ArrayList<>(),this.callbackToMainActivity);
+        adapter = new ApplicationListAdapter(getParentFragment().getActivity(),new ArrayList<>(),this);
         recyclerView = rootView.findViewById(R.id.recyclerApplicationList);
         // 为RecyclerView设置布局管理器
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
         recyclerView.setAdapter(adapter);
-        // 发送请求获取数据
-        String url = HttpUtil.BASE_URL + "/application/librarian/selectSome";
-        HashMap<String, String> hashMap = new HashMap<>();
-        hashMap.put("queryString",queryString);
-        url = HttpUtil.newUrl(url,hashMap);
-        HttpUtil.getRequest(token,url,this, GET_APPLICATION_LIST);
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        // 发送请求获取数据
+        query();
     }
 
     private void fill(ArrayList<Application> applications) {
@@ -163,7 +168,12 @@ public class LApplicationManageFragment extends Fragment implements HttpUtil.MyC
     }
 
     private void query(){
-
+        // 根据条件构造发送请求的URL
+        String url = HttpUtil.BASE_URL + "/application/librarian/selectSome";
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("queryString", queryString);
+        url = HttpUtil.newUrl(url, hashMap);
+        HttpUtil.getRequest(token, url, this, GET_APPLICATION_LIST);
     }
     
     @Override

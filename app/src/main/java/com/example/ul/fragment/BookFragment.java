@@ -53,7 +53,7 @@ import okhttp3.Response;
  */
 public class BookFragment extends Fragment implements CallbackToBookFragment, HttpUtil.MyCallback , SearchCallback {
     private static final String TAG = "BookFragment";
-    //自定义消息代码
+
     /**未知请求*/
     private static final int UNKNOWN_REQUEST = 500;
     /**网络异常，请求失败*/

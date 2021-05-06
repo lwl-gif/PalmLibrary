@@ -13,8 +13,8 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import com.example.ul.R;
 import com.example.ul.fragment.BookFragment;
-import com.example.ul.librarian.main.fragment.LApplicationManageFragment;
-import com.example.ul.librarian.main.fragment.LReaderManageFragment;
+import com.example.ul.librarian.main.fragment.LApplicationFragment;
+import com.example.ul.librarian.main.fragment.LReaderFragment;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -43,9 +43,9 @@ public class LMainFragmentPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch (position) {
             case 0:
-                return new LApplicationManageFragment();
+                return new LApplicationFragment();
             case 1:
-                return new LReaderManageFragment();
+                return new LReaderFragment();
             case 2:
                 return new BookFragment();
             default:
