@@ -69,7 +69,7 @@ public class LApplicationFragment extends Fragment implements CallbackToApplicat
 
     private String token;
 
-    private String queryString;
+    private String queryString = null;
 
     private RecyclerView recyclerView;
 
@@ -138,7 +138,6 @@ public class LApplicationFragment extends Fragment implements CallbackToApplicat
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle bundle) {
-
         View rootView = inflater.inflate(R.layout.application_manage, container, false);
         // 输入框
         MySearchView mySearchView = rootView.findViewById(R.id.mySearchView);

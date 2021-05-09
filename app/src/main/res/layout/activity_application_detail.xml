@@ -78,7 +78,7 @@
                 android:id="@+id/id"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="start|center_vertical"
+                android:gravity="center"
                 android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView1"
@@ -105,7 +105,7 @@
                 android:id="@+id/bookName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="start|center_vertical"
+                android:gravity="center"
                 android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView2"
@@ -128,11 +128,12 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView2"
                 app:layout_constraintVertical_bias="0.0" />
 
-            <TextView
+            <EditText
                 android:id="@+id/readerId"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="start|center_vertical"
+                android:gravity="center"
+                android:background="@color/body"
                 android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView3"
@@ -155,11 +156,12 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView3"
                 app:layout_constraintVertical_bias="0.0" />
 
-            <TextView
+            <EditText
                 android:id="@+id/readerName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="start|center_vertical"
+                android:gravity="center"
+                android:background="@color/body"
                 android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView4"
@@ -186,7 +188,7 @@
                 android:id="@+id/createTime"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="start|center_vertical"
+                android:gravity="center"
                 android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView5"
@@ -209,11 +211,12 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView5"
                 app:layout_constraintVertical_bias="0.0" />
 
-            <TextView
+            <EditText
                 android:id="@+id/endTime"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="start|center_vertical"
+                android:gravity="center"
+                android:background="@color/body"
                 android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView6"
@@ -240,7 +243,7 @@
                 android:id="@+id/days"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="start|center_vertical"
+                android:gravity="center"
                 android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView7"
@@ -267,7 +270,7 @@
                 android:id="@+id/payTime"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="start|center_vertical"
+                android:gravity="center"
                 android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView8"
@@ -290,11 +293,12 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView8"
                 app:layout_constraintVertical_bias="0.0" />
 
-            <TextView
+            <EditText
                 android:id="@+id/bookDescription"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="start|center_vertical"
+                android:gravity="center"
+                android:background="@color/body"
                 android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -317,11 +321,12 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView9"
                 app:layout_constraintVertical_bias="0.0" />
 
-            <TextView
+            <EditText
                 android:id="@+id/pay"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="start|center_vertical"
+                android:gravity="center"
+                android:background="@color/body"
                 android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView10"
@@ -348,7 +353,7 @@
                 android:id="@+id/librarianId"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:gravity="start|center_vertical"
+                android:gravity="center"
                 android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/textView11"

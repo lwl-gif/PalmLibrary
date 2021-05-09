@@ -47,7 +47,9 @@
         android:theme="@style/Theme.MyApplication1"
         android:usesCleartextTraffic="true"
         tools:replace="android:theme">
-        <activity android:name=".activity.ApplicationDetailActivity"></activity>
+        <activity android:name=".librarian.main.activity.LShareDetailActivity"></activity>
+        <activity android:name=".reader.main.activity.RShareDetailActivity" />
+        <activity android:name=".activity.ApplicationDetailActivity" />
         <activity android:name=".activity.BorrowBookActivity" />
         <activity android:name=".librarian.main.activity.LReaderDetailActivity" />
         <activity android:name=".activity.ShowPictureActivity" />
@@ -64,7 +66,7 @@
             android:name=".pay.H5PayDemoActivity"
             android:configChanges="orientation|keyboardHidden|navigation"
             android:exported="false"
-            android:screenOrientation="behind"></activity>
+            android:screenOrientation="behind" />
         <activity android:name=".activity.ForgetPasswordActivity" />
         <activity android:name=".activity.LoginActivity" />
         <activity android:name=".activity.RegisterActivity" />

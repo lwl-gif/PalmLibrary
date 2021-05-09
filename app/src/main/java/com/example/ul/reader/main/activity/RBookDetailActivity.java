@@ -1,6 +1,6 @@
 package com.example.ul.reader.main.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
+
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -132,6 +132,7 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
         }
     }
     MyHandler myHandler = new MyHandler(new WeakReference(this));
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

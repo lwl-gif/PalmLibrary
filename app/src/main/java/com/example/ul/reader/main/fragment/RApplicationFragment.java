@@ -56,17 +56,17 @@ public class RApplicationFragment extends Fragment implements CallbackToApplicat
 
     private static final String TAG = "ApplicationFragment";
     /**未知错误*/
-    private static final int UNKNOWN_REQUEST_ERROR = 1400;
+    private static final int UNKNOWN_REQUEST_ERROR = 1500;
     /**请求失败*/
-    private static final int REQUEST_FAIL = 14000;
+    private static final int REQUEST_FAIL = 15000;
     /**请求被服务器拦截，请求失败*/
-    private static final int REQUEST_INTERCEPTED = 1401;
+    private static final int REQUEST_INTERCEPTED = 1501;
     /**获取处罚列表*/
-    private static final int GET_APPLICATIONS = 1402;
+    private static final int GET_APPLICATIONS = 1502;
     /**获取处罚列表,有数据*/
-    private static final int GET_APPLICATIONS_FILL = 14021;
+    private static final int GET_APPLICATIONS_FILL = 15021;
     /**获取处罚列表，无数据*/
-    private static final int GET_APPLICATIONS_NO_FILL = 14020;
+    private static final int GET_APPLICATIONS_NO_FILL = 15020;
     /**
      * token
      */

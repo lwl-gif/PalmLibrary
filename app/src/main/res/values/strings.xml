@@ -126,7 +126,7 @@
     <string name="delete_reader">删除读者信息</string>
     <string name="reader_picture">图片信息</string>
 
-    <!--          borrow,reservation.xml            -->
+    <!--          share_manege,borrow,reservation.xml            -->
     <string name="borrowTime">借阅时间</string>
     <string name="returnTime">还书时间</string>
     <string name="reserveTime">预约时间</string>
@@ -137,6 +137,8 @@
     <string name="toLent">转借</string>
     <string name="quitReservation">放弃预约</string>
     <string name="lookDescription">详情</string>
+    <string name="getIt">获取:</string>
+    <string name="owner">主人:</string>
 
     <!--                                                   -->
     <string name="code">code:</string>
@@ -177,6 +179,8 @@
     <string name="l_tab_text_2">缴费处理</string>
     <string name="l_tab_text_3">读者管理</string>
     <string name="l_tab_text_4">图书管理</string>
+    <!--            share_manege              -->
+
     <!--                                    -->
     <string name="role_librarian">管理员</string>
     <string name="librarianId">工号</string>

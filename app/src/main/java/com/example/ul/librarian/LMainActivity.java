@@ -19,6 +19,7 @@ import com.example.ul.activity.BorrowBookActivity;
 import com.example.ul.librarian.main.activity.LBookDetailActivity;
 import com.example.ul.librarian.main.activity.LReaderDetailActivity;
 import com.example.ul.callback.CallbackToMainActivity;
+import com.example.ul.librarian.main.activity.LShareDetailActivity;
 import com.example.ul.model.Application;
 import com.example.ul.model.Reader;
 import com.example.ul.myscan.android.CaptureActivity;
@@ -148,8 +149,13 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
     }
 
     @Override
-    public void clickToGetBookDetail(String id) {
-        Intent intent = new Intent(LMainActivity.this, LBookDetailActivity.class);
+    public void clickToGetBookDetail(int id, String library, boolean edit) {
+        Intent intent;
+        if("读者书库".equals(library)){
+            intent = new Intent(LMainActivity.this, LShareDetailActivity.class);
+        }else {
+            intent = new Intent(LMainActivity.this, LBookDetailActivity.class);
+        }
         intent.putExtra("id", id);
         startActivity(intent);
     }
@@ -163,6 +169,7 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
     public void clickToGetApplicationDetail(int id) {
         Intent intent = new Intent(LMainActivity.this, Application.class);
         intent.putExtra("id", id);
+        intent.putExtra("TAG", TAG);
         startActivity(intent);
     }
 

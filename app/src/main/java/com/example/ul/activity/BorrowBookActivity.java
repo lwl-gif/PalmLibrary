@@ -397,7 +397,6 @@ public class BorrowBookActivity extends Activity implements HttpUtil.MyCallback,
                 case GET_READER_PERMISSION:
                     readerPermission = JSON.parseObject(jsonObject.getString("object"), ReaderPermission.class);
                     msg.what = GET_READER_PERMISSION;
-                    // 发消息通知主线程进行UI更新
                     myHandler.sendMessage(msg);
                     break;
                 case TEST_BOOK_STATUS:
@@ -406,14 +405,12 @@ public class BorrowBookActivity extends Activity implements HttpUtil.MyCallback,
                         data.putSerializable("book", book);
                         msg.setData(data);
                         msg.what = TEST_BOOK_STATUS_OK;
-                        //发消息通知主线程进行UI更新
                     } else {
                         JSONObject jsonObject1 = jsonObject.getJSONObject("dataObject");
                         data.putString("message", m);
                         data.putSerializable("jsonObject", jsonObject1);
                         msg.setData(data);
                         msg.what = TEST_BOOK_STATUS_NO;
-                        //发消息通知主线程进行UI更新
                     }
                     myHandler.sendMessage(msg);
                     break;

@@ -5,6 +5,7 @@
         <item
             android:id="@+id/menu_AddReader"
             android:orderInCategory="10"
+
             android:title="@string/add_reader"
             app:showAsAction="withText" />
         <item

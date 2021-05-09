@@ -158,6 +158,12 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ActivityManager.getInstance().exit();
+    }
+
     void login(){
         String username1 = username.getText().toString().trim();
         String password1 = password.getText().toString().trim();

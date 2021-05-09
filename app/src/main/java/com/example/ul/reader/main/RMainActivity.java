@@ -8,10 +8,12 @@ import android.view.MenuItem;
 
 import com.example.ul.R;
 import com.example.ul.librarian.LMainActivity;
+import com.example.ul.librarian.main.activity.LShareDetailActivity;
 import com.example.ul.model.Application;
 import com.example.ul.reader.main.activity.RBookDetailActivity;
 import com.example.ul.callback.CallbackToMainActivity;
 import com.example.ul.reader.main.activity.RReaderDetailActivity;
+import com.example.ul.reader.main.activity.RShareDetailActivity;
 import com.example.ul.util.ActivityManager;
 import com.google.android.material.tabs.TabLayout;
 
@@ -23,6 +25,8 @@ import androidx.appcompat.app.AppCompatActivity;
  * @author luoweili
  */
 public class RMainActivity extends AppCompatActivity implements CallbackToMainActivity {
+
+    private static final String TAG = "RMainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,8 +82,17 @@ public class RMainActivity extends AppCompatActivity implements CallbackToMainAc
     }
 
     @Override
-    public void clickToGetBookDetail(String id) {
-        Intent intent = new Intent(RMainActivity.this, RBookDetailActivity.class);
+    public void clickToGetBookDetail(int id, String library, boolean edit) {
+        Intent intent;
+        if("读者书库".equals(library)){
+            if(edit){
+                intent = new Intent(RMainActivity.this, LShareDetailActivity.class);
+            }else {
+                intent = new Intent(RMainActivity.this, RShareDetailActivity.class);
+            }
+        }else {
+            intent = new Intent(RMainActivity.this, RBookDetailActivity.class);
+        }
         intent.putExtra("id",id);
         startActivity(intent);
     }
@@ -93,6 +106,7 @@ public class RMainActivity extends AppCompatActivity implements CallbackToMainAc
     public void clickToGetApplicationDetail(int id) {
         Intent intent = new Intent(RMainActivity.this, Application.class);
         intent.putExtra("id", id);
+        intent.putExtra("TAG", TAG);
         startActivity(intent);
     }
 }

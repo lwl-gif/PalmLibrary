@@ -11,7 +11,7 @@ public interface CallbackToMainActivity {
     void clickToGetReaderDetail(String id);
 
     /**点击书本列表项时回调的接口*/
-    void clickToGetBookDetail(String id);
+    void clickToGetBookDetail(int id, String library, boolean edit);
 
     /**点击借阅列表项时回调的接口*/
     void clickToGetBorrowDetail(int i);

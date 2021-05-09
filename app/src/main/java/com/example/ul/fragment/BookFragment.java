@@ -28,7 +28,9 @@ import com.example.ul.adapter.MySpinnerBelongAdapter;
 import com.example.ul.callback.CallbackToBookFragment;
 import com.example.ul.callback.CallbackToMainActivity;
 import com.example.ul.callback.SearchCallback;
+import com.example.ul.model.Book;
 import com.example.ul.model.UserInfo;
+import com.example.ul.reader.main.RMainActivity;
 import com.example.ul.util.DialogUtil;
 import com.example.ul.util.HttpUtil;
 import com.example.ul.util.UserManager;
@@ -66,7 +68,6 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
     private static final int GET_TYPE = 501;
     /**获取书籍信息*/
     private static final int GET_BOOK_LIST = 502;
-
     /**服务器返回的所有书本的部分信息*/
     private JSONArray jsonArray;
     /**适配器*/
@@ -330,7 +331,7 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
         UserManager userManager = UserManager.getInstance();
         UserInfo userInfo = userManager.getUserInfo(getActivity());
         String token = userInfo.getToken();
-        //将服务器响应包装成Adapter
+        // 将服务器响应包装成Adapter
         adapter = new BookListAdapter(getActivity(),baseUrl,token,jsonArray,"id","name","author","description",
                 "hot","state","theme","isbn","library","images",this);
         recyclerViewBookList.setAdapter(adapter);
@@ -416,13 +417,19 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
      * @Description: 把书本的id返回给所在的主活动，让主活动开启另一个活动查看书本的详情
      * @Date: Created in 9:06 2021/3/22
      * @Modified By:
-     * @param id 书本的id
+     * @param position 点击的位置
      * @return: void
      */
     @Override
-    public void bookListClickPosition(String id) {
-        //返回id给activity
-        listClickedCallbackMain.clickToGetBookDetail(id);
+    public void bookListClickPosition(int position) {
+        Book book = (Book) adapter.getJsonArray().get(position);
+        int id = book.getId();
+        String library = book.getLibrary();
+        // 返回id给activity
+        if(getActivity() != null && getActivity() instanceof RMainActivity){
+            listClickedCallbackMain.clickToGetBookDetail(id, library,false);
+        }else {
+            listClickedCallbackMain.clickToGetBookDetail(id, library,true);
+        }
     }
-
 }

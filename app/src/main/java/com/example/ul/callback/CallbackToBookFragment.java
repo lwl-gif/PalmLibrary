@@ -8,5 +8,5 @@ package com.example.ul.callback;
  */
 public interface CallbackToBookFragment {
     /**点击图书列表项*/
-    void bookListClickPosition(String id);
+    void bookListClickPosition(int position);
 }
