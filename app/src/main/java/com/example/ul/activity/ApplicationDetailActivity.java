@@ -18,6 +18,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.example.ul.R;
 import com.example.ul.model.Application;
 import com.example.ul.model.UserInfo;
+import com.example.ul.pay.PayDemoActivity;
+import com.example.ul.util.ActivityManager;
 import com.example.ul.util.DialogUtil;
 import com.example.ul.util.HttpUtil;
 import com.example.ul.util.UserManager;
@@ -35,7 +37,6 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okhttp3.HttpUrl;
 import okhttp3.Response;
 
 /**
@@ -45,8 +46,6 @@ import okhttp3.Response;
 public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCallback{
 
     private static final String TAG = "ApplicationDetailActivity";
-    /**缴费请求码*/
-    private final int REQUEST_CODE_PAY = 1001;
     /**未知错误*/
     private static final int UNKNOWN_REQUEST_ERROR = 1400;
     /**请求失败*/
@@ -63,7 +62,12 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
     private static final int UPDATE_APPLICATION_DETAIL = 1402;
     /**删除详情*/
     private static final int DELETE_APPLICATION_DETAIL = 1403;
-
+    /**请求服务器发起付款订单*/
+    private static final int REQUEST_TO_PAY = 1404;
+    /**服务器生成支付订单，完成验签*/
+    private static final int REQUEST_TO_PAY_OK = 14041;
+    /**服务器验签失败*/
+    private static final int REQUEST_TO_PAY_ERROR = 14040;
     /**两个可能的来源*/
     private static final String FROM_1 = "RMainActivity";
     private static final String FROM_2 = "LMainActivity";
@@ -106,14 +110,14 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
     public Button topButton;
     @BindView(R.id.imageView_back)
     public ImageView imageViewBack;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityManager.getInstance().addActivity(this);
         setContentView(R.layout.activity_application_detail);
         ButterKnife.bind(this);
-        imageViewBack.setOnClickListener(v -> {
-            ApplicationDetailActivity.this.finish();
-        });
+        imageViewBack.setOnClickListener(v -> ApplicationDetailActivity.this.finish());
         // 两个按钮不可见
         bottomButton.setVisibility(View.GONE);
         topButton.setVisibility(View.GONE);
@@ -146,7 +150,6 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
         tvPay.setEnabled(update);
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -164,12 +167,13 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
         token = null;
         from = null;
         id = -1;
+        ActivityManager.getInstance().removeActivity(this);
     }
 
     @SuppressLint("SetTextI18n")
     private void fillData(Application application, boolean allowEdit) {
         String payId = application.getPayId();
-        int id = application.getId();
+        id = application.getId();
         String name = application.getName();
         String readerId = application.getReaderId();
         String readerName = application.getReaderName();
@@ -200,7 +204,11 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
         // 按钮绑定方法
         if(from.equals(ApplicationDetailActivity.FROM_1)){
             bottomButton.setOnClickListener(v -> {
-                // 缴费
+                // 发出缴费请求
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put("id", String.valueOf(id));
+                String url = HttpUtil.BASE_URL + "application/toPay";
+                HttpUtil.postRequest(token,url,hashMap,this,REQUEST_TO_PAY);
             });
         }else {
             topButton.setVisibility(View.VISIBLE);
@@ -252,10 +260,7 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
         public void handleMessage(Message msg){
             int what = msg.what;
             ApplicationDetailActivity myActivity = applicationDetailActivity.get();
-            // 缴费
-            if(what == UNKNOWN_REQUEST_ERROR || what == REQUEST_FAIL) {
-
-            }else if (what == GET_APPLICATION_DETAIL_FILL) {
+            if (what == GET_APPLICATION_DETAIL_FILL) {
                 Bundle bundle = msg.getData();
                 Application application = bundle.getParcelable("application");
                 boolean allowEdit = "true".equals(bundle.getString("tip"));
@@ -273,7 +278,19 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
                 if("删除成功！".equals(message)){
                     myActivity.finish();
                 }
-            } else {
+            } 	else if (what == REQUEST_TO_PAY_OK) {
+                // 取出订单信息
+                String orderStr = msg.getData().getString("orderStr");
+                // 进入到缴费页面
+                Intent intent = new Intent(myActivity, PayDemoActivity.class);
+                intent.putExtra("orderStr",orderStr);
+                myActivity.startActivity(intent);
+            }
+            else if (what == REQUEST_TO_PAY_ERROR) {
+                Bundle bundle = msg.getData();
+                DialogUtil.showDialog(myActivity,TAG,bundle,false);
+            }
+            else  {
                 Bundle bundle = msg.getData();
                 Toast.makeText(myActivity,bundle.getString("reason"),Toast.LENGTH_SHORT).show();
             }
@@ -289,11 +306,11 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
         JSONObject jsonObject = JSON.parseObject(result);
         Message msg = new Message();
         Bundle bundle = new Bundle();
+        String message = jsonObject.getString("message");
+        String c = jsonObject.getString("code");
+        String tip = jsonObject.getString("tip");
         // 返回值为true,说明请求被拦截
         if (HttpUtil.requestIsIntercepted(jsonObject)) {
-            String message = jsonObject.getString("message");
-            String c = jsonObject.getString("code");
-            String tip = jsonObject.getString("tip");
             bundle.putString("code", c);
             bundle.putString("tip", tip);
             bundle.putString("message", message);
@@ -306,7 +323,6 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
                 if (applicationString != null) {
                     Application application = (Application) JSON.parse(applicationString);
                     bundle.putParcelable("application", application);
-                    String tip = jsonObject.getString("tip");
                     bundle.putString("tip",tip);
                     msg.setData(bundle);
                     msg.what = GET_APPLICATION_DETAIL_FILL;
@@ -315,19 +331,32 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
                 }
                 myHandler.sendMessage(msg);
             }else if(code == UPDATE_APPLICATION_DETAIL){
-                String message = jsonObject.getString("message");
                 bundle.putString("message",message);
                 msg.setData(bundle);
                 msg.what = UPDATE_APPLICATION_DETAIL;
                 myHandler.sendMessage(msg);
             } else if(code == DELETE_APPLICATION_DETAIL){
-                String message = jsonObject.getString("message");
                 bundle.putString("message",message);
                 msg.setData(bundle);
                 msg.what = DELETE_APPLICATION_DETAIL;
                 myHandler.sendMessage(msg);
-            }
-            else {
+            } else  if (code == REQUEST_TO_PAY) {
+                if("申请成功！".equals(message) && "缴费订单已生成！".equals(tip)){
+                    // 获取订单信息传递给前端
+                    String orderStr = jsonObject.getString("object");
+                    bundle.putString("orderStr",orderStr);
+                    msg.setData(bundle);
+                    msg.what = REQUEST_TO_PAY_OK;
+                }else {
+                    // 显示错误信息
+                    bundle.putString("message",message);
+                    bundle.putString("code",c);
+                    bundle.putString("tip",tip);
+                    msg.setData(bundle);
+                    msg.what = REQUEST_TO_PAY_ERROR;
+                }
+                myHandler.sendMessage(msg);
+            }else {
                 String reason = "未知错误";
                 bundle.putString("reason",reason);
                 msg.setData(bundle);

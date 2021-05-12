@@ -236,7 +236,7 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
             bDelete.setVisibility(View.VISIBLE);
             // 绑定删除请求
             bDelete.setOnClickListener(view -> {
-                //使用Map封装请求参数
+                // 使用Map封装请求参数
                 HashMap<String, String> hashMap = new HashMap<>();
                 hashMap.put("id",this.id);
                 String url = HttpUtil.BASE_URL + "book/deleteBookById";
@@ -463,7 +463,6 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         Log.e(TAG, "fillBookDetail: arrayList = " + arrayList.toString());
         imagesAdapter.setImageNameUrlList(arrayList);
     }
-
     /**
      * @Author: Wallace
      * @Description: 启动或禁止编辑

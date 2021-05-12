@@ -52,29 +52,24 @@ public class H5PayDemoActivity extends Activity {
 			new AlertDialog.Builder(H5PayDemoActivity.this).setTitle(R.string.error)
 					.setMessage(R.string.error_missing_h5_pay_url)
 					.setPositiveButton(R.string.confirm, new OnClickListener() {
-
 						@Override
 						public void onClick(DialogInterface arg0, int arg1) {
 							finish();
 						}
 					}).show();
-
 		}
 		super.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		LinearLayout layout = new LinearLayout(getApplicationContext());
 		LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		layout.setOrientation(LinearLayout.VERTICAL);
 		setContentView(layout, params);
-
 		mWebView = new WebView(getApplicationContext());
 		params.weight = 1;
 		mWebView.setVisibility(View.VISIBLE);
 		layout.addView(mWebView, params);
-
 		WebSettings settings = mWebView.getSettings();
 		settings.setJavaScriptEnabled(true);
 		settings.setJavaScriptCanOpenWindowsAutomatically(true);
-
 		// 启用二方/三方 Cookie 存储和 DOM Storage
 		// 注意：若要在实际 App 中使用，请先了解相关设置项细节。
 		CookieManager.getInstance().setAcceptCookie(true);
@@ -82,11 +77,9 @@ public class H5PayDemoActivity extends Activity {
 			CookieManager.getInstance().setAcceptThirdPartyCookies(mWebView, true);
 		}
 		settings.setDomStorageEnabled(true);
-
 		mWebView.setVerticalScrollbarOverlay(true);
 		mWebView.setWebViewClient(new MyWebViewClient());
 		mWebView.loadUrl(url);
-
 		// 启用 WebView 调试模式。
 		// 注意：请勿在实际 App 中打开！
 		WebView.setWebContentsDebuggingEnabled(true);
@@ -118,10 +111,7 @@ public class H5PayDemoActivity extends Activity {
 			if (!(url.startsWith("http") || url.startsWith("https"))) {
 				return true;
 			}
-
-			/**
-			 * 推荐采用的新的二合一接口(payInterceptorWithUrl),只需调用一次
-			 */
+			// 推荐采用的新的二合一接口(payInterceptorWithUrl),只需调用一次
 			final PayTask task = new PayTask(H5PayDemoActivity.this);
 			boolean isIntercepted = task.payInterceptorWithUrl(url, true, new H5PayCallback() {
 				@Override
@@ -138,9 +128,9 @@ public class H5PayDemoActivity extends Activity {
 				}
 			});
 
-			/**
-			 * 判断是否成功拦截
-			 * 若成功拦截，则无需继续加载该URL；否则继续加载
+			/*
+			  判断是否成功拦截
+			  若成功拦截，则无需继续加载该URL；否则继续加载
 			 */
 			if (!isIntercepted) {
 				view.loadUrl(url);

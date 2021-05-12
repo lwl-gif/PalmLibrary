@@ -146,7 +146,6 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
             ActivityManager.getInstance().removeActivity(this);
             finish();
         }
-        // 组件初始化
         // 界面组件:标题，Id，名称，作者，Isbn，所属馆，馆藏地点，索书号，主题，详情，一级分类，二级分类，文献类型，出版社，出版日期，定价，热度，状态
         TextView tTitle = findViewById(R.id.bookDetail_title);
         tTitle.setText("查看详情");
@@ -169,8 +168,7 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
         tState = findViewById(R.id.bookState);
         Button bBack = findViewById(R.id.bookDetail_back);
         bBack.setOnClickListener(view -> {
-            ActivityManager.getInstance().removeActivity(this);
-            finish();
+            RBookDetailActivity.this.finish();
         });
         Button bReserve = findViewById(R.id.bookDetail_reserve);
         bReserve.setOnClickListener(view -> {
@@ -222,8 +220,8 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
             String s = "No." + id;
             tId.setText(s);
             tName.setText(jsonObjectBookDetail.getString("name"));
-            tAuthor.setText(jsonObjectBookDetail.getString("isbn"));
-            tIsbn.setText(jsonObjectBookDetail.getString("author"));
+            tAuthor.setText(jsonObjectBookDetail.getString("author"));
+            tIsbn.setText(jsonObjectBookDetail.getString("isbn"));
             tLibrary.setText(jsonObjectBookDetail.getString("library"));
             tLocation.setText(jsonObjectBookDetail.getString("location"));
             tCallNumber.setText(jsonObjectBookDetail.getString("callNumber"));
@@ -238,7 +236,7 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
             tFirst.setText(belong.getString("first"));
             tThird.setText(belong.getString("third"));
             String d = jsonObjectBookDetail.getString("date");
-            if (d == null || "null".equals(d) || "".equals(d)) {
+            if ("null".equals(d) || "".equals(d)) {
                 tDate.setText(null);
             } else {
                 long l = Long.parseLong(d);

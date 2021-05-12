@@ -3,6 +3,7 @@ package com.example.ul.reader.main.fragment;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -28,6 +29,7 @@ import com.example.ul.activity.ApplicationDetailActivity;
 import com.example.ul.adapter.BookListAdapter;
 import com.example.ul.callback.CallbackToBookFragment;
 import com.example.ul.callback.CallbackToMainActivity;
+import com.example.ul.librarian.main.activity.LShareDetailActivity;
 import com.example.ul.model.Application;
 import com.example.ul.model.Book;
 import com.example.ul.model.UserInfo;
@@ -71,10 +73,6 @@ public class RShareFragment extends Fragment implements HttpUtil.MyCallback, Cal
     private static final int REQUEST_INTERCEPTED = 1501;
     /**获取我的书库列表*/
     private static final int GET_MY_BOOKS = 1502;
-//    /**更新详情*/
-//    private static final int UPDATE_APPLICATION_DETAIL = 1502;
-//    /**删除详情*/
-//    private static final int DELETE_APPLICATION_DETAIL = 1503;
     /**回调接口*/
     private CallbackToMainActivity listClickedCallbackMain;
     /**token*/
@@ -116,6 +114,12 @@ public class RShareFragment extends Fragment implements HttpUtil.MyCallback, Cal
         View rootView = inflater.inflate(R.layout.share_manage, container, false);
         // 组件初始化
         recyclerView = rootView.findViewById(R.id.shareBooks);
+        Button btnAdd = rootView.findViewById(R.id.btn_add);
+        btnAdd.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), LShareDetailActivity.class);
+            intent.putExtra("id",0);
+            startActivity(intent);
+        });
         // 获取图片的基本url
         String baseUrl = HttpUtil.BASE_URL + "book/getBookImage/";
         // 将服务器响应包装成Adapter

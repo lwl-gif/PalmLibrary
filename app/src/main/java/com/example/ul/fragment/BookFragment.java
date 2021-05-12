@@ -426,10 +426,6 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
         int id = book.getId();
         String library = book.getLibrary();
         // 返回id给activity
-        if(getActivity() != null && getActivity() instanceof RMainActivity){
-            listClickedCallbackMain.clickToGetBookDetail(id, library,false);
-        }else {
-            listClickedCallbackMain.clickToGetBookDetail(id, library,true);
-        }
+        listClickedCallbackMain.clickToGetBookDetail(id, library, getActivity() == null || !(getActivity() instanceof RMainActivity));
     }
 }

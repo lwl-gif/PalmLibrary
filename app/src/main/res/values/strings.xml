@@ -139,7 +139,9 @@
     <string name="lookDescription">详情</string>
     <string name="getIt">获取:</string>
     <string name="owner">主人:</string>
-
+    <string name="bookContact">联系方式:</string>
+    <string name="shareDate">分享时间:</string>
+    <string name="readerLibrary">读者书库</string>
     <!--                                                   -->
     <string name="code">code:</string>
     <string name="message">结果:</string>
@@ -251,6 +253,7 @@
     <string name="error_missing_global_partner_seller_rsa_private">错误：需要配置 OrderUtils1_0_Global 中的 PARTNER、SELLER 和 RSA_PRIVATE</string>
     <string name="payment_inst_hk">付款方: HK</string>
     <string name="payment_inst_cn">付款方: CN</string>
+
 
 
 </resources>

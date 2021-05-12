@@ -42,7 +42,7 @@ public class DialogUtil {
 
     /**定义一个显示指定组件的对话框*/
     public static void showDialog(Context context, View view ,boolean goLoginActivity){
-        //创建一个AlertDialog.Builder对象
+        // 创建一个AlertDialog.Builder对象
         AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(view).setCancelable(false);
         if (goLoginActivity) {
             builder.setPositiveButton("确定", (dialog, which) -> {

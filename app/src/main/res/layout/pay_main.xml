@@ -14,11 +14,4 @@
         android:scaleType="centerInside"
         android:src="@drawable/alipay_logo" />
 
-    <fragment
-        android:id="@+id/fragment"
-        android:name="com.example.ul.pay.ExternalFragment"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        tools:layout="@layout/pay_external" />
-
 </LinearLayout>
