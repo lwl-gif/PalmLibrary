@@ -1,5 +1,8 @@
 package com.example.ul.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.io.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -9,48 +12,7 @@ import java.util.List;
 /**
  * @author luoweili
  */
-public class Book implements Serializable {
-
-    private Integer id;
-
-    private String name;
-
-    private String isbn;
-
-    private String author;
-
-    private String house;
-
-    private Date date;
-
-    private String library;
-
-    private String location;
-
-    private String callNumber;
-
-    private String typeId;
-
-    private String typeName;
-
-    private String theme;
-
-    private String description;
-
-    private String state;
-    /**存放图片的文件夹的名称*/
-    private String images;
-
-    /**文件夹下所有的图片的名称*/
-    private ArrayList<String> pictures;
-
-    private String belong;
-
-    private Classification classification;
-
-    private BigDecimal price;
-
-    private Integer hot;
+public class Book implements Serializable, Parcelable {
 
     private static final long serialVersionUID = 1L;
 
@@ -231,4 +193,109 @@ public class Book implements Serializable {
     public void  setClassification(Classification classification){
         this.classification = classification;
     }
+
+    private Integer id;
+
+    private String name;
+
+    private String isbn;
+
+    private String author;
+
+    private String house;
+
+    private Date date;
+
+    private String library;
+
+    private String location;
+
+    private String callNumber;
+
+    private String typeId;
+
+    private String typeName;
+
+    private String theme;
+
+    private String description;
+
+    private String state;
+    /**存放图片的文件夹的名称*/
+    private String images;
+
+    /**文件夹下所有的图片的名称*/
+    private ArrayList<String> pictures;
+
+    private String belong;
+
+    private Classification classification;
+
+    private BigDecimal price;
+
+    private Integer hot;
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    protected Book(Parcel in) {
+        id = in.readInt();
+        name = in.readString();
+        isbn = in.readString();
+        author = in.readString();
+        house = in.readString();
+        date = (Date) in.readSerializable();
+        library = in.readString();
+        location = in.readString();
+        callNumber = in.readString();
+        typeId = in.readString();
+        typeName = in.readString();
+        theme = in.readString();
+        description = in.readString();
+        state = in.readString();
+        images = in.readString();
+        pictures = (ArrayList<String>) in.readSerializable();
+        belong = in.readString();
+        classification = in.readParcelable(Classification.class.getClassLoader());
+        price = (BigDecimal) in.readSerializable();
+        hot = in.readInt();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeString(name);
+        dest.writeString(isbn);
+        dest.writeString(author);
+        dest.writeString(house);
+        dest.writeSerializable(date);
+        dest.writeString(library);
+        dest.writeString(location);
+        dest.writeString(callNumber);
+        dest.writeString(typeId);
+        dest.writeString(typeName);
+        dest.writeString(theme);
+        dest.writeString(description);
+        dest.writeString(state);
+        dest.writeString(images);
+        dest.writeSerializable(pictures);
+        dest.writeString(belong);
+        dest.writeParcelable(classification,0);
+        dest.writeSerializable(price);
+        dest.writeInt(hot);
+    }
+
+    public static final Creator<Book> CREATOR = new Creator<Book>() {
+        @Override
+        public Book createFromParcel(Parcel in) {
+            return new Book(in);
+        }
+
+        @Override
+        public Book[] newArray(int size) {
+            return new Book[size];
+        }
+    };
 }

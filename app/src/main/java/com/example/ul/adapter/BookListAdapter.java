@@ -10,15 +10,17 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.alibaba.fastjson.JSONArray;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.ul.R;
 import com.example.ul.callback.CallbackToBookFragment;
+import com.example.ul.model.Book;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
 
 /**
  * @Author: Wallace
@@ -32,60 +34,35 @@ public class BookListAdapter extends RecyclerView.Adapter<BookViewHolder> {
     /**访问服务器需携带的token*/
     private String token;
     private String baseUrl;
-    /**定义需要包装的JSONArray对象*/
-    private JSONArray jsonArray;
-    private final String id;
-    private final String name;
-    private final String author;
-    private final String description;
-    private final String hot;
-    private final String state;
-    private final String theme;
-    private final String isbn;
-    private final String library;
-    private final String images;
+    /**数据源*/
+    private ArrayList<Book> books;
     /**列表项单击事件回调接口*/
     private final CallbackToBookFragment callbackToBookFragment;
-    /**书的一种类型*/
-    private final String shareBook = "读者书库";
-    private final String getIt = "联系主人借阅该书";
     protected final RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.placeholder1).centerCrop().error(R.drawable.error1);
     String state1 = "在馆";
     String state2 = "预约";
     String state3 = "挂失";
 
-    public BookListAdapter(Context context, String baseUrl,  String token, JSONArray jsonArray,String id,String name,String author,String description,String hot,
-                             String state, String theme, String isbn, String library, String images,
-                           CallbackToBookFragment callbackToBookFragment){
+    public BookListAdapter(Context context, String baseUrl, String token, ArrayList<Book> books, CallbackToBookFragment callbackToBookFragment){
         this.context = context;
-        this.token = token;
         this.baseUrl = baseUrl;
-        this.jsonArray = jsonArray;
-        this.id = id;
-        this.name = name;
-        this.author = author;
-        this.description = description;
-        this.hot = hot;
-        this.state = state;
-        this.theme = theme;
-        this.isbn = isbn;
-        this.library = library;
-        this.images = images;
+        this.token = token;
+        this.books = books;
         this.callbackToBookFragment = callbackToBookFragment;
     }
 
-    public JSONArray getJsonArray() {
-        return jsonArray;
+    public ArrayList<Book> getBooks() {
+        return books;
     }
 
-    public void setJsonArray(JSONArray jsonArray){
-        this.jsonArray = jsonArray;
+    public void setBooks(ArrayList<Book> books) {
+        this.books = books;
         notifyDataSetChanged();
     }
-
+    
     /**删除某一项*/
     public void deleteItem(int position){
-        if(jsonArray.remove(position) != null){
+        if(books.remove(position) != null){
             notifyItemRemoved(position);
         }
     }
@@ -100,16 +77,16 @@ public class BookListAdapter extends RecyclerView.Adapter<BookViewHolder> {
     @SuppressLint("ResourceAsColor")
     @Override
     public void onBindViewHolder(@NonNull BookViewHolder holder, int position) {
-        String itemId = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(id);
-        String itemName = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(name);
-        String itemAuthor = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(author);
-        String itemDescription = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(description);
-        String itemHot = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(hot);
-        String itemState = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(state);
-        String itemTheme = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(theme);
-        String itemIsbn = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(isbn);
-        String itemImages = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(images);
-        String itemLibrary = jsonArray.getJSONObject(holder.getLayoutPosition()).getString(library);
+        String itemId = books.get(position).getId()+"";
+        String itemName = books.get(position).getName() == null ? "" : books.get(position).getName();
+        String itemAuthor = books.get(position).getAuthor() == null ? "" : books.get(position).getAuthor();
+        String itemDescription = books.get(position).getDescription()== null ? "" : books.get(position).getDescription();
+        String itemHot = books.get(position).getHot()+"";
+        String itemState = books.get(position).getState() == null ? "" : books.get(position).getState();
+        String itemTheme = books.get(position).getTheme() == null ? "" : books.get(position).getTheme();
+        String itemIsbn = books.get(position).getIsbn() == null ? "" : books.get(position).getIsbn();
+        String itemImages = books.get(position).getImages() == null ? "" : books.get(position).getImages();
+        String itemLibrary = books.get(position).getLibrary() == null ? "" : books.get(position).getLibrary();
         // 给列表项组件赋值
         holder.id.setText(itemId);
         holder.name.setText(itemName);
@@ -128,24 +105,25 @@ public class BookListAdapter extends RecyclerView.Adapter<BookViewHolder> {
             holder.state.setTextColor(Color.BLACK);
         }
         holder.theme.setText(itemTheme);
-
         holder.library.setText(itemLibrary);
         // 判断书来源库
+        String shareBook = "读者书库";
         if(itemLibrary.equals(shareBook)){
-            holder.tv_isbn.setText(R.string.getIt);
+            holder.tvIsbn.setText(R.string.getIt);
+            String getIt = "联系主人借阅该书";
             holder.isbn.setText(getIt);
         }else {
             holder.isbn.setText(itemIsbn);
         }
-        // 获取图片
-        JSONArray jsonArray1 = jsonArray.getJSONObject(holder.getLayoutPosition()).getJSONArray("pictures");
         String url = baseUrl + itemImages;
-        if (jsonArray1.size() > 0) {
-            String pictureName = jsonArray1.getString(0);
+        // 获取图片
+        ArrayList<String> pictures = books.get(position).getPictures();
+        if (pictures != null && pictures.size() > 0) {
+            String pictureName = pictures.get(0);
             url = url + "/" + pictureName;
         }
         GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
-                .addHeader("Authorization", this.token)
+                .addHeader("Authorization",token)
                 .build());
         Glide.with(context)
                 .applyDefaultRequestOptions(requestOptions)
@@ -156,9 +134,6 @@ public class BookListAdapter extends RecyclerView.Adapter<BookViewHolder> {
 
     @Override
     public int getItemCount() {
-        if(jsonArray==null){
-            return 0;
-        }
-        return jsonArray.size();
+        return books.size();
     }
 }

@@ -145,20 +145,6 @@ public class AutoLoginActivity extends Activity implements HttpUtil.MyCallback {
         button = findViewById(R.id.btn_clock);
         button.setOnClickListener(v -> {
             AutoLoginActivity.this.myHandler.sendEmptyMessage(REQUEST_FAIL);
-//            if (UserManager.getInstance().hasUserInfo(this)) {
-//                UserInfo userInfo = UserManager.getInstance().getUserInfo(this);
-//                username = userInfo.getUserName();
-//                password = userInfo.getPassword();
-//                role = userInfo.getRole();
-//                // 使用HashMap封装请求参数
-//                HashMap<String, String> hashMap = new HashMap<>();
-//                hashMap.put("username",username);
-//                hashMap.put("password",password);
-//                hashMap.put("role",role);
-//                // 定义发送的请求url
-//                String url = HttpUtil.BASE_URL + "autoLogin";
-//                HttpUtil.postRequest(null,url,hashMap,this, AUTO_LOGIN_CODE);
-//            }
         });
     }
 

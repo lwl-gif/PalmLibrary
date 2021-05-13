@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.ul.R;
+import com.example.ul.activity.ApplicationDetailActivity;
 import com.example.ul.librarian.LMainActivity;
 import com.example.ul.librarian.main.activity.LShareDetailActivity;
 import com.example.ul.model.Application;
@@ -104,7 +105,7 @@ public class RMainActivity extends AppCompatActivity implements CallbackToMainAc
 
     @Override
     public void clickToGetApplicationDetail(int id) {
-        Intent intent = new Intent(RMainActivity.this, Application.class);
+        Intent intent = new Intent(RMainActivity.this, ApplicationDetailActivity.class);
         intent.putExtra("id", id);
         intent.putExtra("TAG", TAG);
         startActivity(intent);

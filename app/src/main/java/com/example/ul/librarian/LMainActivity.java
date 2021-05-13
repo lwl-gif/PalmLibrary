@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import com.alibaba.fastjson.JSON;
 
 import com.example.ul.R;
+import com.example.ul.activity.ApplicationDetailActivity;
 import com.example.ul.activity.BorrowBookActivity;
 import com.example.ul.librarian.main.activity.LBookDetailActivity;
 import com.example.ul.librarian.main.activity.LReaderDetailActivity;
@@ -167,7 +168,7 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
 
     @Override
     public void clickToGetApplicationDetail(int id) {
-        Intent intent = new Intent(LMainActivity.this, Application.class);
+        Intent intent = new Intent(LMainActivity.this, ApplicationDetailActivity.class);
         intent.putExtra("id", id);
         intent.putExtra("TAG", TAG);
         startActivity(intent);

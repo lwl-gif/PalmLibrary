@@ -27,7 +27,7 @@ public class BookViewHolder extends RecyclerView.ViewHolder{
     public TextView hot;
     public TextView state;
     public TextView theme;
-    public TextView tv_isbn;
+    public TextView tvIsbn;
     public TextView isbn;
     public TextView library;
     public ImageView bookImage;
@@ -45,7 +45,7 @@ public class BookViewHolder extends RecyclerView.ViewHolder{
         hot = itemView.findViewById(R.id.bookHot);
         state = itemView.findViewById(R.id.bookState);
         theme = itemView.findViewById(R.id.bookTheme);
-        tv_isbn = itemView.findViewById(R.id.tv_bookIsbn);
+        tvIsbn = itemView.findViewById(R.id.tv_bookIsbn);
         isbn = itemView.findViewById(R.id.bookIsbn);
         library = itemView.findViewById(R.id.bookLibrary);
         bookImage = itemView.findViewById(R.id.imageView);

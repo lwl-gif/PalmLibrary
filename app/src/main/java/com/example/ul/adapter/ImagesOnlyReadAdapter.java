@@ -98,7 +98,7 @@ public class ImagesOnlyReadAdapter extends RecyclerView.Adapter<ImageViewHolder>
 
     public ArrayList<String> getImagesPath() {
         ArrayList<String> arrayList = new ArrayList<>();
-        for(int i = 0; i < imagesPath.size()-1; i++){
+        for(int i = 0; i < imagesPath.size() ; i++){
             arrayList.add(imagesPath.get(i));
         }
         return arrayList;
@@ -123,7 +123,6 @@ public class ImagesOnlyReadAdapter extends RecyclerView.Adapter<ImageViewHolder>
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, final int position) {
-        Log.e(TAG, "onBindViewHolder: position = " + position);
         String url = this.imageNameUrlList.get(position);
         final GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
                 .addHeader("Authorization", this.token)
@@ -139,7 +138,6 @@ public class ImagesOnlyReadAdapter extends RecyclerView.Adapter<ImageViewHolder>
 
                     @Override
                     public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        Log.e(TAG, "onResourceReady: getLayoutPosition = " + holder.getLayoutPosition());
                         if (ImagesOnlyReadAdapter.this.imagesPath.get(holder.getLayoutPosition()) == null) {
                             FutureTask<String> task = new FutureTask<>(() ->
                                     HttpUtil.getImgCachePath(context, glideUrl));

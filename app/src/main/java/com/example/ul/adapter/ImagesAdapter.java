@@ -71,7 +71,7 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter {
         this.imageAdapterItemListener = imageAdapterItemListener;
         Resources resources = context.getResources();
         // "添加图片"按钮的文件路径
-        String path = ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
+        String path = ContentResolver.SCHEME_ANDROID_RESOURCE + ":// "
                 + resources.getResourcePackageName(R.drawable.add_image) + "/"
                 + resources.getResourceTypeName(R.drawable.add_image) + "/"
                 + resources.getResourceEntryName(R.drawable.add_image);
@@ -187,7 +187,6 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter {
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, final int position) {
-        Log.e(TAG, "onBindViewHolder: position = "+position);
         String url = glideLoad.get(holder.getLayoutPosition());
         RequestManager requestManager = Glide.with(context).applyDefaultRequestOptions(requestOptions);
         RequestBuilder<Drawable> requestBuilder;
@@ -205,11 +204,10 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter {
 
                 @Override
                 public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                    Log.e(TAG, "onResourceReady: getLayoutPosition = " + holder.getLayoutPosition());
                     if (ImagesAdapter.this.imagesPath.get(holder.getLayoutPosition()) == null) {
                         FutureTask<String> task = new FutureTask<>(() ->
                                 HttpUtil.getImgCachePath(context, glideUrl));
-                        //提交任务
+                        // 提交任务
                         HttpUtil.threadPool.submit(task);
                         try {
                             String imagePath = task.get(10, TimeUnit.SECONDS);
@@ -235,20 +233,20 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter {
         holder.imageButton.setOnClickListener(view -> {
             imageAdapterItemListener.onClickToShow(holder.getLayoutPosition());
         });
-        //如果不是最后一个item
+        // 如果不是最后一个item
         if (holder.getLayoutPosition() < getItemCount() - 1) {
             holder.imageButton.setOnLongClickListener(view -> {
                 ImagesAdapter.this.setDeleting(!ImagesAdapter.this.deleting);
                 return true;
             });
-            //当前处于删除图片状态，显示删除的图标
+            // 当前处于删除图片状态，显示删除的图标
             if (ImagesAdapter.this.deleting) {
                 holder.imageDelete.setVisibility(View.VISIBLE);
             } else {
                 holder.imageDelete.setVisibility(View.GONE);
             }
         }
-        //如果是最后一个item，删除图标永不显示
+        // 如果是最后一个item，删除图标永不显示
         else {
             holder.imageDelete.setVisibility(View.GONE);
         }
@@ -260,12 +258,12 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter {
     }
 
     public void removeItem(int position) {
-        //删除的是网络图片
+        // 删除的是网络图片
         Log.e(TAG, "removeItem: position = "+position);
         if (position < this.imageNameUrlList.size()) {
             this.imageNameUrlList.remove(position);
         }
-        //删除的是本地图片
+        // 删除的是本地图片
         else {
             this.selectList.remove(position - this.imageNameUrlList.size());
         }

@@ -40,6 +40,7 @@ import static android.content.ContentValues.TAG;
 public class ShowPictureActivity extends Activity{
 
     private static final String TAG = "ShowPictureActivity";
+
     @BindView(R.id.imageButton_back)
     public ImageButton imageButton;
     @BindView(R.id.tv_now)
@@ -77,7 +78,10 @@ public class ShowPictureActivity extends Activity{
         }else {
             finish();
         }
-        Log.e(TAG, "onCreate: total = " + total);
+        if(total <= 0){
+            Toast.makeText(this,"无数据展示！",Toast.LENGTH_SHORT).show();
+            finish();
+        }
         // 获取点击位置
         position = intent.getIntExtra("position",0) + 1;
     }

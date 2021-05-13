@@ -26,6 +26,7 @@ import com.example.ul.callback.CallbackToMainActivity;
 import com.example.ul.callback.SearchCallback;
 
 import com.example.ul.model.Application;
+import com.example.ul.model.Book;
 import com.example.ul.model.UserInfo;
 
 import com.example.ul.util.DialogUtil;
@@ -168,7 +169,7 @@ public class RApplicationFragment extends Fragment implements CallbackToApplicat
      */
     private void query() {
         // 根据条件构造发送请求的URL
-        String url = HttpUtil.BASE_URL + "application/SelectByReaderId";
+        String url = HttpUtil.BASE_URL + "application/selectByReaderId";
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("queryString", queryString);
         url = HttpUtil.newUrl(url, hashMap);
@@ -245,7 +246,7 @@ public class RApplicationFragment extends Fragment implements CallbackToApplicat
         } else {
             if (code == GET_APPLICATIONS) {
                 String applicationsString = jsonObject.getString("object");
-                if (applicationsString != null) {
+                if (applicationsString != null && applicationsString.length() > 0) {
                     ArrayList<Application> applications = (ArrayList<Application>) JSON.parseArray(applicationsString, Application.class);
                     data.putParcelableArrayList("applications", applications);
                     msg.setData(data);

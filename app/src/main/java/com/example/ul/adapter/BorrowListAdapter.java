@@ -7,10 +7,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.alibaba.fastjson.JSONArray;
 import com.example.ul.R;
 import com.example.ul.callback.CallbackToRBorrowFragment;
-import org.json.JSONArray;
-import org.json.JSONException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -18,7 +18,7 @@ import java.util.Locale;
 /**
  * @Author:Wallace
  * @Description:
- * @Date:2021/3/10 17:55
+ * @Date: 2021/3/10 17:55
  * @Modified By:
  */
 public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.ViewHolder>{
@@ -53,26 +53,9 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
 
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
 
-    public BorrowListAdapter(Context context,JSONArray jsonArray,String id , String name,String readerId,String readerName,String state,
-                           String start, String end, String box, CallbackToRBorrowFragment callbackToRBorrowFragment){
-        /**
-         * @Author:Wallace
-         * @Description:
-         * @Date:Created in 21:55 2021/3/10
-         * @Modified By:
-         * @param context
-         * @param jsonArray
-         * @param id
-         * @param name
-         * @param readerId
-         * @param readerName
-         * @param state
-         * @param start
-         * @param end
-         * @param box 通过box来确定适配哪类数据（当前借阅、当前预约和过期记录）
-         * @param callbackToRBorrowFragment
-         * @return:
-         */
+    public BorrowListAdapter(Context context, JSONArray jsonArray, String id, String name, String readerId,
+                             String readerName, String state, String start, String end, String box,
+                             CallbackToRBorrowFragment callbackToRBorrowFragment){
         this.context = context;
         this.jsonArray = jsonArray;
         this.id = id;
@@ -107,31 +90,42 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        //获取JSONArray数组元素的id,name,age,department,classroom属性
-        try {
-            //从数据源中取值
-            String itemId = jsonArray.optJSONObject(position).getString(id);
-            String itemName = jsonArray.optJSONObject(position).getString(name);
-            String itemReaderId = jsonArray.optJSONObject(position).getString(readerId);
-            String itemReaderName = jsonArray.optJSONObject(position).getString(readerName);
-            String itemState = jsonArray.optJSONObject(position).getString(state);
-            Long Start = jsonArray.optJSONObject(position).getLong(start);
-            Long End = jsonArray.optJSONObject(position).getLong(end);
-            Date date = new Date(Start);
+        //从数据源中取值
+        String itemId = jsonArray.getJSONObject(position).getString(id);
+        String itemName = jsonArray.getJSONObject(position).getString(name);
+        String itemReaderId = jsonArray.getJSONObject(position).getString(readerId);
+        String itemReaderName = jsonArray.getJSONObject(position).getString(readerName);
+        String itemState = jsonArray.getJSONObject(position).getString(state);
+        Long Start = jsonArray.getJSONObject(position).getLong(start);
+        Long End = jsonArray.getJSONObject(position).getLong(end);
+        Date date = new Date(Start);
+        String itemStart = format.format(date);
+        Date date0 = new Date(End);
+        String itemEnd = format.format(date0);
+        // 给列表项组件赋值
+        holder.id.setText(itemId);
+        holder.name.setText(itemName);
+        holder.readerId.setText(itemReaderId);
+        holder.readerName.setText(itemReaderName);
+        holder.state.setText(itemState);
+        holder.start.setText(itemStart);
+        holder.end.setText(itemEnd);
+        // 绑定单击事件监听器
+        if(callbackToRBorrowFragment != null){
+            holder.tv_desc.setOnClickListener(view -> callbackToRBorrowFragment.borrowListToWantMore(holder.getLayoutPosition()));
+            if("box1".equals(box)){
+                TextView tvLent = (TextView) holder.rootView.findViewById(R.id.tv_lent);
+                tvLent.setOnClickListener(view -> callbackToRBorrowFragment.borrowListToLent(holder.getLayoutPosition()));
+                TextView tvRenew = (TextView) holder.rootView.findViewById(R.id.tv_renew);
+                tvRenew.setOnClickListener(view -> callbackToRBorrowFragment.borrowListToRenew(holder.getLayoutPosition()));
+                TextView tvLoss = (TextView) holder.rootView.findViewById(R.id.tv_loss);
+                tvLoss.setOnClickListener(view -> callbackToRBorrowFragment.borrowListToLoss(holder.getLayoutPosition()));
+            }else if("box2".equals(box)){
+                TextView tvAbandon = (TextView) holder.rootView.findViewById(R.id.tv_abandon);
+                tvAbandon.setOnClickListener(view -> callbackToRBorrowFragment.borrowListToAbandon(holder.getLayoutPosition()));
+            }else {
 
-            String itemStart = format.format(date);
-            Date date0 = new Date(End);
-            String itemEnd = format.format(date0);
-            //给列表项组件赋值
-            holder.id.setText(itemId);
-            holder.name.setText(itemName);
-            holder.readerId.setText(itemReaderId);
-            holder.readerName.setText(itemReaderName);
-            holder.state.setText(itemState);
-            holder.start.setText(itemStart);
-            holder.end.setText(itemEnd);
-        } catch (JSONException e) {
-            e.printStackTrace();
+            }
         }
     }
 
@@ -140,11 +134,12 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
         if(jsonArray==null){
             return 0;
         }
-        return jsonArray.length();
+        return jsonArray.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
         //三个视图中共同的属性
+        private View rootView;
         private TextView id;
         private TextView name;
         private TextView readerId;
@@ -155,6 +150,7 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
         private TextView tv_desc;
         public ViewHolder(View itemView) {
             super(itemView);
+            rootView = itemView;
             id = itemView.findViewById(R.id.bookId);
             name = itemView.findViewById(R.id.bookName);
             readerId = itemView.findViewById(R.id.readerId);
@@ -162,25 +158,8 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
             state = itemView.findViewById(R.id.State);
             start = itemView.findViewById(R.id.bookStart);
             end = itemView.findViewById(R.id.bookEnd);
-            //“更多详情”按钮
+            // “更多详情”按钮
             tv_desc = itemView.findViewById(R.id.tv_desc);
-            //绑定单击事件监听器
-            if(callbackToRBorrowFragment!=null){
-                tv_desc.setOnClickListener(view -> callbackToRBorrowFragment.borrowListToWantMore(this.getLayoutPosition()));
-                if(box.equals("box1")){
-                    TextView tv_lent = (TextView) itemView.findViewById(R.id.tv_lent);
-                    tv_lent.setOnClickListener(view -> callbackToRBorrowFragment.borrowListToLent(this.getLayoutPosition()));
-                    TextView tv_renew = (TextView) itemView.findViewById(R.id.tv_renew);
-                    tv_renew.setOnClickListener(view -> callbackToRBorrowFragment.borrowListToRenew(this.getLayoutPosition()));
-                    TextView tv_loss = (TextView) itemView.findViewById(R.id.tv_loss);
-                    tv_loss.setOnClickListener(view -> callbackToRBorrowFragment.borrowListToLoss(this.getLayoutPosition()));
-                }else if(box.equals("box2")){
-                    TextView tv_abandon = (TextView) itemView.findViewById(R.id.tv_abandon);
-                    tv_abandon.setOnClickListener(view -> callbackToRBorrowFragment.borrowListToAbandon(this.getLayoutPosition()));
-                }else {
-
-                }
-            }
         }
     }
 }

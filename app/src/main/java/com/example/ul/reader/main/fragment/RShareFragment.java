@@ -84,15 +84,14 @@ public class RShareFragment extends Fragment implements HttpUtil.MyCallback, Cal
     /**我的书库*/
     private JSONArray jsonArray;
 
-
     @Override
     public void onAttach(@NotNull Context context) {
         super.onAttach(context);
-        // 如果Context没有实现callback,ListClickedCallback接口，则抛出异常
+        // 如果Context没有实现CallbackToMainActivity接口，则抛出异常
         if (!(context instanceof CallbackToMainActivity)) {
             throw new IllegalStateException(TAG+"所在的Context必须实现CallbackTOMainActivity接口");
         }
-        // 把该Context当初listClickedCallback对象
+        // 把该Context当初CallbackToMainActivity对象
         listClickedCallbackMain = (CallbackToMainActivity) context;
     }
 
@@ -122,9 +121,7 @@ public class RShareFragment extends Fragment implements HttpUtil.MyCallback, Cal
         });
         // 获取图片的基本url
         String baseUrl = HttpUtil.BASE_URL + "book/getBookImage/";
-        // 将服务器响应包装成Adapter
-        adapter = new BookListAdapter(getActivity(),baseUrl,token,new JSONArray(),"id","name","author","description",
-                "hot","state","theme","isbn","library","images",this);
+        adapter = new BookListAdapter(getActivity(),baseUrl,token,new ArrayList<>(),this);
         recyclerView.setAdapter(adapter);
         return rootView;
 
@@ -141,11 +138,11 @@ public class RShareFragment extends Fragment implements HttpUtil.MyCallback, Cal
         HttpUtil.getRequest(token,url,this,GET_MY_BOOKS);
     }
 
-    private void fill() {
-        if(jsonArray == null || jsonArray.size() <= 0){
+    private void fill(ArrayList<Book> books) {
+        if(books == null || books.size() <= 0){
             Toast.makeText(getActivity(),"无数据",Toast.LENGTH_SHORT).show();
         }else {
-            adapter.setJsonArray(jsonArray);
+            adapter.setBooks(books);
         }
     }
 
@@ -157,7 +154,7 @@ public class RShareFragment extends Fragment implements HttpUtil.MyCallback, Cal
 
     @Override
     public void bookListClickPosition(int position) {
-        Book book = (Book) adapter.getJsonArray().get(position);
+        Book book = (Book) adapter.getBooks().get(position);
         int id = book.getId();
         String library = book.getLibrary();
         // 返回id给activity
@@ -177,9 +174,10 @@ public class RShareFragment extends Fragment implements HttpUtil.MyCallback, Cal
         public void handleMessage(Message msg){
             int what = msg.what;
             RShareFragment myFragment = rShareFragment.get();
-            // 缴费
             if (what == GET_MY_BOOKS) {
-                myFragment.fill();
+                Bundle data = msg.getData();
+                ArrayList<Book> books = data.getParcelableArrayList("bookArrayList");
+                myFragment.fill(books);
             } else if(what == REQUEST_INTERCEPTED) {
                 Bundle data = msg.getData();
                 DialogUtil.showDialog(myFragment.getActivity(), TAG, data, true);
@@ -210,8 +208,12 @@ public class RShareFragment extends Fragment implements HttpUtil.MyCallback, Cal
             myHandler.sendMessage(msg);
         } else {
             if (code == GET_MY_BOOKS) {
-                jsonArray = (JSONArray) jsonObject.get("object");
-                myHandler.sendEmptyMessage(GET_MY_BOOKS);
+                String bookListString = jsonObject.getString("object");
+                ArrayList<Book> bookArrayList = (ArrayList<Book>) JSON.parseArray(bookListString, Book.class);
+                bundle.putParcelableArrayList("bookArrayList",bookArrayList);
+                msg.setData(bundle);
+                msg.what = GET_MY_BOOKS;
+                myHandler.sendMessage(msg);
             } else {
                 String reason = "未知错误";
                 bundle.putString("reason",reason);

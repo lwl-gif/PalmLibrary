@@ -41,9 +41,7 @@ public class Application implements Serializable, Parcelable {
 
     private static final long serialVersionUID = 1L;
 
-    public Application(){
-
-    }
+    public Application(){}
 
     public Integer getId() {
         return id;
