@@ -76,11 +76,9 @@ public class BorrowBookListAdapter extends RecyclerView.Adapter<BookViewHolder> 
     }
 
     private void init(Context context){
-        //如果Context没有实现callback,ListClickedCallback接口，则抛出异常
         if (!(context instanceof CallbackToBorrowBookActivity)) {
-            throw new IllegalStateException("BorrowBookListAdapter所在的Context必须实现CallbackToBorrowBookActivity接口");
+            throw new IllegalStateException(TAG+"所在的Context必须实现CallbackToBorrowBookActivity接口");
         }
-        //把该Context当初CallbackToBorrowBookActivity对象
         this.callbackToBorrowBookActivity = (CallbackToBorrowBookActivity)context;
     }
 

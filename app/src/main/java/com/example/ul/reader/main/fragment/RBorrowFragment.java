@@ -2,6 +2,7 @@ package com.example.ul.reader.main.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -9,13 +10,17 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,10 +28,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.ul.R;
 import com.example.ul.adapter.BorrowListAdapter;
 import com.example.ul.callback.CallbackToRBorrowFragment;
 import com.example.ul.callback.CallbackToMainActivity;
+import com.example.ul.callback.DialogActionCallback;
 import com.example.ul.callback.SearchCallback;
 import com.example.ul.model.UserInfo;
 import com.example.ul.util.DialogUtil;
@@ -51,7 +64,8 @@ import okhttp3.Response;
  * @Date: 2021/3/9 20:29
  * @Modified By:
  */
-public class RBorrowFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, CallbackToRBorrowFragment, SearchCallback,HttpUtil.MyCallback {
+public class RBorrowFragment extends Fragment implements CompoundButton.OnCheckedChangeListener,
+        CallbackToRBorrowFragment, SearchCallback, HttpUtil.MyCallback, DialogActionCallback {
 
     private static final String TAG = "RBorrowFragment";
     /**未知请求*/
@@ -68,6 +82,14 @@ public class RBorrowFragment extends Fragment implements CompoundButton.OnChecke
     private static final int GET_RECORD_SUCCESS_NOT_FILL = 40110;
     /**查询失败*/
     private static final int GET_RECORD_FAIL = 4010;
+    /**续借*/
+    private static final int RENEW_BOOK = 403;
+    /**挂失*/
+    private static final int LOSS_BOOK = 404;
+    /**转借*/
+    private static final int LENT_BOOK = 405;
+    /**放弃预约*/
+    private static final int ABANDON_BOOK = 406;
     /**搜索框内容*/
     String queryString = "null";
     /**checkBox选中标志*/
@@ -82,58 +104,23 @@ public class RBorrowFragment extends Fragment implements CompoundButton.OnChecke
     private JSONArray jsonArrayBorrow;
     private JSONArray jsonArrayReserve;
     private JSONArray jsonArrayExpired;
+    /**适配器*/
+    private BorrowListAdapter adapterBorrow;
+    private BorrowListAdapter adapterReserve;
+    private BorrowListAdapter adapterExpired;
+    /**根布局*/
+    private ConstraintLayout rootView;
     private String token;
     private CallbackToMainActivity callbackToMainActivity;
-
-    static class MyHandler extends Handler {
-        private WeakReference<RBorrowFragment> rBorrowFragment;
-        
-        public MyHandler(WeakReference<RBorrowFragment> rBorrowFragment){
-            this.rBorrowFragment = rBorrowFragment;
-        }
-        
-        @Override
-        public void handleMessage(Message msg){
-            int what = msg.what;
-            if(what == UNKNOWN_REQUEST_ERROR || what == REQUEST_FAIL) {
-                Bundle bundle = msg.getData();
-                Toast.makeText(rBorrowFragment.get().getActivity(),bundle.getString("reason"),Toast.LENGTH_SHORT).show();
-            } else if (what == GET_RECORD_SUCCESS_FILL) {
-                rBorrowFragment.get().fill();
-            } else {
-                Bundle data = msg.getData();
-                String code = data.getString("code");
-                String message = data.getString("message");
-                String tip = data.getString("tip");
-                if (what == GET_RECORD_SUCCESS_NOT_FILL) {
-                    Toast.makeText(rBorrowFragment.get().getActivity(),message + tip, Toast.LENGTH_LONG).show();
-                }else {
-                    View view = View.inflate(rBorrowFragment.get().getActivity(),R.layout.dialog_view,null);
-                    TextView tvFrom = view.findViewById(R.id.dialog_from);
-                    tvFrom.setText(TAG);
-                    TextView tvCode = view.findViewById(R.id.dialog_code);
-                    tvCode.setText(code);
-                    TextView tvMessage = view.findViewById(R.id.dialog_message);
-                    tvMessage.setText(message);
-                    TextView tvTip = view.findViewById(R.id.dialog_tip);
-                    tvTip.setText(tip);
-                    DialogUtil.showDialog(rBorrowFragment.get().getActivity(),view,false);
-                }
-            }
-        }
-    }
-    MyHandler myHandler = new MyHandler(new WeakReference(this));
 
     @Override
     public void onAttach(@NotNull Context context) {
         super.onAttach(context);
-        Log.i(TAG, "借阅界面加载了！");
-        // 如果Context没有实现ListClickedCallback接口，则抛出异常
         if (!(context instanceof CallbackToMainActivity)) {
-            throw new IllegalStateException("RBorrowFragment所在的Context必须实现CallbackToMainActivity接口");
+            throw new IllegalStateException(TAG+"所在的Context必须实现CallbackToMainActivity接口");
         }
-        // 把该Context当初CallbackToMainActivity对象
         callbackToMainActivity = (CallbackToMainActivity) context;
+        Log.d(TAG, "onAttach: callbackToMainActivity = " + callbackToMainActivity);
     }
 
     @Override
@@ -148,7 +135,8 @@ public class RBorrowFragment extends Fragment implements CompoundButton.OnChecke
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.borrow_manage, container, false);
+        View viewTemp = inflater.inflate(R.layout.borrow_manage, container, false);
+        rootView = viewTemp.findViewById(R.id.root_borrow_manage);
         MySearchView mySearchView = rootView.findViewById(R.id.mySearchView);
         mySearchView.setSearchCallback(this);
         TextView textView = rootView.findViewById(R.id.textSelect);
@@ -163,37 +151,46 @@ public class RBorrowFragment extends Fragment implements CompoundButton.OnChecke
         CheckBox checkBox3 = rootView.findViewById(R.id.checkBox3);
         checkBox3.setOnCheckedChangeListener(this);
         textView1 = rootView.findViewById(R.id.nowBorrow);
-        textView1.setVisibility(View.GONE);
         recyclerViewBorrow = rootView.findViewById(R.id.recyclerBorrowList);
-        recyclerViewBorrow.setVisibility(View.GONE);
         textView2 = rootView.findViewById(R.id.nowReserve);
-        textView2.setVisibility(View.GONE);
         recyclerViewReserve = rootView.findViewById(R.id.recyclerReserveList);
-        recyclerViewReserve.setVisibility(View.GONE);
         textView3 = rootView.findViewById(R.id.expiredRecord);
-        textView3.setVisibility(View.GONE);
         recyclerExpired = rootView.findViewById(R.id.recyclerRecordList);
-        recyclerExpired.setVisibility(View.GONE);
         // 默认的界面设置
-        checkBox1.setChecked(true);
         box1 = true;
         textView1.setVisibility(View.VISIBLE);
-        recyclerViewBorrow.setVisibility(View.VISIBLE);
-        checkBox2.setChecked(false);
+        checkBox1.setChecked(true);
         box2 = false;
         textView2.setVisibility(View.GONE);
-        recyclerViewReserve.setVisibility(View.GONE);
-        checkBox3.setChecked(false);
+        checkBox2.setChecked(false);
         box3 = false;
         textView3.setVisibility(View.GONE);
-        recyclerExpired.setVisibility(View.GONE);
+        checkBox3.setChecked(false);
+        init();
         return rootView;
+    }
+
+    void init(){
+        // 为RecyclerView设置布局管理器
+        recyclerViewBorrow.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
+        adapterBorrow = new BorrowListAdapter(getActivity(),new JSONArray(),"id","name","readerId","readerName",
+                "state","start","end","box1",this);
+        recyclerViewBorrow.setAdapter(adapterBorrow);
+        // 为RecyclerView设置布局管理器
+        recyclerViewReserve.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
+        adapterReserve = new BorrowListAdapter(getActivity(),new JSONArray(),"id","name","readerId","readerName",
+                "state","start","end","box1",this);
+        recyclerViewReserve.setAdapter(adapterReserve);
+        // 为RecyclerView设置布局管理器
+        recyclerExpired.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
+        adapterExpired = new BorrowListAdapter(getActivity(),new JSONArray(),"id","name","readerId","readerName",
+                "state","start","end","box1",this);
+        recyclerExpired.setAdapter(adapterExpired);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        // 将接口赋值为null
         callbackToMainActivity = null;
     }
 
@@ -201,22 +198,13 @@ public class RBorrowFragment extends Fragment implements CompoundButton.OnChecke
     public void searchAction(String s) {
         queryString = s;
     }
-    /**
-     * @Author: Wallace
-     * @Description: 根据搜索框内容以及复选框选中的条件进行查询
-     * @Date: Created in 20:43 2021/3/10
-     * @Modified By:
-     * @return: void
-     */
+
     private void query() {
         // 搜索框的内容
         if ((queryString == null) || ("".equals(queryString))) {
             queryString = "null";
         }
-
-        // 定义发送的URL
         String url = HttpUtil.BASE_URL + "borrow/myBorrow";
-        // 使用Map封装请求参数
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("checkBox1", Boolean.toString(box1));
         hashMap.put("checkBox2", Boolean.toString(box2));
@@ -226,45 +214,26 @@ public class RBorrowFragment extends Fragment implements CompoundButton.OnChecke
         HttpUtil.getRequest(token, url, this, GET_RECORD);
     }
 
-    private void fill() {
+    private void fillData() {
         if((jsonArray == null)||(jsonArray.size() <= 0)){
             Toast.makeText(getActivity(),"未获取到数据！",Toast.LENGTH_LONG).show();
         }else{
-            BorrowListAdapter adapter;
             if(box1){
                 recyclerViewBorrow.setVisibility(View.VISIBLE);
                 if(jsonArrayBorrow.size()>0){
-                    recyclerViewBorrow.setHasFixedSize(true);
-                    // 为RecyclerView设置布局管理器
-                    recyclerViewBorrow.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
-                    // 将服务器响应包装成Adapter
-                    adapter = new BorrowListAdapter(getActivity(),jsonArrayBorrow,"id","name","readerId","readerName",
-                            "state","start","end","box1",this);
-                    recyclerViewBorrow.setAdapter(adapter);
+                    adapterBorrow.setJsonArray(jsonArrayBorrow);
                 }
             }
             if(box2){
                 recyclerViewReserve.setVisibility(View.VISIBLE);
                 if(jsonArrayReserve.size()>0){
-                    recyclerViewReserve.setHasFixedSize(true);
-                    // 为RecyclerView设置布局管理器
-                    recyclerViewReserve.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
-                    // 将服务器响应包装成Adapter
-                    adapter = new BorrowListAdapter(getActivity(),jsonArrayReserve,"id","name","readerId","readerName",
-                            "state","start","end","box2",this);
-                    recyclerViewReserve.setAdapter(adapter);
+                    adapterReserve.setJsonArray(jsonArrayReserve);
                 }
             }
             if(box3){
                 recyclerExpired.setVisibility(View.VISIBLE);
                 if(jsonArrayExpired.size()>0){
-                    recyclerExpired.setHasFixedSize(true);
-                    // 为RecyclerView设置布局管理器
-                    recyclerExpired.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
-                    // 将服务器响应包装成Adapter
-                    adapter = new BorrowListAdapter(getActivity(),jsonArrayExpired,"id","name","readerId","readerName",
-                            "state","start","end","box3",this);
-                    recyclerExpired.setAdapter(adapter);
+                    adapterExpired.setJsonArray(jsonArrayExpired);
                 }
             }
         }
@@ -277,22 +246,151 @@ public class RBorrowFragment extends Fragment implements CompoundButton.OnChecke
 
     @Override
     public void borrowListToLent(int i) {
-
+        // 要转借的记录id
+        JSONArray temp = adapterBorrow.getJsonArray();
+        Integer bookId = temp.getJSONObject(i).getInteger("id");
+        String msg = "系统将为您生成此书的转借二维码，对方扫该二维码即可完成转借，该二维码五分钟内有效。";
+        HashMap<String, Object> hashMap = new HashMap<>(4);
+        hashMap.put("requestCode",LENT_BOOK);
+        hashMap.put("bookId",bookId);
+        DialogUtil.showDialog(getActivity(),"转借",msg,this,hashMap);
     }
 
     @Override
     public void borrowListToRenew(int i) {
-
+        // 要续借的记录id
+        JSONArray temp = adapterBorrow.getJsonArray();
+        Integer bookId = temp.getJSONObject(i).getInteger("id");
+        String bookName = temp.getJSONObject(i).getString("name");
+        String msg = "确定续借此书？（id:"+bookId+",书名:"+bookName+"）";
+        HashMap<String, Object> hashMap = new HashMap<>(4);
+        hashMap.put("requestCode",RENEW_BOOK);
+        hashMap.put("bookId",bookId);
+        DialogUtil.showDialog(getActivity(),"续借",msg,this,hashMap);
     }
 
     @Override
     public void borrowListToLoss(int i) {
-
+        // 要挂失的记录id
+        JSONArray temp = adapterBorrow.getJsonArray();
+        Integer bookId = temp.getJSONObject(i).getInteger("id");
+        String bookName = temp.getJSONObject(i).getString("name");
+        String msg = "确定挂失此书？（id:"+bookId+",书名:"+bookName+"）";
+        HashMap<String, Object> hashMap = new HashMap<>(4);
+        hashMap.put("requestCode",LOSS_BOOK);
+        hashMap.put("bookId",bookId);
+        DialogUtil.showDialog(getActivity(),"挂失",msg,this,hashMap);
     }
 
     @Override
     public void borrowListToAbandon(int i) {
+        // 要挂失的记录id
+        JSONArray temp = adapterBorrow.getJsonArray();
+        Integer bookId = temp.getJSONObject(i).getInteger("id");
+        String bookName = temp.getJSONObject(i).getString("name");
+        String msg = "确定放弃本次预约？（id:"+bookId+",书名:"+bookName+"）";
+        HashMap<String, Object> hashMap = new HashMap<>(4);
+        hashMap.put("requestCode",ABANDON_BOOK);
+        hashMap.put("bookId",bookId);
+        DialogUtil.showDialog(getActivity(),"放弃预约",msg,this,hashMap);
+    }
 
+    @Override
+    public void positiveAction(HashMap<String, Object> requestParam) {
+        Integer requestCode = (Integer) requestParam.get("requestCode");
+        if (requestCode == null) {
+            Toast.makeText(getActivity(),"请求码为空",Toast.LENGTH_SHORT).show();
+        } else {
+            if (requestCode == RENEW_BOOK) {
+                Integer bookId = (Integer) requestParam.get("bookId");
+                HashMap<String, String> hashMap = new HashMap<>(4);
+                hashMap.put("bookId", String.valueOf(bookId));
+                String url = HttpUtil.BASE_URL + "borrow/renewBook";
+                HttpUtil.putRequest(token, url, hashMap, this, RENEW_BOOK);
+            } else if (requestCode == LOSS_BOOK) {
+                Integer bookId = (Integer) requestParam.get("bookId");
+                HashMap<String, String> hashMap = new HashMap<>(4);
+                hashMap.put("bookId", String.valueOf(bookId));
+                String url = HttpUtil.BASE_URL + "borrow/lossBook";
+                HttpUtil.postRequest(token, url, hashMap, this, LOSS_BOOK);
+            } else if (requestCode == LENT_BOOK) {
+                // 展示二维码的视图
+                final View view = LayoutInflater.from(getActivity()).inflate(R.layout.show_qrcode, rootView,false);
+                // 添加该视图到布局中
+                rootView.addView(view);
+                // 动态修改该视图的约束
+                ConstraintSet c = new ConstraintSet();
+                c.clone(rootView);
+                c.connect(view.getId(),ConstraintSet.START,ConstraintSet.PARENT_ID,ConstraintSet.START);
+                c.connect(view.getId(),ConstraintSet.END,ConstraintSet.PARENT_ID,ConstraintSet.END);
+                c.connect(view.getId(),ConstraintSet.TOP,ConstraintSet.PARENT_ID,ConstraintSet.TOP);
+                c.connect(view.getId(),ConstraintSet.BOTTOM,ConstraintSet.PARENT_ID,ConstraintSet.BOTTOM);
+                c.applyTo(rootView);
+                TextView titleQrcode = view.findViewById(R.id.title_qrcode);
+                titleQrcode.setText("转借二维码");
+                final ImageView ivQrcode = view.findViewById(R.id.iv_qrcode);
+                TextView tvTipQrcode = view.findViewById(R.id.tv_tip_qrcode);
+                tvTipQrcode.setText("提示");
+                final TextView tipQrcode = view.findViewById(R.id.tip_qrcode);
+                ImageView ivQrcodeDelete = view.findViewById(R.id.iv_qrcode_delete);
+                ivQrcodeDelete.setOnClickListener(v -> {
+                    ViewGroup parent = (ViewGroup) view.getParent();
+                    parent.removeView(view);
+                });
+                Integer bookId = (Integer) requestParam.get("bookId");
+                String url = HttpUtil.BASE_URL + "borrow/lentBook";
+                GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
+                        .addHeader("Authorization", this.token)
+                        .addHeader("bookId", String.valueOf(bookId))
+                        .build());
+                Glide.with(getActivity())
+                        .load(glideUrl)
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                tipQrcode.setText("二维码加载失败！");
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                String s = "对方使用客户端扫一扫功能扫码即可完成转借。"+"\n"+"二维码五分钟内有效。";
+                                tipQrcode.setText(s);
+                                return false;
+                            }
+                        })
+                        .into(ivQrcode);
+            } else if(requestCode == ABANDON_BOOK){
+                Integer bookId = (Integer) requestParam.get("bookId");
+                HashMap<String, String> hashMap = new HashMap<>(4);
+                hashMap.put("bookId", String.valueOf(bookId));
+                String url = HttpUtil.BASE_URL + "reservation/abandonBook";
+                url = HttpUtil.newUrl(url,hashMap);
+                HttpUtil.deleteRequest(token, url, this, ABANDON_BOOK);
+            } else {
+                Toast.makeText(getActivity(),"未知动作",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    public void negativeAction(HashMap<String, Object> requestParam) {
+        Integer requestCode = (Integer) requestParam.get("requestCode");
+        if(requestCode == null){
+            Toast.makeText(getActivity(),"请求码为空",Toast.LENGTH_SHORT).show();
+        }else {
+            if(requestCode == RENEW_BOOK){
+                Toast.makeText(getActivity(),"您取消了续借",Toast.LENGTH_SHORT).show();
+            }else if(requestCode == LOSS_BOOK){
+                Toast.makeText(getActivity(),"您取消了挂失",Toast.LENGTH_SHORT).show();
+            }else if(requestCode == LENT_BOOK){
+                Toast.makeText(getActivity(),"您取消了转借",Toast.LENGTH_SHORT).show();
+            }else if(requestCode == ABANDON_BOOK){
+                Toast.makeText(getActivity(),"您选择了取消",Toast.LENGTH_SHORT).show();
+            }else {
+                Toast.makeText(getActivity(),"未知动作",Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -341,7 +439,60 @@ public class RBorrowFragment extends Fragment implements CompoundButton.OnChecke
         }
         query();
     }
+    
+    static class MyHandler extends Handler {
+        private WeakReference<RBorrowFragment> rBorrowFragment;
 
+        public MyHandler(WeakReference<RBorrowFragment> rBorrowFragment){
+            this.rBorrowFragment = rBorrowFragment;
+        }
+
+        @Override
+        public void handleMessage(Message msg){
+            int what = msg.what;
+            RBorrowFragment myFragment = rBorrowFragment.get();
+            if(what == UNKNOWN_REQUEST_ERROR || what == REQUEST_FAIL) {
+                Bundle bundle = msg.getData();
+                Toast.makeText(myFragment.getActivity(),bundle.getString("reason"),Toast.LENGTH_SHORT).show();
+            } else if (what == GET_RECORD_SUCCESS_FILL) {
+                myFragment.fillData();
+            } else {
+                Bundle data = msg.getData();
+                String message = data.getString("message");
+                String tip = data.getString("tip");
+                if (what == GET_RECORD_SUCCESS_NOT_FILL) {
+                    Toast.makeText(myFragment.getActivity(),message + tip, Toast.LENGTH_LONG).show();
+                }
+                else if(what == RENEW_BOOK){
+                    if("续借失败！".equals(message)){
+                        DialogUtil.showDialog(myFragment.getActivity(),TAG,data,false);
+                    }else {
+                        Toast.makeText(myFragment.getActivity(),message, Toast.LENGTH_LONG).show();
+                    }
+                }
+                else if(what == LOSS_BOOK){
+                    if("挂失失败！".equals(message)){
+                        DialogUtil.showDialog(myFragment.getActivity(),TAG,data,false);
+                    }else {
+                        Toast.makeText(myFragment.getActivity(),message, Toast.LENGTH_LONG).show();
+                    }
+                }
+                else if(what == ABANDON_BOOK){
+                    if("操作失败！".equals(message)){
+                        DialogUtil.showDialog(myFragment.getActivity(),TAG,data,false);
+                    }else {
+                        Toast.makeText(myFragment.getActivity(),message, Toast.LENGTH_LONG).show();
+                    }
+                }
+                else {
+                    DialogUtil.showDialog(myFragment.getActivity(),TAG,data, what == REQUEST_INTERCEPTED);
+                }
+            }
+        }
+    }
+    
+    MyHandler myHandler = new MyHandler(new WeakReference(this));
+    
     @Override
     public void success(Response response, int code) throws IOException {
         // 获取服务器响应字符串
@@ -381,7 +532,16 @@ public class RBorrowFragment extends Fragment implements CompoundButton.OnChecke
                     msg.what = GET_RECORD_FAIL;
                 }
                 myHandler.sendMessage(msg);
-            } else {
+            } 
+            else if(code == RENEW_BOOK || code == LOSS_BOOK || code == ABANDON_BOOK){
+                bundle.putString("code", c);
+                bundle.putString("tip", tip);
+                bundle.putString("message", message);
+                msg.setData(bundle);
+                msg.what = code;
+                myHandler.sendMessage(msg);
+            }
+            else {
                 bundle.putString("reason","未知错误");
                 myHandler.sendEmptyMessage(UNKNOWN_REQUEST_ERROR);
             }

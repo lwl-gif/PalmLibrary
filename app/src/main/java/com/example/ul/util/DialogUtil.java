@@ -14,8 +14,11 @@ import androidx.fragment.app.Fragment;
 import com.example.ul.R;
 import com.example.ul.activity.LoginActivity;
 import com.example.ul.adapter.ImagesAdapter;
+import com.example.ul.callback.DialogActionCallback;
 import com.example.ul.fragment.BookFragment;
 import com.example.ul.librarian.LMainActivity;
+
+import java.util.HashMap;
 
 
 /**
@@ -25,7 +28,7 @@ public class DialogUtil {
 
     /**定义一个显示消息的对话框*/
     public static void showDialog(Context context, String msg, boolean goLoginActivity) {
-        //创建一个AlertDialog.Builder对象
+        // 创建一个AlertDialog.Builder对象
         AlertDialog.Builder builder = new AlertDialog.Builder(context).setMessage(msg).setCancelable(false);
         if (goLoginActivity) {
             builder.setPositiveButton("确定", (dialog, which) -> {
@@ -71,7 +74,7 @@ public class DialogUtil {
         tvMessage.setText(message);
         TextView tvTip = view.findViewById(R.id.dialog_tip);
         tvTip.setText(tip);
-        //创建一个AlertDialog.Builder对象
+        // 创建一个AlertDialog.Builder对象
         AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(view).setCancelable(false);
         if (goLoginActivity) {
             builder.setPositiveButton("确定", (dialog, which) -> {
@@ -88,27 +91,27 @@ public class DialogUtil {
 
     /**定义一个图片删除的对话框*/
     public static void showDialog(Context context , ImagesAdapter imagesAdapter, int position) {
-        //先得到构造器
+        // 先得到构造器
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        //设置标题
+        // 设置标题
         builder.setTitle("删除提示");
-        //设置内容
+        // 设置内容
         String msg = "您确定要删除它：" + imagesAdapter.getImagesPath().get(position);
         builder.setMessage(msg);
-        //设置图标，图片id即可
+        // 设置图标，图片id即可
         builder.setIcon(R.mipmap.ic_launcher);
-        //设置确定按钮
+        // 设置确定按钮
         builder.setPositiveButton("确定", (dialog, which) -> {
             imagesAdapter.removeItem(position);
             imagesAdapter.setFirstDelete(false);
-            dialog.dismiss(); //关闭dialog
+            dialog.dismiss(); // 关闭dialog
         });
-        //设置取消按钮
+        // 设置取消按钮
         builder.setNegativeButton("取消", (dialog, which) -> {
             imagesAdapter.setFirstDelete(false);
             dialog.dismiss();
         });
-        //参数都设置完成了，创建并显示出来
+        // 参数都设置完成了，创建并显示出来
         builder.create().show();
     }
 
@@ -122,6 +125,31 @@ public class DialogUtil {
         } else {
             builder.setPositiveButton("确定", null);
         }
+        builder.create().show();
+    }
+    
+    /**定义一个需要回调动作的选择对话框*/
+    public static void showDialog(Context context, String title, String msg,
+                                  final DialogActionCallback dialogActionCallback,final HashMap<String, Object> hashMap) {
+        // 先得到构造器
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        // 设置标题
+        builder.setTitle(title);
+        // 设置内容
+        builder.setMessage(msg);
+        // 设置图标，图片id即可
+        builder.setIcon(R.drawable.main_background);
+        // 设置确定按钮
+        builder.setPositiveButton("确定", (dialog, which) -> {
+            dialogActionCallback.positiveAction(hashMap);
+            dialog.dismiss();
+        });
+        // 设置取消按钮
+        builder.setNegativeButton("取消", (dialog, which) -> {
+            dialogActionCallback.negativeAction(hashMap);
+            dialog.dismiss();
+        });
+        // 参数都设置完成了，创建并显示出来
         builder.create().show();
     }
 }

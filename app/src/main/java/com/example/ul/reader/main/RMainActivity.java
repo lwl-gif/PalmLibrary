@@ -5,12 +5,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.example.ul.R;
 import com.example.ul.activity.ApplicationDetailActivity;
-import com.example.ul.librarian.LMainActivity;
+import com.example.ul.activity.CardActivity;
 import com.example.ul.librarian.main.activity.LShareDetailActivity;
-import com.example.ul.model.Application;
 import com.example.ul.reader.main.activity.RBookDetailActivity;
 import com.example.ul.callback.CallbackToMainActivity;
 import com.example.ul.reader.main.activity.RReaderDetailActivity;
@@ -18,9 +18,12 @@ import com.example.ul.reader.main.activity.RShareDetailActivity;
 import com.example.ul.util.ActivityManager;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
-import androidx.appcompat.app.AppCompatActivity;
+
+import java.lang.reflect.Method;
 
 /**
  * @author luoweili
@@ -45,31 +48,35 @@ public class RMainActivity extends AppCompatActivity implements CallbackToMainAc
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.r_main_menu, menu);
-        return true;
+        return super.onCreateOptionsMenu(menu);
     }
 
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
+        Intent intent;
         switch (item.getItemId()){
             case R.id.menu_Person:
-                //打开个人信息详情活动
-                Intent intent = new Intent(this, RReaderDetailActivity.class);
+                // 打开个人信息详情活动
+                intent = new Intent(this, RReaderDetailActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.menu_Card:
+                // 电子卡
+                intent = new Intent(this, CardActivity.class);
                 startActivity(intent);
                 return true;
             case R.id.menu_Setting:
-                //打开个人设置页面
+                // 打开个人设置页面
                 return true;
             case R.id.menu_Scan:
-                //打开扫码页面
+                // 打开扫码页面
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
-
 
     @Override
     protected void onDestroy() {

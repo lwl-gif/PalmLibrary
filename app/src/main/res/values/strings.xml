@@ -6,6 +6,7 @@
     <string name="symbol">/</string>
     <string name="math_0">0</string>
     <string name="seconds_3">3秒</string>
+    <string name="electronicLibraryCard">电子借阅证</string>
 
     <string name="welcome1">掌上图书馆带您享受极致阅读体验</string>
     <string name="app_starting">应用启动中…</string>
@@ -119,6 +120,7 @@
     <string name="readerAmount">剩余量:</string>
     <string name="readerPermission">权限级别:</string>
     <string name="readerType">证件类型:</string>
+    <string name="readerType1">证件类型</string>
     <string name="yourReaderType">您的证件类型？</string>
     <string name="readerTerm">到期时间:</string>
     <string name="edit_basic_information">编辑基本信息</string>
@@ -147,8 +149,6 @@
     <string name="message">结果:</string>
     <string name="tip">提示:</string>
     <string name="from">来源:</string>
-
-
     <!--                                                     -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_r_main">掌上图书馆</string>
@@ -162,6 +162,7 @@
     <string name="menu_main">主要业务</string>
     <string name="menu_myself">个人信息</string>
     <string name="menu_setting">个人设置</string>
+    <string name="menu_card">电子卡</string>
     <!--                                      -->
     <string name="title_activity_l_main">LMainActivity</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -253,7 +254,9 @@
     <string name="error_missing_global_partner_seller_rsa_private">错误：需要配置 OrderUtils1_0_Global 中的 PARTNER、SELLER 和 RSA_PRIVATE</string>
     <string name="payment_inst_hk">付款方: HK</string>
     <string name="payment_inst_cn">付款方: CN</string>
-
+    <!--              show_qrcode.xml                -->
+    <string name="defaultTitle">标题</string>
+    <string name="defaultTip">温馨提示</string>
 
 
 </resources>

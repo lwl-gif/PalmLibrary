@@ -58,6 +58,7 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
         setSupportActionBar(toolbar);
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setItemIconTintList(null);
         //将每个菜单ID作为一组ID传递，因为每个菜单应被视为顶级目的地
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_main, R.id.nav_myself, R.id.nav_setting)

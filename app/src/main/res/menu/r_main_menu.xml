@@ -1,33 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/menu_Person"
-            app:showAsAction="never"
-            android:orderInCategory="10"
-            android:title="@string/menu_myself"/>
-        <item
-            android:id="@+id/menu_Setting"
-            app:showAsAction="never"
-            android:orderInCategory="20"
-            android:title="@string/menu_setting"/>
-        <item
-            android:id="@+id/menu_Scan"
-            app:showAsAction="never"
-            android:orderInCategory="30"
-            android:title="@string/scan"/>
-        <item
-            android:id="@+id/menu_Feedback"
-            app:showAsAction="never"
-            android:orderInCategory="40"
-            android:title="@string/feedback"/>
-        <item
-            android:id="@+id/menu_AboutUs"
-            app:showAsAction="never"
-            android:orderInCategory="50"
-
-            android:title="@string/aboutUs"/>
-<!--        android:actionLayout="@layout/drawer_head_portrait"-->
-    </group>
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.ul.reader.main.RMainActivity">
+    <item
+        android:id="@+id/menu_Person"
+        android:title="@string/menu_myself"
+        android:icon="@drawable/placeholder0" />
+    <item
+        android:id="@+id/menu_Setting"
+        android:title="@string/menu_setting"
+        android:icon="@drawable/placeholder0"/>
+    <item
+        android:id="@+id/menu_Card"
+        android:title="@string/menu_card"
+        android:icon="@drawable/placeholder0"/>
+    <item
+        android:id="@+id/menu_Scan"
+        android:title="@string/scan"/>
+    <item
+        android:id="@+id/menu_Feedback"
+        android:title="@string/feedback"/>
+    <item
+        android:id="@+id/menu_AboutUs"
+        android:title="@string/aboutUs"/>
 </menu>

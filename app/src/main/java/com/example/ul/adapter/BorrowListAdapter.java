@@ -24,6 +24,7 @@ import java.util.Locale;
 public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.ViewHolder>{
 
     private final String TAG = "BorrowListAdapter";
+
     private Context context;
     /**定义需要包装的JSONArray对象*/
     private JSONArray jsonArray;
@@ -48,7 +49,7 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
     private String start;
     private String end;
     private String box;
-    // 列表项单击事件回调接口
+    /**列表项单击事件回调接口*/
     private CallbackToRBorrowFragment callbackToRBorrowFragment;
 
     SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -67,6 +68,16 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
         this.end = end;
         this.box = box;
         this.callbackToRBorrowFragment = callbackToRBorrowFragment;
+    }
+
+
+    public JSONArray getJsonArray() {
+        return jsonArray;
+    }
+
+    public void setJsonArray(JSONArray jsonArray) {
+        this.jsonArray = jsonArray;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -131,9 +142,6 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
 
     @Override
     public int getItemCount() {
-        if(jsonArray==null){
-            return 0;
-        }
         return jsonArray.size();
     }
 
