@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.example.ul.R;
 import com.example.ul.model.Application;
+import com.example.ul.model.ReaderPermission;
 import com.example.ul.model.UserInfo;
 import com.example.ul.pay.PayDemoActivity;
 import com.example.ul.util.ActivityManager;
@@ -51,7 +52,7 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
     /**请求失败*/
     private static final int REQUEST_FAIL = 14000;
     /**请求被服务器拦截，请求失败*/
-    private static final int REQUEST_INTERCEPTED = 1401;
+    private static final int REQUEST_INTERCEPTED = 14001;
     /**获取详情*/
     private static final int GET_APPLICATION_DETAIL = 1401;
     /**获取详情成功，有数据需要渲染*/
@@ -297,8 +298,6 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
         }
     }
 
-
-
     @Override
     public void success(Response response, int code) throws IOException {
         // 获取服务器响应字符串
@@ -321,7 +320,7 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
             if (code == GET_APPLICATION_DETAIL) {
                 String applicationString = jsonObject.getString("object");
                 if (applicationString != null) {
-                    Application application = (Application) JSON.parse(applicationString);
+                    Application application = JSON.parseObject(applicationString, Application.class);
                     bundle.putParcelable("application", application);
                     bundle.putString("tip",tip);
                     msg.setData(bundle);

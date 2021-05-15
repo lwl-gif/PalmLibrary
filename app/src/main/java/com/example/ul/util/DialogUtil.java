@@ -3,20 +3,14 @@ package com.example.ul.util;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.fragment.app.Fragment;
-
 import com.example.ul.R;
 import com.example.ul.activity.LoginActivity;
 import com.example.ul.adapter.ImagesAdapter;
-import com.example.ul.callback.DialogActionCallback;
-import com.example.ul.fragment.BookFragment;
-import com.example.ul.librarian.LMainActivity;
 
 import java.util.HashMap;
 
@@ -151,5 +145,31 @@ public class DialogUtil {
         });
         // 参数都设置完成了，创建并显示出来
         builder.create().show();
+    }
+
+    /**
+     * @Author: Wallace
+     * @Description: 选择对话框的回调
+     * @Date: 2021/5/13 23:10
+     * @Modified: By yyyy-MM-dd
+     */
+    public static interface DialogActionCallback {
+
+        /**
+         * @Author: Wallace
+         * @Description: 选择确定按钮后的回调
+         * @Date: Created 23:17 2021/5/13
+         * @Modified: by who yyyy-MM-dd
+         * @param requestParam 请求参数
+         */
+        void positiveAction(HashMap<String, Object> requestParam);
+        /**
+         * @Author: Wallace
+         * @Description: 选择取消按钮后的回调
+         * @Date: Created 23:17 2021/5/13
+         * @Modified: by who yyyy-MM-dd
+         * @param requestParam 请求参数
+         */
+        void negativeAction(HashMap<String, Object> requestParam);
     }
 }

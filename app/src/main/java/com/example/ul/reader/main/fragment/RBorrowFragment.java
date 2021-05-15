@@ -10,7 +10,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -39,7 +38,6 @@ import com.example.ul.R;
 import com.example.ul.adapter.BorrowListAdapter;
 import com.example.ul.callback.CallbackToRBorrowFragment;
 import com.example.ul.callback.CallbackToMainActivity;
-import com.example.ul.callback.DialogActionCallback;
 import com.example.ul.callback.SearchCallback;
 import com.example.ul.model.UserInfo;
 import com.example.ul.util.DialogUtil;
@@ -65,7 +63,7 @@ import okhttp3.Response;
  * @Modified By:
  */
 public class RBorrowFragment extends Fragment implements CompoundButton.OnCheckedChangeListener,
-        CallbackToRBorrowFragment, SearchCallback, HttpUtil.MyCallback, DialogActionCallback {
+        CallbackToRBorrowFragment, SearchCallback, HttpUtil.MyCallback, DialogUtil.DialogActionCallback {
 
     private static final String TAG = "RBorrowFragment";
     /**未知请求*/

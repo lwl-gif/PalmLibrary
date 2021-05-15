@@ -174,12 +174,13 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 Toast.makeText(myActivity, "更新成功！", Toast.LENGTH_LONG).show();
             } else if (what == ACCOUNT_OFFLINE_SUCCEED) {
                 UserInfo userInfo = UserManager.getInstance().getUserInfo(myActivity);
-                //退出，且清除数据
+                // 退出，且清除数据
                 userInfo.setRole(null);
                 userInfo.setPassword(null);
                 userInfo.setUserName(null);
                 userInfo.setToken(null);
-                SharedPreferences sp = myActivity.getSharedPreferences("userInfo", Context.MODE_PRIVATE);//Context.MODE_PRIVATE表示SharedPreferences的数据只有自己应用程序能访问。
+                // Context.MODE_PRIVATE表示SharedPreferences的数据只有自己应用程序能访问。
+                SharedPreferences sp = myActivity.getSharedPreferences("userInfo", Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sp.edit();
                 editor.putString("username", null);
                 editor.putString("password", null);
@@ -187,22 +188,22 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 editor.putString("token", null);
                 boolean commit = editor.commit();
                 if (!commit) {
-                    //能退出，但不清除数据
+                    // 能退出，但不清除数据
                     Toast.makeText(myActivity, "程序退出时数据清理异常！", Toast.LENGTH_LONG).show();
                 }
-                //销毁所有活动
+                // 销毁所有活动
                 ActivityManager.getInstance().exit();
             } else if (what == ACCOUNT_OFFLINE_FAIL) {
-                //能退出，但不清除数据
+                // 能退出，但不清除数据
                 Toast.makeText(myActivity, "连接服务器异常！保存数据并退出！", Toast.LENGTH_LONG).show();
-                //销毁所有活动
+                // 销毁所有活动
                 ActivityManager.getInstance().exit();
             } else {
                 Bundle data = msg.getData();
                 if (what == GET_READER_DETAIL_FAIL) {
                     DialogUtil.showDialog(myActivity, TAG, data, false);
                 } else if (what == CLOSE_ACCOUNT) {
-                    //读者销户后，退出到登录界面
+                    // 读者销户后，退出到登录界面
                     DialogUtil.showDialog(myActivity, TAG, data, true);
                 } else if(what == APPLY_PERMISSION){
                     DialogUtil.showDialog(myActivity, TAG, data, false);
@@ -376,7 +377,7 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
                 String term = format.format(date);
                 rdTerm.setText(term);
-                //改变列表的值
+                // 改变列表的值
                 for (int i = 0; i < rdType.getCount(); i++) {
                     String s = (String) rdType.getItemAtPosition(i);
                     if (typeName.equals(s)) {
@@ -450,9 +451,9 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
             });
             buttonEditBasicInformation.setVisibility(View.VISIBLE);
             buttonEditBasicInformation.setOnClickListener(view -> {
-                //如果当前正在编辑
+                // 如果当前正在编辑
                 if (writingBasic) {
-                    //发送请求
+                    // 发送请求
                     HashMap<String, String> map = new HashMap<>();
                     map.put("name", rdName.getText().toString().trim());
                     map.put("sex", rdSex.getSelectedItem().toString().trim());
@@ -473,10 +474,10 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
             });
             buttonQuitAndClean.setVisibility(View.VISIBLE);
             buttonQuitAndClean.setOnClickListener(view -> {
-                //使用Map封装请求参数
+                // 使用Map封装请求参数
                 HashMap<String, String> map = new HashMap<>();
                 map.put("skip", "null");
-                //定义发送的请求url
+                // 定义发送的请求url
                 String url = HttpUtil.BASE_URL + "quit";
                 HttpUtil.postRequest(token, url, map, this, ACCOUNT_OFFLINE);
             });
@@ -525,7 +526,7 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
         }else {
             buttonEditBasicInformation.setText(R.string.save);
         }
-        //isEdit若为false，则所有EditText和Spinner不可获取焦点,不可点击，不可编辑
+        // isEdit若为false，则所有EditText和Spinner不可获取焦点,不可点击，不可编辑
         rdName.setFocusable(writingBasic);
         rdName.setFocusableInTouchMode(writingBasic);
         rdName.setClickable(writingBasic);
@@ -586,46 +587,46 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
         // 当前不处于删除状态
         if(!imagesAdapter.getDeleting()){
             if(position == imagesAdapter.getItemCount()-1) {
-                //进入相册 以下是例子：不需要的api可以不写
+                // 进入相册 以下是例子：不需要的api可以不写
                 PictureSelector.create(this)
-                        //全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
+                        // 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
                         .openGallery(PictureMimeType.ofImage())
-                        //每行显示个数 int
+                        // 每行显示个数 int
                         .imageSpanCount(3)
                         .maxSelectNum(30)
-                        //多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                        // 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
                         .selectionMode(PictureConfig.MULTIPLE)
-                        //是否可预览图片
+                        // 是否可预览图片
                         .previewImage(true)
-                        //是否显示拍照按钮 true or false
+                        // 是否显示拍照按钮 true or false
                         .isCamera(false)
-                        //拍照保存图片格式后缀,默认jpeg
+                        // 拍照保存图片格式后缀,默认jpeg
                         .imageFormat(PictureMimeType.JPEG)
-                        //图片列表点击 缩放效果 默认true
+                        // 图片列表点击 缩放效果 默认true
                         .isZoomAnim(true)
-                        //int 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
+                        // int 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
                         .withAspectRatio(1, 1)
-                        //是否显示uCrop工具栏，默认不显示 true or false
+                        // 是否显示uCrop工具栏，默认不显示 true or false
                         .hideBottomControls(false)
-                        //裁剪框是否可拖拽 true or false
+                        // 裁剪框是否可拖拽 true or false
                         .freeStyleCropEnabled(false)
-                        //是否圆形裁剪 true or false
+                        // 是否圆形裁剪 true or false
                         .circleDimmedLayer(false)
-                        //是否显示裁剪矩形边框 圆形裁剪时建议设为false   true or false
+                        // 是否显示裁剪矩形边框 圆形裁剪时建议设为false   true or false
                         .showCropFrame(false)
-                        //是否显示裁剪矩形网格 圆形裁剪时建议设为false    true or false
+                        // 是否显示裁剪矩形网格 圆形裁剪时建议设为false    true or false
                         .showCropGrid(false)
-                        //是否开启点击声音 true or false
+                        // 是否开启点击声音 true or false
                         .openClickSound(true)
-                        //同步true或异步false 压缩 默认同步
+                        // 同步true或异步false 压缩 默认同步
                         .synOrAsy(true)
-                        //裁剪是否可旋转图片 true or false
+                        // 裁剪是否可旋转图片 true or false
                         .rotateEnabled(false)
-                        //裁剪是否可放大缩小图片 true or false
+                        // 裁剪是否可放大缩小图片 true or false
                         .scaleEnabled(true)
-                        //是否可拖动裁剪框(固定)
+                        // 是否可拖动裁剪框(固定)
                         .isDragFrame(false)
-                        //结果回调onActivityResult requestCode
+                        // 结果回调onActivityResult requestCode
                         .forResult(PictureConfig.CHOOSE_REQUEST);
             }
             else {
@@ -677,7 +678,7 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                     String message = jsonObject.getString("message");
                     String tip = null;
                     if("查询成功！".equals(message)){
-                        //查询成功，获取书籍数据，通知主线程渲染前端
+                        // 查询成功，获取书籍数据，通知主线程渲染前端
                         this.jsonObject = jsonObject.getJSONObject("object");
                         myHandler.sendEmptyMessage(GET_READER_DETAIL_SUCCEED);
                         break;
