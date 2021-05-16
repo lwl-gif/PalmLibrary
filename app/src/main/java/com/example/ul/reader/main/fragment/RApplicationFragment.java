@@ -88,18 +88,15 @@ public class RApplicationFragment extends Fragment implements CallbackToApplicat
     @Override
     public void onAttach(@NotNull Context context) {
         super.onAttach(context);
-        // 如果Context没有实现ListClickedCallback接口，则抛出异常
         if (!(context instanceof CallbackToMainActivity)) {
-            throw new IllegalStateException("ApplicationFragment所在的Context必须实现callbackToMainActivity接口");
+            throw new IllegalStateException(TAG+"所在的Context必须实现CallbackToMainActivity接口");
         }
-        // 把该Context当初listClickedCallback对象
         callbackToMainActivity = (CallbackToMainActivity) context;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // 获取token
         UserManager userManager = UserManager.getInstance();
         UserInfo userInfo = userManager.getUserInfo(getActivity());
         token = userInfo.getToken();
@@ -118,32 +115,18 @@ public class RApplicationFragment extends Fragment implements CallbackToApplicat
         adapter = new ApplicationListAdapter(getActivity(),new ArrayList<>(),this);
         // 列表——申请记录
         RecyclerView recyclerApplication = rootView.findViewById(R.id.recyclerApplicationList);
-        //为RecyclerView设置布局管理器
+        // 为RecyclerView设置布局管理器
         recyclerApplication.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         recyclerApplication.setAdapter(adapter);
         return rootView;
     }
 
-    /**
-     * @Author: Wallace
-     * @Description: 启动fragment时被回调
-     * @Date: Created in 20:19 2021/3/10
-     * @Modified By:
-     * @return: void
-     */
     @Override
     public void onStart() {
         super.onStart();
         query();
     }
 
-    /**
-     * @Author: Wallace
-     * @Description: 当该Fragment从它所属的AContext中被删除、替换完成时回调该方法
-     * @Date: Created in 20:20 2021/3/10
-     * @Modified By
-     * @return: void
-     */
     @Override
     public void onDetach() {
         super.onDetach();
@@ -154,36 +137,19 @@ public class RApplicationFragment extends Fragment implements CallbackToApplicat
         callbackToMainActivity = null;
     }
 
-
     @Override
     public void searchAction(String s) {
         queryString = s;
     }
 
-    /**
-     * @Author: Wallace
-     * @Description: 根据搜索框内容进行查询
-     * @Date: Created in 20:43 2021/3/10
-     * @Modified By:
-     * @return: void
-     */
     private void query() {
-        // 根据条件构造发送请求的URL
         String url = HttpUtil.BASE_URL + "application/selectByReaderId";
-        HashMap<String, String> hashMap = new HashMap<>();
+        HashMap<String, String> hashMap = new HashMap<>(4);
         hashMap.put("queryString", queryString);
         url = HttpUtil.newUrl(url, hashMap);
         HttpUtil.getRequest(token, url, this, GET_APPLICATIONS);
     }
 
-    /**
-     * @Author: Wallace
-     * @Description: 将查询结果jsonArray渲染到界面
-     * @Date: Created in 20:43 2021/3/10
-     * @Modified By:
-     * @param applications 处罚记录列表
-     * @return: void
-     */
     private void fill(ArrayList<Application> applications) {
         adapter.setApplications(applications);
     }

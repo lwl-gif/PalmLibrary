@@ -47,7 +47,7 @@
         android:theme="@style/Theme.MyApplication1"
         android:usesCleartextTraffic="true"
         tools:replace="android:theme">
-        <activity android:name=".activity.CardActivity"></activity>
+        <activity android:name=".activity.CardActivity" />
         <activity android:name=".librarian.main.activity.LShareDetailActivity" />
         <activity android:name=".reader.main.activity.RShareDetailActivity" />
         <activity android:name=".activity.ApplicationDetailActivity" />

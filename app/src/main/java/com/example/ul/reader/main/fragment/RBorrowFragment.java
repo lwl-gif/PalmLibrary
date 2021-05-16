@@ -84,7 +84,7 @@ public class RBorrowFragment extends Fragment implements CompoundButton.OnChecke
     private static final int RENEW_BOOK = 403;
     /**挂失*/
     private static final int LOSS_BOOK = 404;
-    /**转借*/
+    /**转借(出)*/
     private static final int LENT_BOOK = 405;
     /**放弃预约*/
     private static final int ABANDON_BOOK = 406;
@@ -336,7 +336,7 @@ public class RBorrowFragment extends Fragment implements CompoundButton.OnChecke
                     parent.removeView(view);
                 });
                 Integer bookId = (Integer) requestParam.get("bookId");
-                String url = HttpUtil.BASE_URL + "borrow/lentBook";
+                String url = HttpUtil.BASE_URL + "borrow/lentBookOut";
                 GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
                         .addHeader("Authorization", this.token)
                         .addHeader("bookId", String.valueOf(bookId))

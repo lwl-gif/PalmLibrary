@@ -152,13 +152,13 @@ public class LApplicationFragment extends Fragment implements CallbackToApplicat
         // 为RecyclerView设置布局管理器
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
         recyclerView.setAdapter(adapter);
+        query();
         return rootView;
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        // 发送请求获取数据
         query();
     }
 
@@ -205,22 +205,20 @@ public class LApplicationFragment extends Fragment implements CallbackToApplicat
             msg.what = REQUEST_INTERCEPTED;
             myHandler.sendMessage(msg);
         } else {
-            switch (code) {
-                case GET_APPLICATION_LIST:
-                    String listString = jsonObject.getString("object");
-                    ArrayList<Application> applications = (ArrayList<Application>) JSON.parseArray(listString,Application.class);
-                    if(applications == null || applications.size() <= 0){
-                        // 发消息通知主线程无数据
-                        msg.what = GET_APPLICATION_LIST_NOT_FILL;
-                    }else {
-                        data.putParcelableArrayList("applications", applications);
-                        msg.setData(data);
-                        msg.what = GET_APPLICATION_LIST_FILL;
-                    }
-                    myHandler.sendMessage(msg);
-                    break;
-                default:
-                    myHandler.sendEmptyMessage(UNKNOWN_REQUEST_ERROR);
+            if (code == GET_APPLICATION_LIST) {
+                String listString = jsonObject.getString("object");
+                ArrayList<Application> applications = (ArrayList<Application>) JSON.parseArray(listString, Application.class);
+                if (applications == null || applications.size() <= 0) {
+                    // 发消息通知主线程无数据
+                    msg.what = GET_APPLICATION_LIST_NOT_FILL;
+                } else {
+                    data.putParcelableArrayList("applications", applications);
+                    msg.setData(data);
+                    msg.what = GET_APPLICATION_LIST_FILL;
+                }
+                myHandler.sendMessage(msg);
+            } else {
+                myHandler.sendEmptyMessage(UNKNOWN_REQUEST_ERROR);
             }
         }
     }

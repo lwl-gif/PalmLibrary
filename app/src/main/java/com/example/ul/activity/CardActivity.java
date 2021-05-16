@@ -121,8 +121,7 @@ public class CardActivity extends Activity implements HttpUtil.MyCallback {
                 String readerPermissionString = bundle.getString("readerPermissionString");
                 ReaderPermission readerPermission = JSON.parseObject(readerPermissionString, ReaderPermission.class);
                 myActivity.fillData(readerPermission);
-            } 
-            else  {
+            } else  {
                 Bundle bundle = msg.getData();
                 Toast.makeText(myActivity,bundle.getString("reason"),Toast.LENGTH_SHORT).show();
             }

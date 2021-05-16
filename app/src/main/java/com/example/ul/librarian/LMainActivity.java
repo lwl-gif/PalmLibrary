@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
 
@@ -59,7 +60,7 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setItemIconTintList(null);
-        //将每个菜单ID作为一组ID传递，因为每个菜单应被视为顶级目的地
+        // 将每个菜单ID作为一组ID传递，因为每个菜单应被视为顶级目的地
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_main, R.id.nav_myself, R.id.nav_setting)
                 .setDrawerLayout(drawer)
@@ -73,7 +74,6 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.l_main_menu, menu);
         return true;
     }
@@ -99,7 +99,7 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     //调用系统内部去开启权限
-                                    ApplicationInfo(LMainActivity.this);
+                                    applicationInfo(LMainActivity.this);
                                 }
                             }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
                         @Override
@@ -189,7 +189,7 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
     }
 
     /**调用系统内部开启权限*/
-    public static void ApplicationInfo(Activity activity) {
+    public static void applicationInfo(Activity activity) {
         try {
             Intent localIntent = new Intent();
             localIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -217,14 +217,15 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
         if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
             if (data != null) {
                 // 扫码的结果
-//                String content = data.getStringExtra(Constant.CODED_CONTENT);
-//                Reader reader = JSON.parseObject(content,Reader.class);
-//                Log.e(TAG, "onActivityResult: reader = " + reader);
-                Intent intent = new Intent(LMainActivity.this, BorrowBookActivity.class);
-//                intent.putExtra("readerId", Objects.requireNonNull(reader).getId());
-                intent.putExtra("readerId","0121710880503");
-                startActivity(intent);
-//                LMainActivity.this.finish();
+                String content = data.getStringExtra(Constant.CODED_CONTENT);
+                Reader reader = JSON.parseObject(content,Reader.class);
+                if(reader == null){
+                    Toast.makeText(this,"二维码解析失败！",Toast.LENGTH_SHORT).show();
+                }else {
+                    Intent intent = new Intent(LMainActivity.this, BorrowBookActivity.class);
+                    intent.putExtra("readerId", reader.getId());
+                    startActivity(intent);
+                }
             }
         }
     }

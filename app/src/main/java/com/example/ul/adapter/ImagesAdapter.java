@@ -71,7 +71,7 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter {
         this.imageAdapterItemListener = imageAdapterItemListener;
         Resources resources = context.getResources();
         // "添加图片"按钮的文件路径
-        String path = ContentResolver.SCHEME_ANDROID_RESOURCE + ":// "
+        String path = ContentResolver.SCHEME_ANDROID_RESOURCE + "://"
                 + resources.getResourcePackageName(R.drawable.add_image) + "/"
                 + resources.getResourceTypeName(R.drawable.add_image) + "/"
                 + resources.getResourceEntryName(R.drawable.add_image);
@@ -220,35 +220,31 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter {
                     return false;
                 }
             })
-                    .into(holder.imageButton);
+                    .into(holder.imageBtn);
         }
         // 加载本地图片
         else {
             requestBuilder = requestManager.load(url);
-            requestBuilder.into(holder.imageButton);
+            requestBuilder.into(holder.imageBtn);
         }
-        holder.imageDelete.setOnClickListener(view -> {
-            imageAdapterItemListener.onClickToDelete(holder.getLayoutPosition());
-        });
-        holder.imageButton.setOnClickListener(view -> {
-            imageAdapterItemListener.onClickToShow(holder.getLayoutPosition());
-        });
+        holder.imageDel.setOnClickListener(view -> imageAdapterItemListener.onClickToDelete(holder.getLayoutPosition()));
+        holder.imageBtn.setOnClickListener(view -> imageAdapterItemListener.onClickToShow(holder.getLayoutPosition()));
         // 如果不是最后一个item
         if (holder.getLayoutPosition() < getItemCount() - 1) {
-            holder.imageButton.setOnLongClickListener(view -> {
+            holder.imageBtn.setOnLongClickListener(view -> {
                 ImagesAdapter.this.setDeleting(!ImagesAdapter.this.deleting);
                 return true;
             });
             // 当前处于删除图片状态，显示删除的图标
             if (ImagesAdapter.this.deleting) {
-                holder.imageDelete.setVisibility(View.VISIBLE);
+                holder.imageDel.setVisibility(View.VISIBLE);
             } else {
-                holder.imageDelete.setVisibility(View.GONE);
+                holder.imageDel.setVisibility(View.GONE);
             }
         }
         // 如果是最后一个item，删除图标永不显示
         else {
-            holder.imageDelete.setVisibility(View.GONE);
+            holder.imageDel.setVisibility(View.GONE);
         }
     }
 

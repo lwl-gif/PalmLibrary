@@ -12,11 +12,11 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,9 +26,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.example.ul.R;
 import com.example.ul.activity.ShowPictureActivity;
 import com.example.ul.adapter.ImagesAdapter;
+import com.example.ul.adapter.ImagesOnlyReadAdapter;
 import com.example.ul.adapter.MySpinnerAdapter;
 import com.example.ul.adapter.MySpinnerBelongAdapter;
 import com.example.ul.callback.ImageAdapterItemListener;
+import com.example.ul.model.Book;
+import com.example.ul.model.Classification;
+import com.example.ul.model.ReaderPermission;
 import com.example.ul.model.UserInfo;
 import com.example.ul.util.ActivityManager;
 import com.example.ul.util.DialogUtil;
@@ -41,12 +45,16 @@ import com.luck.picture.lib.entity.LocalMedia;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 import butterknife.BindView;
@@ -66,15 +74,13 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
 
     private static final String TAG = "LBookDetailActivity";
     /**未知请求*/
-    private static final int UNKNOWN_REQUEST = 800;
+    private static final int UNKNOWN_REQUEST_ERROR = 800;
     /**请求失败*/
     private static final int REQUEST_FAIL = 8000;
-    /**请求成功，但子线程解析数据失败*/
-    private static final int REQUEST_BUT_FAIL_READ_DATA = 8001;
+    /**请求被服务器拦截，请求失败*/
+    private static final int REQUEST_INTERCEPTED = 8002;
     /**获取书本详情*/
     private static final int GET_BOOK_DETAIL = 801;
-    /**获取书本详情成功，有数据需要渲染*/
-    private static final int GET_BOOK_DETAIL_FILL = 8011;
     /**添加书本*/
     private static final int ADD_BOOK = 802;
     /**添加书本成功*/
@@ -93,8 +99,6 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
     private static final int DELETE_BOOK_FAIL = 8040;
     /**查询分类*/
     private static final int GET_TYPE = 805;
-    /**服务器返回的书本详情数据*/
-    private JSONObject jsonObjectBookDetail = null;
     /**要填充到各个下拉列表中的内容*/
     private JSONArray jsonArrayLibrary,jsonArrayType;
     private List<String> firsts = new ArrayList<>();
@@ -137,121 +141,56 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
     public EditText tHot;
     @BindView(R.id.l_bookState)
     public TextView tState;
-    private ImagesAdapter imagesAdapter;
-    private Button bEdit;
-    /**当前书本id*/
-    private String id = null;
-    /**当前是否启动了编辑*/
-    private boolean writing = false;
+    @BindView(R.id.iv_back)
+    public ImageView ivBack;
+    @BindView(R.id.l_bookDetail_submit)
+    public Button btnSubmit;
 
-    static class MyHandler extends Handler {
-        private WeakReference<LBookDetailActivity> lBookDetailActivity;
-        public MyHandler(WeakReference<LBookDetailActivity> lBookDetailActivity){
-            this.lBookDetailActivity = lBookDetailActivity;
-        }
-        @Override
-        public void handleMessage(Message msg){
-            int what = msg.what;
-            LBookDetailActivity myActivity = lBookDetailActivity.get();
-            if(what == UNKNOWN_REQUEST) {
-                Toast.makeText(myActivity,"未知请求，无法处理！",Toast.LENGTH_SHORT).show();
-            }
-            else if(what == REQUEST_FAIL){
-                Toast.makeText(myActivity,"网络异常！",Toast.LENGTH_SHORT).show();
-            }else if(what == REQUEST_BUT_FAIL_READ_DATA){
-                Toast.makeText(myActivity,"子线程解析数据异常！",Toast.LENGTH_SHORT).show();
-            }else if(what == GET_TYPE){
-                myActivity.fillSpinnerData();
-            }else if (what == GET_BOOK_DETAIL_FILL) {
-                myActivity.fillBookDetail();
-            } else {
-                Bundle data = msg.getData();
-                String code = data.getString("code");
-                String message = data.getString("message");
-                if(what == ADD_BOOK_SUCCESS){
-                    myActivity.clear();
-                    Toast.makeText(myActivity, message, Toast.LENGTH_LONG).show();
-                }else if(what == UPDATE_BOOK_SUCCEED){
-                    Toast.makeText(myActivity, message, Toast.LENGTH_LONG).show();
-                }else if(what == DELETE_BOOK_SUCCEED){
-                    Toast.makeText(myActivity, message, Toast.LENGTH_LONG).show();
-                    myActivity.finish();
-                }
-                else {
-                    DialogUtil.showDialog(myActivity,TAG,data,false);
-                }
-            }
-        }
-    }
-    MyHandler myHandler = new MyHandler(new WeakReference(this));
+    private RecyclerView recyclerView;
+    private ImagesAdapter imagesAdapter;
+    private String token;
+    /**当前书本id*/
+    private int id = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityManager.getInstance().addActivity(this);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_l_book_detail);
         ButterKnife.bind(this);
-        //初始化
-        init();
-    }
-    /**
-     * @Author: Wallace
-     * @Description: 根据有无id值，有两种初始化方式，对应新添书籍和书籍详情两种打开方式。
-     * @Date: Created in 12:48 2021/3/31
-     * @Modified By:
-     * @return: void
-     */
-    private void init() {
         // 获取token
         UserManager userManager = UserManager.getInstance();
         UserInfo userInfo = userManager.getUserInfo(this);
-        String token = userInfo.getToken();
-        // 先发送获取分类的请求
-        String getTypeUrl = HttpUtil.BASE_URL + "book/getDetailType";
-        HttpUtil.getRequest(token,getTypeUrl,this,GET_TYPE);
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
-        recyclerView.setLayoutManager(gridLayoutManager);
+        token = userInfo.getToken();
         imagesAdapter = new ImagesAdapter(this,token,this);
+        recyclerView = findViewById(R.id.l_book_recyclerView);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         recyclerView.setAdapter(imagesAdapter);
-        Button bBack = findViewById(R.id.l_bookDetail_back);
-        bBack.setOnClickListener(view -> {
-            finish();
-        });
-        bEdit = findViewById(R.id.l_bookDetail_edit);
-        bEdit.setOnClickListener(view -> {
-            //如果当前可编辑
-            writing = !writing;
-            isAllowEdit();
-        });
-        Button bSubmit = findViewById(R.id.l_bookDetail_submit);
-        //判断传进来的id是否为空，若为空，则说明是添加新书，若不为空则说明是查看书本详情
-        id = this.getIntent().getStringExtra("id");
-        if(id != null){
-            writing = false;
+        recyclerView.setLayoutManager(gridLayoutManager);
+        ivBack.setOnClickListener(view -> LBookDetailActivity.this.finish());
+        // 判断传进来的id是否为空，若为空，则说明是添加新书，若不为空则说明是查看书本详情
+        id = this.getIntent().getIntExtra("id",-1);
+        if(id != -1){
             tTitle.setText("书籍详情");
-            bSubmit.setText(R.string.update);
+            btnSubmit.setText(R.string.update);
             Button bDelete = findViewById(R.id.l_bookDetail_delete);
             bDelete.setVisibility(View.VISIBLE);
             // 绑定删除请求
             bDelete.setOnClickListener(view -> {
                 // 使用Map封装请求参数
                 HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put("id",this.id);
+                hashMap.put("id", String.valueOf(this.id));
                 String url = HttpUtil.BASE_URL + "book/deleteBookById";
                 url = HttpUtil.newUrl(url,hashMap);
                 HttpUtil.deleteRequest(token,url,this,DELETE_BOOK);
             });
         }else {
-            writing = true;
             tTitle.setText("添加新书");
             tState.setText("在馆");
-            bSubmit.setText(R.string.add);
+            btnSubmit.setText(R.string.add);
         }
-        isAllowEdit();
         // 提交按钮绑定请求
-        bSubmit.setOnClickListener(view -> {
+        btnSubmit.setOnClickListener(view -> {
             // 使用Map封装请求参数
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put("id",tId.getText().toString().trim());
@@ -273,14 +212,24 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
             hashMap.put("state",tState.getText().toString().trim());
             // 获取要提交的图片的全路径
             ArrayList<String> tempList = this.imagesAdapter.getImagesPath();
-            if(id != null){     // 绑定更新图书请求
+            if(id != -1){
+                // 绑定更新图书请求
                 String url = HttpUtil.BASE_URL + "book/updateBook";
                 HttpUtil.putRequest(token,url,hashMap,tempList,this,UPDATE_BOOK);
-            }else {             // 绑定添加图书请求
+            }else {
+                // 绑定添加图书请求
                 String url = HttpUtil.BASE_URL + "book/addBook";
                 HttpUtil.postRequest(token,url,hashMap,tempList,this,ADD_BOOK);
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // 先发送获取分类的请求
+        String url = HttpUtil.BASE_URL + "book/getDetailType";
+        HttpUtil.getRequest(token,url,this,GET_TYPE);
     }
 
     private void clear() {
@@ -314,71 +263,60 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         spinnerType.setAdapter(sAType);
         MySpinnerBelongAdapter mySpinnerBelongAdapter = new MySpinnerBelongAdapter(this,firsts);
         spinnerFirst.setAdapter(mySpinnerBelongAdapter);
-        //绑定事件
+        // 绑定事件
         spinnerLibrary.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 library = (String) spinnerLibrary.getItemAtPosition(i);
-                Toast.makeText(LBookDetailActivity.this,"您选择了"+library,Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-//                library = "null";
             }
         });
         spinnerType.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 type = (String) spinnerType.getItemAtPosition(i);
-                Toast.makeText(LBookDetailActivity.this,"您选择了"+type,Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-//                type = "null";
+
             }
         });
-        //根据spinnerFirst选的不同来动态渲染spinnerThird
+        // 根据spinnerFirst选的不同来动态渲染spinnerThird
         spinnerFirst.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 first = (String) spinnerFirst.getItemAtPosition(i);
-                Toast.makeText(LBookDetailActivity.this,"您选择了"+first,Toast.LENGTH_SHORT).show();
-                //给spinnerThird赋值
+                // 给spinnerThird赋值
                 spinnerThird.setAdapter(new MySpinnerBelongAdapter(LBookDetailActivity.this,thirds.get(i)));
                 spinnerThird.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
                     @Override
                     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                         third = (String) spinnerThird.getItemAtPosition(i);
-                        Toast.makeText(LBookDetailActivity.this,"您选择了"+third,Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onNothingSelected(AdapterView<?> adapterView) {
-//                        third = "null";
                     }
                 });
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-//                first = "null";
             }
         });
-        //各列表第一项为默认选择值
+        // 各列表第一项为默认选择值
         spinnerLibrary.setSelection(0,true);
         spinnerType.setSelection(0,true);
         spinnerFirst.setSelection(0,true);
         spinnerThird.setSelection(0,true);
-        if(id != null){
-            //发送查询书籍详情的请求
-            //获取token
-            UserManager userManager = UserManager.getInstance();
-            UserInfo userInfo = userManager.getUserInfo(this);
-            String token = userInfo.getToken();
-            //使用Map封装请求参数
+        if(id != -1){
+            // 发送查询书籍详情的请求
+            // 使用Map封装请求参数
             HashMap<String, String> hashMap = new HashMap<>();
-            hashMap.put("id", id);
+            hashMap.put("id", String.valueOf(id));
             String url = HttpUtil.BASE_URL + "book/selectAllById";
             // 拼接请求参数
             url = HttpUtil.newUrl(url,hashMap);
@@ -386,14 +324,14 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         }
     }
 
-    private void fillBookDetail() {
-        this.id = this.jsonObjectBookDetail.getString("id");
-        this.tId.setText(this.id);
-        this.tName.setText(this.jsonObjectBookDetail.getString("name"));
-        this.tAuthor.setText(this.jsonObjectBookDetail.getString("author"));
-        this.tIsbn.setText(this.jsonObjectBookDetail.getString("isbn"));
-        //改变列表的默认值
-        String tLibrary = this.jsonObjectBookDetail.getString("library");
+    private void fillBookDetail(Book book) {
+        id = book.getId();
+        this.tId.setText(String.valueOf(id));
+        this.tName.setText(book.getName());
+        this.tAuthor.setText(book.getAuthor());
+        this.tIsbn.setText(book.getIsbn());
+        // 改变列表的默认值
+        String tLibrary = book.getLibrary();
         for (int i = 0; i < spinnerLibrary.getCount(); i++) {
             String s = (String) spinnerLibrary.getItemAtPosition(i);
             if (s != null && s.equals(tLibrary)) {
@@ -401,12 +339,12 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
                 break;
             }
         }
-        this.tLocation.setText(this.jsonObjectBookDetail.getString("location"));
-        this.tCallNumber.setText(this.jsonObjectBookDetail.getString("callNumber"));
-        this.tTheme.setText(this.jsonObjectBookDetail.getString("theme"));
-        this.tDesc.setText(this.jsonObjectBookDetail.getString("description"));
-        //改变列表的默认值
-        String tType = this.jsonObjectBookDetail.getString("typeName");
+        this.tLocation.setText(book.getLocation());
+        this.tCallNumber.setText(book.getCallNumber());
+        this.tTheme.setText(book.getTheme());
+        this.tDesc.setText(book.getDescription());
+        // 改变列表的默认值
+        String tType = book.getTypeName();
         for (int i = 0; i < spinnerType.getCount(); i++) {
             String s = (String) spinnerType.getItemAtPosition(i);
             if (s.equals(tType)) {
@@ -414,13 +352,15 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
                 break;
             }
         }
-        this.tHouse.setText(this.jsonObjectBookDetail.getString("house"));
-        this.tHot.setText(this.jsonObjectBookDetail.getString("hot"));
-        this.tState.setText(this.jsonObjectBookDetail.getString("state"));
-        this.tPrice.setText(this.jsonObjectBookDetail.getString("price"));
-        JSONObject belong = JSON.parseObject(this.jsonObjectBookDetail.getString("classification"));
+        this.tHouse.setText(book.getHouse());
+        String hotString = String.valueOf(book.getHot());
+        this.tHot.setText(hotString);
+        this.tState.setText(book.getState());
+        String price = book.getPrice().toString();
+        this.tPrice.setText(price);
+        Classification classification = book.getClassification();
         // 改变列表的默认值
-        String tFirst = belong.getString("first");
+        String tFirst = classification.getFirst();
         for (int i = 0; i < spinnerFirst.getCount(); i++) {
             String s = (String) spinnerFirst.getItemAtPosition(i);
             if (s != null && s.equals(tFirst)) {
@@ -429,7 +369,7 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
             }
         }
         // 改变列表的默认值
-        String tThird = belong.getString("third");
+        String tThird = classification.getThird();
         for (int i = 0; i < spinnerThird.getCount(); i++) {
             String s = (String) spinnerThird.getItemAtPosition(i);
             if (s != null && s.equals(tThird)) {
@@ -437,119 +377,23 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
                 break;
             }
         }
-        String d = this.jsonObjectBookDetail.getString("date");
-        String n = "null";
-        if (d == null || n.equals(d) || "".equals(d)) {
-            this.tDate.setText(null);
-        } else {
-            long l = Long.parseLong(d);
-            Date date = new Date(l);
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            String tvDate = format.format(date);
-            this.tDate.setText(tvDate);
-        }
+        Date date = book.getDate();
+        String rdTermString = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date);
+        this.tDate.setText(rdTermString);
         // 获取图片名，构造出获取图片的url
         // 获取图片的基本url
         String baseUrl = HttpUtil.BASE_URL + "book/getBookImage/";
-        String images = jsonObjectBookDetail.getString("images");
-        JSONArray jsonArray1 = jsonObjectBookDetail.getJSONArray("pictures");
+        String images = book.getImages();
+        ArrayList<String> pictures = book.getPictures();
         ArrayList<String> arrayList = new ArrayList<>();
-        if (jsonArray1 != null && jsonArray1.size() > 0) {
-            for (int i = 0; i < jsonArray1.size(); i++) {
-                String url = baseUrl + images + "/" + jsonArray1.get(i);
+        if (pictures != null && pictures.size() > 0) {
+            for (int i = 0; i < pictures.size(); i++) {
+                String url = baseUrl + images + "/" + pictures.get(i);
                 arrayList.add(url);
             }
         }
-        Log.e(TAG, "fillBookDetail: arrayList = " + arrayList.toString());
         imagesAdapter.setImageNameUrlList(arrayList);
     }
-    /**
-     * @Author: Wallace
-     * @Description: 启动或禁止编辑
-     * @Date: Created 20:41 2021/4/20
-     * @Modified: by who yyyy-MM-dd
-     * @return: void
-     */
-    private void isAllowEdit(){
-        if(!writing){
-            bEdit.setText(R.string.edit);
-        }else {
-            bEdit.setText(R.string.cancel);
-        }
-        //isEdit若为false，则所有EditText和Spinner不可获取焦点,不可点击，不可编辑
-        tName.setFocusable(writing);
-        tName.setFocusableInTouchMode(writing);
-        tName.setClickable(writing);
-        tName.setEnabled(writing);
-
-        tAuthor.setFocusable(writing);
-        tAuthor.setFocusableInTouchMode(writing);
-        tAuthor.setClickable(writing);
-        tAuthor.setEnabled(writing);
-
-        tIsbn.setFocusable(writing);
-        tIsbn.setFocusableInTouchMode(writing);
-        tIsbn.setClickable(writing);
-        tIsbn.setEnabled(writing);
-
-        spinnerLibrary.setFocusable(writing);
-//        spinnerLibrary.setFocusableInTouchMode(writing);
-        spinnerLibrary.setClickable(writing);
-        spinnerLibrary.setEnabled(writing);
-
-        tLocation.setFocusable(writing);
-        tLocation.setFocusableInTouchMode(writing);
-        tLocation.setClickable(writing);
-        tLocation.setEnabled(writing);
-
-        tCallNumber.setFocusable(writing);
-        tCallNumber.setFocusableInTouchMode(writing);
-        tCallNumber.setClickable(writing);
-        tCallNumber.setEnabled(writing);
-
-        tTheme.setFocusable(writing);
-        tTheme.setFocusableInTouchMode(writing);
-        tTheme.setClickable(writing);
-        tTheme.setEnabled(writing);
-
-        tDesc.setFocusable(writing);
-        tDesc.setFocusableInTouchMode(writing);
-        tDesc.setClickable(writing);
-        tDesc.setEnabled(writing);
-
-        spinnerFirst.setFocusable(writing);
-        spinnerFirst.setClickable(writing);
-        spinnerFirst.setEnabled(writing);
-
-        spinnerThird.setFocusable(writing);
-        spinnerThird.setClickable(writing);
-        spinnerThird.setEnabled(writing);
-
-        spinnerType.setFocusable(writing);
-        spinnerType.setClickable(writing);
-        spinnerType.setEnabled(writing);
-
-        tHouse.setFocusable(writing);
-        tHouse.setFocusableInTouchMode(writing);
-        tHouse.setClickable(writing);
-        tHouse.setEnabled(writing);
-
-        tDate.setFocusable(writing);
-        tDate.setFocusableInTouchMode(writing);
-        tDate.setClickable(writing);
-        tDate.setEnabled(writing);
-
-        tPrice.setFocusable(writing);
-        tPrice.setFocusableInTouchMode(writing);
-        tPrice.setClickable(writing);
-        tPrice.setEnabled(writing);
-
-        tHot.setFocusable(writing);
-        tHot.setFocusableInTouchMode(writing);
-        tHot.setClickable(writing);
-        tHot.setEnabled(writing);
-    }
-
     /**
      * @Author: Wallace
      * @Description: 先判断是不是最后一个item
@@ -565,46 +409,46 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         // 当前不处于删除状态
         if(!imagesAdapter.getDeleting()){
             if(position == imagesAdapter.getItemCount()-1) {
-                //进入相册 以下是例子：不需要的api可以不写
+                // 进入相册 以下是例子：不需要的api可以不写
                 PictureSelector.create(this)
-                        //全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
+                        // 全部.PictureMimeType.ofAll()、图片.ofImage()、视频.ofVideo()、音频.ofAudio()
                         .openGallery(PictureMimeType.ofImage())
-                        //每行显示个数 int
+                        // 每行显示个数 int
                         .imageSpanCount(3)
                         .maxSelectNum(30)
-                        //多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
+                        // 多选 or 单选 PictureConfig.MULTIPLE or PictureConfig.SINGLE
                         .selectionMode(PictureConfig.MULTIPLE)
-                        //是否可预览图片
+                        // 是否可预览图片
                         .previewImage(true)
-                        //是否显示拍照按钮 true or false
+                        // 是否显示拍照按钮 true or false
                         .isCamera(false)
-                        //拍照保存图片格式后缀,默认jpeg
+                        // 拍照保存图片格式后缀,默认jpeg
                         .imageFormat(PictureMimeType.JPEG)
-                        //图片列表点击 缩放效果 默认true
+                        // 图片列表点击 缩放效果 默认true
                         .isZoomAnim(true)
-                        //int 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
+                        // int 裁剪比例 如16:9 3:2 3:4 1:1 可自定义
                         .withAspectRatio(1, 1)
-                        //是否显示uCrop工具栏，默认不显示 true or false
+                        // 是否显示uCrop工具栏，默认不显示 true or false
                         .hideBottomControls(false)
-                        //裁剪框是否可拖拽 true or false
+                        // 裁剪框是否可拖拽 true or false
                         .freeStyleCropEnabled(false)
-                        //是否圆形裁剪 true or false
+                        // 是否圆形裁剪 true or false
                         .circleDimmedLayer(false)
-                        //是否显示裁剪矩形边框 圆形裁剪时建议设为false   true or false
+                        // 是否显示裁剪矩形边框 圆形裁剪时建议设为false   true or false
                         .showCropFrame(false)
-                        //是否显示裁剪矩形网格 圆形裁剪时建议设为false    true or false
+                        // 是否显示裁剪矩形网格 圆形裁剪时建议设为false    true or false
                         .showCropGrid(false)
-                        //是否开启点击声音 true or false
+                        // 是否开启点击声音 true or false
                         .openClickSound(true)
-                        //同步true或异步false 压缩 默认同步
+                        // 同步true或异步false 压缩 默认同步
                         .synOrAsy(true)
-                        //裁剪是否可旋转图片 true or false
+                        // 裁剪是否可旋转图片 true or false
                         .rotateEnabled(false)
-                        //裁剪是否可放大缩小图片 true or false
+                        // 裁剪是否可放大缩小图片 true or false
                         .scaleEnabled(true)
-                        //是否可拖动裁剪框(固定)
+                        // 是否可拖动裁剪框(固定)
                         .isDragFrame(false)
-                        //结果回调onActivityResult requestCode
+                        // 结果回调onActivityResult requestCode
                         .forResult(PictureConfig.CHOOSE_REQUEST);
             }
             else {
@@ -621,16 +465,10 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            switch (requestCode) {
-                case PictureConfig.CHOOSE_REQUEST:
-                    // 结果回调
-                    imagesAdapter.setSelectList((ArrayList<LocalMedia>) PictureSelector.obtainMultipleResult(data));
-                    break;
-                default:
-                    break;
+            if (requestCode == PictureConfig.CHOOSE_REQUEST) {
+                imagesAdapter.setSelectList((ArrayList<LocalMedia>) PictureSelector.obtainMultipleResult(data));
             }
         }
-
     }
 
     @Override
@@ -648,22 +486,74 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
 
     @Override
     protected void onDestroy() {
-        id = null;
-        ActivityManager.getInstance().removeActivity(this);
         super.onDestroy();
+        id = -1;
+        ActivityManager.getInstance().removeActivity(this);
     }
+
+    static class MyHandler extends Handler {
+        private WeakReference<LBookDetailActivity> lBookDetailActivity;
+        public MyHandler(WeakReference<LBookDetailActivity> lBookDetailActivity){
+            this.lBookDetailActivity = lBookDetailActivity;
+        }
+        @Override
+        public void handleMessage(Message msg){
+            int what = msg.what;
+            LBookDetailActivity myActivity = lBookDetailActivity.get();
+            if(what == UNKNOWN_REQUEST_ERROR || what == REQUEST_FAIL) {
+                Bundle bundle = msg.getData();
+                Toast.makeText(myActivity,bundle.getString("reason"),Toast.LENGTH_SHORT).show();
+            }else if(what == GET_TYPE){
+                myActivity.fillSpinnerData();
+            }else {
+                Bundle data = msg.getData();
+                String message = data.getString("message");
+                if(what == ADD_BOOK_SUCCESS){
+                    myActivity.clear();
+                    Toast.makeText(myActivity, message, Toast.LENGTH_LONG).show();
+                }else if(what == GET_BOOK_DETAIL){
+                    String bookDetail = data.getString("bookDetail");
+                    if(bookDetail == null){
+                        DialogUtil.showDialog(myActivity,TAG,data, false);
+                    }else {
+                        Book book = JSON.parseObject(bookDetail, Book.class);
+                        myActivity.fillBookDetail(book);
+                    }
+                }
+                else if(what == UPDATE_BOOK_SUCCEED){
+                    Toast.makeText(myActivity, message, Toast.LENGTH_LONG).show();
+                }else if(what == DELETE_BOOK_SUCCEED){
+                    Toast.makeText(myActivity, message, Toast.LENGTH_LONG).show();
+                    myActivity.finish();
+                }
+                else {
+                    DialogUtil.showDialog(myActivity,TAG,data, what == REQUEST_INTERCEPTED);
+                }
+            }
+        }
+    }
+    MyHandler myHandler = new MyHandler(new WeakReference(this));
 
     @Override
     public void success(Response response, int code) throws IOException {
         // 获取服务器响应字符串
-        String result = Objects.requireNonNull(response.body()).string().trim();
+        String result = response.body().string().trim();
         JSONObject jsonObject = JSON.parseObject(result);
-        String message;
-        String tip;
-        String c;
-        Bundle data;
-        switch (code) {
-            case GET_TYPE:
+        Message msg = new Message();
+        Bundle data = new Bundle();
+        String message = jsonObject.getString("message");
+        String c = jsonObject.getString("code");
+        String tip = jsonObject.getString("tip");
+        // 返回值为true,说明请求被拦截
+        if (HttpUtil.requestIsIntercepted(jsonObject)) {
+            data.putString("code", c);
+            data.putString("tip", tip);
+            data.putString("message", message);
+            msg.setData(data);
+            msg.what = REQUEST_INTERCEPTED;
+            myHandler.sendMessage(msg);
+        } else {
+            if (code == GET_TYPE) {
                 // 将整个信息拆分
                 JSONArray jsonArraySpinners = jsonObject.getJSONArray("dataArray");
                 jsonArrayLibrary = jsonArraySpinners.getJSONArray(0);
@@ -676,41 +566,32 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
                     String first = belong.getString(0);
                     String third = belong.getString(1);
                     String[] arrayStr = third.split(",");
-                    List<String> list = new ArrayList<String>(Arrays.asList(arrayStr));
+                    List<String> list = new ArrayList<>(Arrays.asList(arrayStr));
                     firsts.add(first);
                     thirds.add(list);
                 }
-                //发消息通知主线程进行UI更新
                 myHandler.sendEmptyMessage(GET_TYPE);
-                break;
-            case GET_BOOK_DETAIL:
+            } else if (code == GET_BOOK_DETAIL) {
                 message = jsonObject.getString("message");
                 if ("查询成功！".equals(message)) {
-                    tip = jsonObject.getString("tip");
-                    if ("".equals(tip)) {
-                        //查询成功，获取书籍数据，通知主线程渲染前端
-                        jsonObjectBookDetail = jsonObject.getJSONObject("object");
-                        myHandler.sendEmptyMessage(GET_BOOK_DETAIL_FILL);
-                        break;
+                    String bookDetail = jsonObject.getString("object");
+                    if(bookDetail != null){
+                        data.putString("bookDetail",bookDetail);
                     }
                 } else {
                     tip = jsonObject.getString("tip");
                     c = jsonObject.getString("code");
-                    Message msg = new Message();
-                    data = new Bundle();
                     data.putString("code", c);
                     data.putString("tip", tip);
                     data.putString("message", message);
-                    msg.setData(data);
-                    msg.what = GET_BOOK_DETAIL_FILL;
-                    myHandler.sendMessage(msg);
+                    data.putString("bookDetail",null);
                 }
-                break;
-            case ADD_BOOK:
+                msg.setData(data);
+                msg.what = GET_BOOK_DETAIL;
+                myHandler.sendMessage(msg);
+            } else if (code == ADD_BOOK) {
                 message = jsonObject.getString("message");
                 c = jsonObject.getString("code");
-                Message msg = new Message();
-                data = new Bundle();
                 data.putString("code", c);
                 data.putString("message", message);
                 msg.setData(data);
@@ -722,8 +603,7 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
                     msg.what = ADD_BOOK_FAIL;
                 }
                 myHandler.sendMessage(msg);
-                break;
-            case UPDATE_BOOK:
+            } else if (code == UPDATE_BOOK) {
                 message = jsonObject.getString("message");
                 c = jsonObject.getString("code");
                 msg = new Message();
@@ -739,12 +619,9 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
                     msg.what = UPDATE_BOOK_FAIL;
                 }
                 myHandler.sendMessage(msg);
-                break;
-            case DELETE_BOOK:
+            } else if (code == DELETE_BOOK) {
                 message = jsonObject.getString("message");
                 c = jsonObject.getString("code");
-                msg = new Message();
-                data = new Bundle();
                 data.putString("code", c);
                 data.putString("message", message);
                 msg.setData(data);
@@ -756,15 +633,33 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
                     msg.what = DELETE_BOOK_FAIL;
                 }
                 myHandler.sendMessage(msg);
-                break;
-            default:
-                myHandler.sendEmptyMessage(UNKNOWN_REQUEST);
+            } else {
+                data.putString("reason", "未知错误");
+                myHandler.sendEmptyMessage(UNKNOWN_REQUEST_ERROR);
+            }
         }
     }
 
     @Override
     public void failed(IOException e, int code) {
-        myHandler.sendEmptyMessage(REQUEST_FAIL);
-        e.printStackTrace();
+        Message message = new Message();
+        Bundle bundle = new Bundle();
+        String reason;
+        if (e instanceof SocketTimeoutException) {
+            reason = "连接超时";
+            message.what = REQUEST_FAIL;
+        } else if (e instanceof ConnectException) {
+            reason = "连接服务器失败";
+            message.what = REQUEST_FAIL;
+        } else if (e instanceof UnknownHostException) {
+            reason = "网络异常";
+            message.what = REQUEST_FAIL;
+        } else {
+            reason = "未知错误";
+            message.what = UNKNOWN_REQUEST_ERROR;
+        }
+        bundle.putString("reason",reason);
+        message.setData(bundle);
+        myHandler.sendMessage(message);
     }
 }

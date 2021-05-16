@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_image"
     android:layout_width="140dp"
     android:layout_height="140dp"
     android:background="@drawable/border_body_all">
 
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/imageBtn"
         android:layout_width="140dp"
         android:layout_height="140dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -16,7 +17,7 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <ImageButton
-        android:id="@+id/image_delete"
+        android:id="@+id/imageDel"
         android:layout_width="15dp"
         android:layout_height="15dp"
         android:background="@drawable/image_delete"

@@ -1,8 +1,10 @@
 package com.example.ul.adapter;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ul.R;
@@ -15,12 +17,17 @@ import com.example.ul.R;
  */
 public class ImageViewHolder extends RecyclerView.ViewHolder {
 
-    protected ImageButton imageButton;
-    protected ImageButton imageDelete;
+    private static final String TAG = "ImageViewHolder";
+    public ConstraintLayout rootView;
+    public ImageButton imageBtn;
+    public ImageButton imageDel;
 
     public ImageViewHolder(View itemView) {
         super(itemView);
-        imageButton = itemView.findViewById(R.id.imageButton);
-        imageDelete = itemView.findViewById(R.id.image_delete);
+        rootView = itemView.findViewById(R.id.root_image);
+        imageBtn = rootView.findViewById(R.id.imageBtn);
+        imageDel = rootView.findViewById(R.id.imageDel);
+        Log.e(TAG, "ImageViewHolder: imageBtn = " + imageBtn);
+        Log.e(TAG, "ImageViewHolder: imageDel = " + imageDel);
     }
 }

@@ -117,7 +117,7 @@ public class ImagesOnlyReadAdapter extends RecyclerView.Adapter<ImageViewHolder>
     @NonNull
     @Override
     public ImageViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        @SuppressLint("InflateParams") View view = LayoutInflater.from(context).inflate(R.layout.image_tiem, null);
+        @SuppressLint("InflateParams") View view = LayoutInflater.from(context).inflate(R.layout.image_item, null);
         return new ImageViewHolder(view);
     }
 
@@ -153,10 +153,10 @@ public class ImagesOnlyReadAdapter extends RecyclerView.Adapter<ImageViewHolder>
                         return false;
                     }
                 })
-                .into(holder.imageButton);
+                .into(holder.imageBtn);
         //因为是只读，因此只显示图片（imageButton）,只绑定单击事件
-        holder.imageDelete.setVisibility(View.GONE);
-        holder.imageButton.setOnClickListener(view -> {
+        holder.imageDel.setVisibility(View.GONE);
+        holder.imageBtn.setOnClickListener(view -> {
             imageAdapterItemListener.onClickToShow(holder.getLayoutPosition());
         });
 

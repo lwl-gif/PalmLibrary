@@ -54,6 +54,10 @@ public class Classification implements Serializable, Parcelable {
 
     private String third;
 
+    public Classification(){
+
+    }
+
     public Classification(Parcel in) {
         id = in.readString();
         first = in.readString();
@@ -73,7 +77,6 @@ public class Classification implements Serializable, Parcelable {
         dest.writeString(second);
         dest.writeString(third);
     }
-
 
     public static final Creator<Classification> CREATOR = new Creator<Classification>() {
         @Override
