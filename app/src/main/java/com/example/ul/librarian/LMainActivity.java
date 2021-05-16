@@ -88,9 +88,6 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
                 intent = new Intent(this, LBookDetailActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.menu_AddReader:
-                // 打开读者详情页面
-                return true;
             case R.id.menu_Scan:
                 // 打开扫码活动
                 if (!initPermission()) {
@@ -213,7 +210,7 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        // 扫描二维码/条码回传
+        // 扫描二维码回传
         if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
             if (data != null) {
                 // 扫码的结果

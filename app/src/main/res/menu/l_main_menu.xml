@@ -3,12 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_AddReader"
-        android:orderInCategory="10"
-
-        android:title="@string/add_reader"
-        app:showAsAction="withText" />
-    <item
         android:id="@+id/menu_AddBook"
         android:orderInCategory="20"
         android:title="@string/add_book"
@@ -28,5 +22,4 @@
         app:showAsAction="never"
         android:orderInCategory="50"
         android:title="@string/aboutUs"/>
-
 </menu>

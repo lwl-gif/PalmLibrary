@@ -44,6 +44,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -137,7 +138,7 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
     private ImagesOnlyReadAdapter imagesOnlyReadAdapter;
     /**当前读者id*/
     private String readerId = null;
-
+    private String token;
     MyHandler myHandler = new MyHandler(new WeakReference(this));
 
     static class MyHandler extends Handler {
@@ -183,7 +184,7 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
         // 获取token
         UserManager userManager = UserManager.getInstance();
         UserInfo userInfo = userManager.getUserInfo(this);
-        String token = userInfo.getToken();
+        token = userInfo.getToken();
         imagesOnlyReadAdapter = new ImagesOnlyReadAdapter(this,token,this);
         recyclerView = findViewById(R.id.recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
@@ -191,7 +192,7 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
         recyclerView.setLayoutManager(gridLayoutManager);
         // 返回按钮绑定返回事件
         buttonBack.setOnClickListener(view -> {
-            finish();
+            LReaderDetailActivity.this.finish();
         });
         buttonNo.setVisibility(View.GONE);
         buttonOk.setVisibility(View.GONE);
@@ -203,10 +204,6 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
         super.onStart();
         // 屏幕亮起时开始初始化
         init();
-        // 获取token
-        UserManager userManager = UserManager.getInstance();
-        UserInfo userInfo = userManager.getUserInfo(this);
-        String token = userInfo.getToken();
         readerId = getIntent().getStringExtra("readerId");
         if(readerId == null){
             Toast.makeText(this,"读者Id为空！",Toast.LENGTH_SHORT).show();
@@ -220,7 +217,7 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
             if(jsonObject == null || jsonObject.length() <= 0) {
                 // 发送请求
                 String url = HttpUtil.BASE_URL + "reader/selectAllById";
-                HashMap<String, String> hashMap = new HashMap<>();
+                HashMap<String, String> hashMap = new HashMap<>(4);
                 hashMap.put("id",readerId);
                 url = HttpUtil.newUrl(url,hashMap);
                 HttpUtil.getRequest(token, url, this, GET_READER_DETAIL);
@@ -295,7 +292,7 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 rdType.setText(typeName);
                 long l = Long.parseLong(t);
                 Date date = new Date(l);
-                @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 String term = format.format(date);
                 rdTerm.setText(term);
                 // 隐藏图片信息
@@ -342,9 +339,6 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
      * @return: void
      */
     private void secondInit() {
-        UserManager userManager = UserManager.getInstance();
-        UserInfo userInfo = userManager.getUserInfo(this);
-        String token = userInfo.getToken();
         buttonDelete.setVisibility(View.VISIBLE);
         buttonDelete.setOnClickListener(view -> {
             String url = HttpUtil.BASE_URL + "reader/deleteById";
@@ -446,8 +440,8 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        readerId = null;
         ActivityManager.getInstance().removeActivity(this);
+        readerId = null;
     }
     /**
      * @Author:Wallace
@@ -468,7 +462,6 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
 
     @Override
     public void onClickToDelete(int position) {
-
     }
 
     @Override
