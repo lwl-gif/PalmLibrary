@@ -115,7 +115,7 @@ public class RShareDetailActivity extends Activity implements HttpUtil.MyCallbac
         bBack.setOnClickListener(v -> {
             RShareDetailActivity.this.finish();
         });
-        imagesOnlyReadAdapter = new ImagesOnlyReadAdapter(this,token,this);
+        imagesOnlyReadAdapter = new ImagesOnlyReadAdapter(this,token);
         recyclerView = findViewById(R.id.recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         recyclerView.setAdapter(imagesOnlyReadAdapter);

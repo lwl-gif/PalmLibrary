@@ -1,6 +1,7 @@
 package com.example.ul.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.ul.R;
 import com.example.ul.callback.CallbackToApplicationFragment;
 import com.example.ul.callback.CallbackToApplicationFragment;
+import com.example.ul.callback.CallbackToBorrowBookActivity;
 import com.example.ul.model.Application;
 
 import org.jetbrains.annotations.NotNull;
@@ -38,11 +40,12 @@ public class ApplicationListAdapter extends RecyclerView.Adapter<ApplicationList
     private ArrayList<Application> applications;
     /**列表项单击事件回调接口*/
     private final CallbackToApplicationFragment callbackToApplicationFragment;
-    private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
-    public ApplicationListAdapter(Context context,ArrayList<Application> applications, CallbackToApplicationFragment callbackToApplicationFragment){
+    public ApplicationListAdapter(Context context, ArrayList<Application> applications,
+                                  CallbackToApplicationFragment callbackToApplicationFragment){
+        Log.d(TAG, "ApplicationListAdapter: TAG = " + TAG);
         this.context = context;
-        setApplications(applications);
+        this.applications = applications;
         this.callbackToApplicationFragment = callbackToApplicationFragment;
     }
 
@@ -51,21 +54,14 @@ public class ApplicationListAdapter extends RecyclerView.Adapter<ApplicationList
     }
     
     public void setApplications(ArrayList<Application> applications) {
-       if(this.applications == null){
-           this.applications = new ArrayList<>();
-       }
-       this.applications.clear();
-       for(int i = 0; i < applications.size(); i++){
-           this.applications.add(applications.get(i));
-       }
-       notifyDataSetChanged();
+        this.applications = applications;
+        notifyDataSetChanged();
     }
 
     @NotNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
-        View view;
-        view = LayoutInflater.from(context).inflate(R.layout.application,viewGroup,false);
+        View view = LayoutInflater.from(context).inflate(R.layout.application,viewGroup,false);
         return new ViewHolder(view);
     }
 
@@ -90,20 +86,13 @@ public class ApplicationListAdapter extends RecyclerView.Adapter<ApplicationList
         holder.readerId.setText(itemReaderId);
         holder.readerName.setText(itemReaderName);
         holder.description.setText(itemDescription);
-        if(itemCreateTime == null){
-            holder.createTime.setText("");
-        }else {
-            String createTimeString = format.format(itemCreateTime);
-            holder.createTime.setText(createTimeString);
-        }
-        String moneyString = itemMoney.toString();
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        String createTimeString = itemCreateTime == null ? null : format.format(itemCreateTime);
+        holder.createTime.setText(createTimeString);
+        String moneyString = itemMoney == null ? null : itemMoney.toString();
         holder.money.setText(moneyString);
-        if(itemPayTime == null){
-            holder.payTime.setText("");
-        }else {
-            String payTimeString = format.format(itemPayTime);
-            holder.payTime.setText(payTimeString);
-        }
+        String itemPayTimeString = itemPayTime == null ? null : format.format(itemPayTime);
+        holder.payTime.setText(itemPayTimeString);
         // 列表项绑定单击事件
         if(callbackToApplicationFragment!=null){
            holder.rootView.setOnClickListener(v -> {
@@ -143,4 +132,3 @@ public class ApplicationListAdapter extends RecyclerView.Adapter<ApplicationList
         }
     }
 }
-

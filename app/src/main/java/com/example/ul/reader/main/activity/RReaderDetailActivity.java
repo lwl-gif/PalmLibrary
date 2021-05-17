@@ -226,7 +226,7 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
         UserManager userManager = UserManager.getInstance();
         UserInfo userInfo = userManager.getUserInfo(this);
         token = userInfo.getToken();
-        imagesAdapter = new ImagesAdapter(this,token,this);
+        imagesAdapter = new ImagesAdapter(this,token);
         recyclerView = findViewById(R.id.recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         recyclerView.setAdapter(imagesAdapter);

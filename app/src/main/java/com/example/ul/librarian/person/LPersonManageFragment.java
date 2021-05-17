@@ -15,16 +15,21 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.example.ul.R;
 import com.example.ul.model.UserInfo;
 import com.example.ul.util.ActivityManager;
 import com.example.ul.util.DialogUtil;
 import com.example.ul.util.HttpUtil;
 import com.example.ul.util.UserManager;
-import org.json.JSONException;
-import org.json.JSONObject;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import okhttp3.Response;
 
@@ -35,11 +40,9 @@ public class LPersonManageFragment extends Fragment implements HttpUtil.MyCallba
 
     private static final String TAG = "LPersonManageFragment";
     /**未知请求*/
-    private static final int UNKNOWN_REQUEST = 700;
+    private static final int UNKNOWN_REQUEST_ERROR = 700;
     /**请求失败*/
     private static final int REQUEST_FAIL = 7000;
-    /**请求成功，但子线程解析数据失败*/
-    private static final int REQUEST_BUT_FAIL_READ_DATA = 7001;
     /**获取个人详情*/
     private static final int GET_PERSON_DETAIL = 701;
     /**获取个人详情成功，有数据需要渲染*/
@@ -53,6 +56,7 @@ public class LPersonManageFragment extends Fragment implements HttpUtil.MyCallba
     /**退出失败*/
     private static final int ACCOUNT_OFFLINE_FAIL = 7020;
 
+    private String token;
     /**服务器返回的个人信息详情*/
     private JSONObject jsonObject;
     private TextView tId,tName,tSex,tAge,tWorkplace,tUsername,tPermission;
@@ -61,6 +65,7 @@ public class LPersonManageFragment extends Fragment implements HttpUtil.MyCallba
     private Button bReload;
     /**清空应用中的个人信息并退出的按钮*/
     private Button bOut;
+
     static class MyHandler extends Handler {
         private WeakReference<LPersonManageFragment> lPersonManageFragment;
         public MyHandler(WeakReference<LPersonManageFragment> lPersonManageFragment){
@@ -70,53 +75,53 @@ public class LPersonManageFragment extends Fragment implements HttpUtil.MyCallba
         public void handleMessage(Message msg){
             Activity myActivity = lPersonManageFragment.get().getActivity();
             int what = msg.what;
-            if(what == UNKNOWN_REQUEST) {
-                Toast.makeText(myActivity,"未知请求，无法处理！",Toast.LENGTH_SHORT).show();
-            }
-            else if(what == REQUEST_FAIL){
-                Toast.makeText(myActivity,"网络异常！",Toast.LENGTH_SHORT).show();
-            }else if(what == REQUEST_BUT_FAIL_READ_DATA){
-                Toast.makeText(myActivity,"子线程解析数据异常！",Toast.LENGTH_SHORT).show();
-            } else if (what == GET_PERSON_DETAIL_FILL) {
+            if (what == UNKNOWN_REQUEST_ERROR || what == REQUEST_FAIL) {
+                Bundle bundle = msg.getData();
+                Toast.makeText(myActivity, bundle.getString("reason"), Toast.LENGTH_SHORT).show();
+            }else if (what == GET_PERSON_DETAIL_FILL) {
                 lPersonManageFragment.get().fill();
             } else {
                 UserInfo userInfo = UserManager.getInstance().getUserInfo(myActivity);
                 if (what == ACCOUNT_OFFLINE_SUCCEED){
-                    //退出，且清除数据
+                    // 退出，且清除数据
                     userInfo.setRole(null);
                     userInfo.setPassword(null);
                     userInfo.setUserName(null);
                     userInfo.setToken(null);
-                    SharedPreferences sp = myActivity.getSharedPreferences("userInfo", Context.MODE_PRIVATE);//Context.MODE_PRIVATE表示SharedPreferences的数据只有自己应用程序能访问。
+                    // Context.MODE_PRIVATE表示SharedPreferences的数据只有自己应用程序能访问。
+                    SharedPreferences sp = myActivity.getSharedPreferences("userInfo", Context.MODE_PRIVATE);
                     SharedPreferences.Editor editor = sp.edit();
                     editor.putString("username", null);
                     editor.putString("password", null);
                     editor.putString("role",null);
                     editor.putString("token",null);
-                    editor.commit();
+                    editor.apply();
                 }
                 if(what == ACCOUNT_OFFLINE_FAIL){
-                    //能退出，但不清除数据
+                    // 能退出，但不清除数据
                     Toast.makeText(myActivity,"网络异常！保存数据并退出！",Toast.LENGTH_LONG).show();
                 }
-                //销毁所有活动
+                // 销毁所有活动
                 ActivityManager.getInstance().exit();
             }
         }
     }
+
     MyHandler myHandler = new MyHandler(new WeakReference(this));
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 从SharedPreferences中获取用户信息
+        UserManager userManager = UserManager.getInstance();
+        UserInfo userInfo = userManager.getUserInfo(getActivity());
+        token = userInfo.getToken();
     }
 
     @Override
     @Nullable
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        //获取当前界面视图
         View rootView = inflater.inflate(R.layout.activity_l_person_detail, container, false);
-        //获取视图中的组件
         tId = rootView.findViewById(R.id.l_id);
         tName = rootView.findViewById(R.id.l_name);
         tSex = rootView.findViewById(R.id.l_sex);
@@ -132,19 +137,16 @@ public class LPersonManageFragment extends Fragment implements HttpUtil.MyCallba
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        //刷新页面
+        // 刷新页面
         bReload.setOnClickListener(view -> {
             query();
         });
-        //清空数据，退出登录
+        // 清空数据，退出登录
         bOut.setOnClickListener(view -> {
-            UserInfo userInfo = UserManager.getInstance().getUserInfo(getActivity());
-            //发出请求，告知服务器清除token
-            String token = userInfo.getToken();
-            //使用Map封装请求参数
+            // 使用Map封装请求参数
             HashMap<String,String> map = new HashMap<>();
             map.put("skip","null");
-            //定义发送的请求url
+            // 定义发送的请求url
             String url = HttpUtil.BASE_URL + "quit";
             HttpUtil.postRequest(token,url,map,this,ACCOUNT_OFFLINE);
         });
@@ -158,92 +160,84 @@ public class LPersonManageFragment extends Fragment implements HttpUtil.MyCallba
 
     /**查询个人信息*/
     private void query(){
-        //从SharedPreferences中获取用户信息
-        UserManager userManager = UserManager.getInstance();
-        UserInfo userInfo = userManager.getUserInfo(getActivity());
-        String role = userInfo.getRole();
-        String token = userInfo.getToken();
         // 定义发送的请求url
-        String url = HttpUtil.BASE_URL + role + "/" + "info";
+        String url = HttpUtil.BASE_URL + "librarian/info";
         HttpUtil.getRequest(token,url,this,GET_PERSON_DETAIL);
     }
 
-    /**填充数据*/
-    private void fill(){
-        if(jsonObject!=null){
+    private void fill() {
+        if (jsonObject != null) {
             // 组件赋值
-            try {
-                tId.setText(jsonObject.getString("id"));
-                tName.setText(jsonObject.getString("name"));
-                // 获取性别代号
-                String sex = jsonObject.getString("sex");
-                if("1".equals(sex)){
-                    tSex.setText("男");
-                }else {
-                    tSex.setText("女");
-                }
-                tAge.setText(jsonObject.getString("age"));
-                tWorkplace.setText(jsonObject.getString("workplace"));
-                tUsername.setText(jsonObject.getString("username"));
-                tPermission.setText(jsonObject.getString("permission"));
-            } catch (JSONException e) {
-                Toast.makeText(this.getActivity(), "主线程解析数据时异常！", Toast.LENGTH_SHORT).show();
+            tId.setText(jsonObject.getString("id"));
+            tName.setText(jsonObject.getString("name"));
+            // 获取性别代号
+            String sex = jsonObject.getString("sex");
+            if ("1".equals(sex)) {
+                tSex.setText("男");
+            } else {
+                tSex.setText("女");
             }
-        }else {
-            DialogUtil.showDialog(getActivity(),"无数据！",false);
+            tAge.setText(jsonObject.getString("age"));
+            tWorkplace.setText(jsonObject.getString("workplace"));
+            tUsername.setText(jsonObject.getString("username"));
+            tPermission.setText(jsonObject.getString("permission"));
+        } else {
+            DialogUtil.showDialog(getActivity(), "无数据！", false);
         }
     }
 
     @Override
     public void success(Response response, int code) throws IOException {
-        //服务器返回的数据
-        String result = null;
-        //获取服务器响应字符串
-        result = response.body().string().trim();
-        switch (code) {
-            case GET_PERSON_DETAIL:
-                try {
-                    jsonObject = new JSONObject(result);
-                    String message = jsonObject.getString("message");
-                    String tip = null;
-                    if("查询成功！".equals(message)){
-                        tip = jsonObject.getString("tip");
-                        if("null".equals(tip)){
-                            //查询成功，获取书籍数据，通知主线程渲染前端
-                            jsonObject = jsonObject.getJSONObject("object");
-                            myHandler.sendEmptyMessage(GET_PERSON_DETAIL_FILL);
-                        }
-                    } else {
-                        String c = jsonObject.getString("code");
-                        tip = jsonObject.getString("tip");
-                        Message msg = new Message();
-                        Bundle data = new Bundle();
-                        data.putString("code",c);
-                        data.putString("tip",tip);
-                        data.putString("message",message);
-                        msg.setData(data);
-                        msg.what = GET_PERSON_DETAIL_NOT_FILL;
-                        myHandler.sendMessage(msg);
-                    }
-                } catch (JSONException e) {
-                    myHandler.sendEmptyMessage(REQUEST_BUT_FAIL_READ_DATA);
-                    e.printStackTrace();
-                }
-                break;
-            case ACCOUNT_OFFLINE:
-                myHandler.sendEmptyMessage(ACCOUNT_OFFLINE_SUCCEED);
-                break;
-            default:
-                myHandler.sendEmptyMessage(UNKNOWN_REQUEST);
+        // 获取服务器响应字符串
+        String result = response.body().string().trim();
+        JSONObject resultObject = JSON.parseObject(result);
+        Message msg = new Message();
+        Bundle data = new Bundle();
+        if (code == GET_PERSON_DETAIL) {
+            String message = resultObject.getString("message");
+            if ("查询成功！".equals(message)) {
+                jsonObject = resultObject.getJSONObject("object");
+                myHandler.sendEmptyMessage(GET_PERSON_DETAIL_FILL);
+            } else {
+                String c = resultObject.getString("code");
+                String tip = resultObject.getString("tip");
+                data.putString("code", c);
+                data.putString("tip", tip);
+                data.putString("message", message);
+                msg.setData(data);
+                msg.what = GET_PERSON_DETAIL_NOT_FILL;
+                myHandler.sendMessage(msg);
+            }
+        } else if (code == ACCOUNT_OFFLINE) {
+            myHandler.sendEmptyMessage(ACCOUNT_OFFLINE_SUCCEED);
+        } else {
+            data.putString("reason", "未知错误");
+            msg.setData(data);
+            msg.what = UNKNOWN_REQUEST_ERROR;
+            myHandler.sendMessage(msg);
         }
     }
 
     @Override
     public void failed(IOException e, int code) {
-        if(code == ACCOUNT_OFFLINE){
-            myHandler.sendEmptyMessage(ACCOUNT_OFFLINE_FAIL);
-        }else {
-            myHandler.sendEmptyMessage(REQUEST_FAIL);
+        Message message = new Message();
+        Bundle bundle = new Bundle();
+        String reason;
+        if (e instanceof SocketTimeoutException) {
+            reason = "连接超时";
+            message.what = REQUEST_FAIL;
+        } else if (e instanceof ConnectException) {
+            reason = "连接服务器失败";
+            message.what = REQUEST_FAIL;
+        } else if (e instanceof UnknownHostException) {
+            reason = "网络异常";
+            message.what = REQUEST_FAIL;
+        } else {
+            reason = "未知错误";
+            message.what = UNKNOWN_REQUEST_ERROR;
         }
+        bundle.putString("reason", reason);
+        message.setData(bundle);
+        myHandler.sendMessage(message);
     }
 }

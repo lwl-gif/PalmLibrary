@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ import com.example.ul.callback.SearchCallback;
 import com.example.ul.librarian.LMainActivity;
 import com.example.ul.model.Application;
 import com.example.ul.model.UserInfo;
+import com.example.ul.util.DialogUtil;
 import com.example.ul.util.HttpUtil;
 import com.example.ul.util.UserManager;
 import com.example.ul.view.MySearchView;
@@ -69,60 +71,18 @@ public class LApplicationFragment extends Fragment implements CallbackToApplicat
 
     private String token;
 
-    private String queryString = null;
+    private String queryString = "";
 
     private RecyclerView recyclerView;
 
     private ApplicationListAdapter adapter;
 
-    MyHandler myHandler = new MyHandler(new WeakReference(this));
-
-    @Override
-    public void searchAction(String s) {
-        queryString = s;
-    }
-
-    @Override
-    public void clickToGetApplicationDetail(int i) {
-        int id = adapter.getApplications().get(i).getId();
-        callbackToMainActivity.clickToGetApplicationDetail(id);
-    }
-
-    static class MyHandler extends Handler {
-
-        private WeakReference<LApplicationFragment> lApplicationManageFragment;
-
-        public MyHandler(WeakReference<LApplicationFragment> lApplicationManageFragment) {
-            this.lApplicationManageFragment = lApplicationManageFragment;
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            int what = msg.what;
-            LMainActivity myActivity = (LMainActivity) lApplicationManageFragment.get().getParentFragment().getActivity();
-            if (what == UNKNOWN_REQUEST_ERROR || what == REQUEST_FAIL) {
-                Bundle bundle = msg.getData();
-                Toast.makeText(myActivity, bundle.getString("reason"), Toast.LENGTH_SHORT).show();
-            }else if (what == REQUEST_BUT_FAIL_READ_DATA) {
-                Toast.makeText(myActivity, "子线程解析数据异常！", Toast.LENGTH_SHORT).show();
-            }else if(what == GET_APPLICATION_LIST_FILL){
-                Bundle bundle = msg.getData();
-                ArrayList<Application> applications = bundle.getParcelableArrayList("applications");
-                lApplicationManageFragment.get().fill(applications);
-            }else if(what == GET_APPLICATION_LIST_NOT_FILL){
-                Toast.makeText(myActivity, "无数据！", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
     @Override
     public void onAttach(@NotNull Context context) {
         super.onAttach(context);
-        // 如果Context没有实现CallbackToMainActivity接口，则抛出异常
         if (!(context instanceof CallbackToMainActivity)) {
-            throw new IllegalStateException("LApplicationManageFragment所在的Context必须实现CallbackToMainActivity接口");
+            throw new IllegalStateException(TAG+"所在的Context必须实现CallbackToMainActivity接口");
         }
-        // 把该Context当初listClickedCallback对象
         callbackToMainActivity = (CallbackToMainActivity) context;
     }
 
@@ -131,7 +91,7 @@ public class LApplicationFragment extends Fragment implements CallbackToApplicat
         super.onCreate(savedInstanceState);
         // 获取token
         UserManager userManager = UserManager.getInstance();
-        UserInfo userInfo = userManager.getUserInfo(getParentFragment().getActivity());
+        UserInfo userInfo = userManager.getUserInfo(getActivity());
         token = userInfo.getToken();
     }
 
@@ -147,12 +107,11 @@ public class LApplicationFragment extends Fragment implements CallbackToApplicat
         textView.setOnClickListener(view -> {
             query();
         });
-        adapter = new ApplicationListAdapter(getParentFragment().getActivity(),new ArrayList<>(),this);
+        adapter = new ApplicationListAdapter(getActivity(),new ArrayList<>(),this);
         recyclerView = rootView.findViewById(R.id.recyclerApplicationList);
         // 为RecyclerView设置布局管理器
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
         recyclerView.setAdapter(adapter);
-        query();
         return rootView;
     }
 
@@ -169,22 +128,60 @@ public class LApplicationFragment extends Fragment implements CallbackToApplicat
     private void query(){
         // 根据条件构造发送请求的URL
         String url = HttpUtil.BASE_URL + "/application/librarian/selectSome";
-        HashMap<String, String> hashMap = new HashMap<>();
+        HashMap<String, String> hashMap = new HashMap<>(4);
         hashMap.put("queryString", queryString);
         url = HttpUtil.newUrl(url, hashMap);
         HttpUtil.getRequest(token, url, this, GET_APPLICATION_LIST);
     }
-    
+
+    @Override
+    public void searchAction(String s) {
+        queryString = s;
+    }
+
+    @Override
+    public void clickToGetApplicationDetail(int i) {
+        int id = adapter.getApplications().get(i).getId();
+        callbackToMainActivity.clickToGetApplicationDetail(id);
+    }
+
     @Override
     public void onDetach() {
         super.onDetach();
-        adapter = null;
-        token = null;
-        queryString = null;
-        recyclerView = null;
-        // 将接口赋值为null
         callbackToMainActivity = null;
     }
+
+    static class MyHandler extends Handler {
+
+        private WeakReference<LApplicationFragment> lApplicationManageFragment;
+
+        public MyHandler(WeakReference<LApplicationFragment> lApplicationManageFragment) {
+            this.lApplicationManageFragment = lApplicationManageFragment;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            int what = msg.what;
+            LMainActivity myActivity = (LMainActivity) lApplicationManageFragment.get().getActivity();
+            if (what == UNKNOWN_REQUEST_ERROR || what == REQUEST_FAIL) {
+                Bundle bundle = msg.getData();
+                Toast.makeText(myActivity, bundle.getString("reason"), Toast.LENGTH_SHORT).show();
+            }else if (what == REQUEST_BUT_FAIL_READ_DATA) {
+                Toast.makeText(myActivity, "子线程解析数据异常！", Toast.LENGTH_SHORT).show();
+            }else if(what == GET_APPLICATION_LIST_FILL){
+                Bundle bundle = msg.getData();
+                ArrayList<Application> applications = bundle.getParcelableArrayList("applications");
+                lApplicationManageFragment.get().fill(applications);
+            }else if(what == GET_APPLICATION_LIST_NOT_FILL){
+                Toast.makeText(myActivity, "无数据！", Toast.LENGTH_SHORT).show();
+            }else {
+                Bundle data = msg.getData();
+                DialogUtil.showDialog(myActivity, TAG, data, what == REQUEST_INTERCEPTED);
+            }
+        }
+    }
+
+    MyHandler myHandler = new MyHandler(new WeakReference(this));
 
     @Override
     public void success(Response response, int code) throws IOException {
@@ -218,7 +215,10 @@ public class LApplicationFragment extends Fragment implements CallbackToApplicat
                 }
                 myHandler.sendMessage(msg);
             } else {
-                myHandler.sendEmptyMessage(UNKNOWN_REQUEST_ERROR);
+                data.putString("reason", "未知错误");
+                msg.setData(data);
+                msg.what = UNKNOWN_REQUEST_ERROR;
+                myHandler.sendMessage(msg);
             }
         }
     }

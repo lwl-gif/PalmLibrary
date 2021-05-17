@@ -58,12 +58,19 @@ public class ImagesOnlyReadAdapter extends RecyclerView.Adapter<ImageViewHolder>
     protected ImageAdapterItemListener imageAdapterItemListener;
     protected final RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.placeholder0).centerCrop().error(R.mipmap.error0);
 
-    public ImagesOnlyReadAdapter(Context context, String token, ImageAdapterItemListener imageAdapterItemListener) {
+    public ImagesOnlyReadAdapter(Context context, String token) {
+        init(context);
         this.context = context;
         this.token = token;
-        this.imageAdapterItemListener = imageAdapterItemListener;
         this.imageNameUrlList = new ArrayList<>();
         this.imagesPath  = new ArrayList<>();
+    }
+
+    protected void init(Context context) {
+        if (!(context instanceof ImageAdapterItemListener)) {
+            throw new IllegalStateException(TAG+"所在的Context必须实现ImageAdapterItemListener接口");
+        }
+        this.imageAdapterItemListener = (ImageAdapterItemListener)context;
     }
 
     protected ImagesOnlyReadAdapter(Parcel in) {

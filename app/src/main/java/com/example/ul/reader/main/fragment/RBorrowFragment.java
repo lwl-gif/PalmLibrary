@@ -177,12 +177,12 @@ public class RBorrowFragment extends Fragment implements CompoundButton.OnChecke
         // 为RecyclerView设置布局管理器
         recyclerViewReserve.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
         adapterReserve = new BorrowListAdapter(getActivity(),new JSONArray(),"id","name","readerId","readerName",
-                "state","start","end","box1",this);
+                "state","start","end","box2",this);
         recyclerViewReserve.setAdapter(adapterReserve);
         // 为RecyclerView设置布局管理器
         recyclerExpired.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
         adapterExpired = new BorrowListAdapter(getActivity(),new JSONArray(),"id","name","readerId","readerName",
-                "state","start","end","box1",this);
+                "state","start","end","box3",this);
         recyclerExpired.setAdapter(adapterExpired);
     }
 

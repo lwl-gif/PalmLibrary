@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.ul.R;
 import com.example.ul.callback.CallbackToLReaderManageFragment;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -24,17 +25,17 @@ public class ReaderListAdapter extends RecyclerView.Adapter<ReaderListAdapter.Vi
     /**定义需要包装的JSONArray对象*/
     private JSONArray jsonArray;
     /**定义列表项显示JSONObject对象的哪些属性*/
-    private String id;
-    private String name;
-    private String age;
-    private String department;
-    private String classroom;
+    private final String id;
+    private final String name;
+    private final String age;
+    private final String department;
+    private final String classroom;
     /**列表项单击事件回调接口*/
-    private CallbackToLReaderManageFragment readerListClickedCallback;
+    private final CallbackToLReaderManageFragment callbackToLReaderManageFragment;
 
     public ReaderListAdapter(Context context,JSONArray jsonArray,
                              String id,String name,String age,String department,String classroom,
-                             CallbackToLReaderManageFragment Callback){
+                             CallbackToLReaderManageFragment callbackToLReaderManageFragment){
         this.context = context;
         this.jsonArray = jsonArray;
         this.id = id;
@@ -42,9 +43,10 @@ public class ReaderListAdapter extends RecyclerView.Adapter<ReaderListAdapter.Vi
         this.age = age;
         this.department = department;
         this.classroom = classroom;
-        this.readerListClickedCallback = Callback;
+        this.callbackToLReaderManageFragment = callbackToLReaderManageFragment;
     }
 
+    @NotNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.reader,viewGroup,false);
@@ -53,15 +55,15 @@ public class ReaderListAdapter extends RecyclerView.Adapter<ReaderListAdapter.Vi
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        //获取JSONArray数组元素的id,name,age,department,classroom属性
+        // 获取JSONArray数组元素的id,name,age,department,classroom属性
         try {
-            //从数据源中取值
+            // 从数据源中取值
             String itemId = jsonArray.optJSONObject(position).getString(id);
             String itemName = jsonArray.optJSONObject(position).getString(name);
             String itemAge = jsonArray.optJSONObject(position).getString(age);
             String itemDepartment = jsonArray.optJSONObject(position).getString(department);
             String itemClassroom = jsonArray.optJSONObject(position).getString(classroom);
-            //给列表项组件赋值
+            // 给列表项组件赋值
             holder.id.setText(itemId);
             holder.name.setText(itemName);
             holder.age.setText(itemAge);
@@ -74,9 +76,6 @@ public class ReaderListAdapter extends RecyclerView.Adapter<ReaderListAdapter.Vi
 
     @Override
     public int getItemCount() {
-        if(jsonArray==null){
-            return 0;
-        }
         return jsonArray.length();
     }
 
@@ -95,9 +94,8 @@ public class ReaderListAdapter extends RecyclerView.Adapter<ReaderListAdapter.Vi
             age = itemView.findViewById(R.id.readerAge);
             department = itemView.findViewById(R.id.readerDepartment);
             classroom = itemView.findViewById(R.id.readerClassroom);
-            //readerListClickedCallback，则为列表项绑定单击事件监听器
-            if(readerListClickedCallback!=null){
-                itemView.findViewById(R.id.book_root).setOnClickListener(view -> readerListClickedCallback.readerListClickPosition(this.getLayoutPosition()));
+            if(callbackToLReaderManageFragment !=null){
+                itemView.findViewById(R.id.book_root).setOnClickListener(view -> callbackToLReaderManageFragment.readerListClickPosition(this.getLayoutPosition()));
             }
         }
     }

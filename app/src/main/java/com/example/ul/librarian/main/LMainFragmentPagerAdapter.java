@@ -1,5 +1,6 @@
 package com.example.ul.librarian.main;
 
+import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,14 +28,14 @@ import org.jetbrains.annotations.NotNull;
 public class LMainFragmentPagerAdapter extends FragmentPagerAdapter {
 
     @StringRes
-    private static final int[] TAB_TITLES = new int[]{R.string.l_tab_text_2, R.string.l_tab_text_3, R.string.l_tab_text_4};
+    private static final int[] TAB_TITLES = new int[]{R.string.l_tab_text_4, R.string.l_tab_text_2, R.string.l_tab_text_3};
     @StringRes
-    private final int[] TAB_IMAGE = {R.drawable.apply, R.drawable.reader, R.drawable.book};
+    private final int[] TAB_IMAGE = {R.drawable.book, R.drawable.apply, R.drawable.reader};
 
     private final Fragment parentFragment;
 
-    public LMainFragmentPagerAdapter(Fragment parentFragment, FragmentManager fm ) {
-        super(fm);
+    public LMainFragmentPagerAdapter(Fragment parentFragment, FragmentManager fm, int i){
+        super(fm,i);
         this.parentFragment = parentFragment;
     }
 
@@ -42,14 +43,13 @@ public class LMainFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         switch (position) {
-            case 0:
-                return new LApplicationFragment();
             case 1:
-                return new LReaderFragment();
+                return new LApplicationFragment();
             case 2:
-                return new BookFragment();
+                return new LReaderFragment();
+            case 0:
             default:
-                return null;
+                return new BookFragment();
         }
     }
 
@@ -65,7 +65,7 @@ public class LMainFragmentPagerAdapter extends FragmentPagerAdapter {
     }
 
     public View getTabView(int position){
-        View v = LayoutInflater.from(parentFragment.getActivity()).inflate(R.layout.tab_item_view, null);
+        @SuppressLint("InflateParams") View v = LayoutInflater.from(parentFragment.getActivity()).inflate(R.layout.tab_item_view, null);
         ImageView iv = v.findViewById(R.id.tab_icon);
         TextView tv = v.findViewById(R.id.tab_text);
         iv.setBackgroundResource(TAB_IMAGE[position]);

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +13,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -56,7 +56,7 @@ import okhttp3.Response;
  * @Date: 2021/3/9 20:29
  * @Modified By:
  */
-public class BookFragment extends Fragment implements CallbackToBookFragment, HttpUtil.MyCallback , SearchCallback {
+public class BookFragment extends Fragment implements CallbackToBookFragment, HttpUtil.MyCallback, SearchCallback {
     private static final String TAG = "BookFragment";
     /**未知请求*/
     private static final int UNKNOWN_REQUEST_ERROR = 500;
@@ -83,11 +83,14 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
     private CallbackToMainActivity callbackToMainActivity;
     /**token*/
     private String token;
+
     static class MyHandler extends Handler {
         private final WeakReference<BookFragment> bookFragment;
+
         public MyHandler(WeakReference<BookFragment> bookFragment){
             this.bookFragment = bookFragment;
         }
+
         @Override
         public void handleMessage(Message msg){
             int what = msg.what;
@@ -120,6 +123,15 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
     }
 
     @Override
+    public void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // 获取token
+        UserManager userManager = UserManager.getInstance();
+        UserInfo userInfo = userManager.getUserInfo(getActivity());
+        token = userInfo.getToken();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
         // 获取当前界面视图
         View rootView = inflater.inflate(R.layout.book_manege, container, false);
@@ -135,10 +147,6 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
         spinnerState = rootView.findViewById(R.id.state);
         spinnerBelong1 = rootView.findViewById(R.id.classification1);
         spinnerBelong2 = rootView.findViewById(R.id.classification2);
-        // 获取token
-        UserManager userManager = UserManager.getInstance();
-        UserInfo userInfo = userManager.getUserInfo(getActivity());
-        token = userInfo.getToken();
         // 获取视图中的图书列表
         RecyclerView recyclerViewBookList = rootView.findViewById(R.id.recyclerBookList);
         // 为RecyclerView设置布局管理器
@@ -214,7 +222,6 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 selectBy = (String) spinnerSelectBy.getItemAtPosition(i);
-                Toast.makeText(getActivity(),"您选择了"+selectBy,Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -226,20 +233,17 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 orderBy = (String) spinnerOrderBy.getItemAtPosition(i);
-                Toast.makeText(getActivity(),"您选择了"+orderBy,Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
                 orderBy = "null";
-                Toast.makeText(getActivity(),"NothingSelected",Toast.LENGTH_SHORT).show();
             }
         });
         spinnerLibrary.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 library = (String) spinnerLibrary.getItemAtPosition(i);
-                Toast.makeText(getActivity(),"您选择了"+library,Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -251,7 +255,6 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 state = (String) spinnerState.getItemAtPosition(i);
-                Toast.makeText(getActivity(),"您选择了"+state,Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -264,7 +267,6 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 belong1 = (String) spinnerBelong1.getItemAtPosition(i);
-                Toast.makeText(getActivity(),"您选择了"+belong1,Toast.LENGTH_SHORT).show();
                 // 给spinnerBelong2赋值
                 spinnerBelong2.setAdapter(new MySpinnerBelongAdapter(getActivity(),belongs2.get(i)));
                 spinnerBelong2.setSelection(spinnerBelong2.getCount()-1,true);
@@ -273,7 +275,6 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
                         @Override
                         public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                             belong2 = (String) spinnerBelong2.getItemAtPosition(i);
-                            Toast.makeText(getActivity(),"您选择了"+belong2,Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
@@ -400,7 +401,7 @@ public class BookFragment extends Fragment implements CallbackToBookFragment, Ht
      */
     @Override
     public void bookListClickPosition(int position) {
-        Book book = (Book) adapter.getBooks().get(position);
+        Book book = adapter.getBooks().get(position);
         int id = book.getId();
         String library = book.getLibrary();
         // 返回id给activity

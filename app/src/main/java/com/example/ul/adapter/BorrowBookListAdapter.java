@@ -69,10 +69,10 @@ public class BorrowBookListAdapter extends RecyclerView.Adapter<BookViewHolder> 
     }
 
     public BorrowBookListAdapter(Context context,String token, String baseUrl){
+        init(context);
         this.context = context;
         this.token = token;
         this.baseUrl = baseUrl;
-        init(context);
     }
 
     private void init(Context context){

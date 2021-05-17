@@ -91,7 +91,6 @@ public class AutoLoginActivity extends Activity implements HttpUtil.MyCallback {
     public void failed(IOException e, int code) {
         myHandler.sendEmptyMessage(REQUEST_FAIL);
     }
-
     /**
      * 跳转判断
      */

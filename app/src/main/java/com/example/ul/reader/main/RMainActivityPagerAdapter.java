@@ -32,16 +32,15 @@ public class RMainActivityPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         switch (position) {
-            case 0:
-                return new RBorrowFragment();
             case 1:
                 return new BookFragment();
             case 2:
                 return new RShareFragment();
             case 3:
                 return new RApplicationFragment();
+            case 0:
             default:
-                return null;
+                return new RBorrowFragment();
         }
     }
 

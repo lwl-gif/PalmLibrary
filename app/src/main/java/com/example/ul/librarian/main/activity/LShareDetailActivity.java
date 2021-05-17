@@ -146,7 +146,7 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         recyclerView.setLayoutManager(gridLayoutManager);
-        imagesAdapter = new ImagesAdapter(this,token,this);
+        imagesAdapter = new ImagesAdapter(this,token);
         recyclerView.setAdapter(imagesAdapter);
         // 传进来的id是否为0，若为0，则说明是添加新书，若不为空则说明是查看书本详情
         id = this.getIntent().getIntExtra("id",0);

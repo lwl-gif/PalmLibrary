@@ -146,7 +146,7 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
             String url = HttpUtil.BASE_URL + "reservation/reserveBook";
             HttpUtil.postRequest(token,url,hashMap,this,RESERVE_BOOK);
         });
-        imagesOnlyReadAdapter = new ImagesOnlyReadAdapter(this,token,this);
+        imagesOnlyReadAdapter = new ImagesOnlyReadAdapter(this,token);
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         recyclerView.setLayoutManager(gridLayoutManager);

@@ -26,7 +26,6 @@ import com.example.ul.callback.CallbackToMainActivity;
 import com.example.ul.callback.SearchCallback;
 
 import com.example.ul.model.Application;
-import com.example.ul.model.Book;
 import com.example.ul.model.UserInfo;
 
 import com.example.ul.util.DialogUtil;
@@ -132,7 +131,7 @@ public class RApplicationFragment extends Fragment implements CallbackToApplicat
         super.onDetach();
         adapter = null;
         token = null;
-        queryString = null;
+        queryString = "";
         // 将接口赋值为null
         callbackToMainActivity = null;
     }

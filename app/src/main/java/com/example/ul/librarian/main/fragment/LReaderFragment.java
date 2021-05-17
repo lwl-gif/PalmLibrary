@@ -57,7 +57,6 @@ import okhttp3.Response;
 public class LReaderFragment extends Fragment implements CallbackToLReaderManageFragment,HttpUtil.MyCallback, SearchCallback {
 
     private static final String TAG = "LReadManageFragment";
-    //自定义消息代码
     /**未知错误*/
     private static final int UNKNOWN_REQUEST_ERROR = 1000;
     /**请求失败*/
@@ -66,10 +65,7 @@ public class LReaderFragment extends Fragment implements CallbackToLReaderManage
     private static final int REQUEST_BUT_FAIL_READ_DATA = 10001;
     /**获取读者部分信息*/
     private static final int GET_READER = 1001;
-    /**请求成功，但无数据渲染*/
-    private static final int GET_READER_NOT_FILL= 10010;
-    /**请求成功，有数据渲染*/
-    private static final int GET_READER_FILL= 10011;
+
     /**服务器返回的所有读者的部分信息*/
     private JSONArray jsonArray;
     /**单选按钮*/
@@ -85,7 +81,9 @@ public class LReaderFragment extends Fragment implements CallbackToLReaderManage
     /**视图中的读者列表*/
     private RecyclerView recyclerViewReaderList;
 
-    private CallbackToMainActivity listClickedCallbackMain;
+    private CallbackToMainActivity callbackToMainActivity;
+
+    private String token;
 
     MyHandler myHandler = new MyHandler(new WeakReference(this));
 
@@ -98,7 +96,7 @@ public class LReaderFragment extends Fragment implements CallbackToLReaderManage
         @Override
         public void handleMessage(Message msg) {
             int what = msg.what;
-             LMainActivity myActivity = (LMainActivity) lReaderManageFragment.get().getParentFragment().getActivity();
+             LMainActivity myActivity = (LMainActivity) lReaderManageFragment.get().getActivity();
             if (what == UNKNOWN_REQUEST_ERROR || what == REQUEST_FAIL) {
                 Bundle bundle = msg.getData();
                 Toast.makeText(myActivity, bundle.getString("reason"), Toast.LENGTH_SHORT).show();
@@ -114,22 +112,22 @@ public class LReaderFragment extends Fragment implements CallbackToLReaderManage
     @Override
     public void onAttach(@NotNull Context context) {
         super.onAttach(context);
-        // 如果Context没有实现callback,ListClickedCallback接口，则抛出异常
         if (!(context instanceof CallbackToMainActivity)) {
-            throw new IllegalStateException("LReaderManageFragment所在的Context必须实现listClickedCallbackMain接口");
+            throw new IllegalStateException(TAG+"所在的Context必须实现CallbackToMainActivity接口");
         }
-        // 把该Context当初listClickedCallback对象
-        listClickedCallbackMain = (CallbackToMainActivity) context;
+        callbackToMainActivity = (CallbackToMainActivity) context;
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        UserManager userManager = UserManager.getInstance();
+        UserInfo userInfo = userManager.getUserInfo(getActivity());
+        token = userInfo.getToken();
     }
 
     @Override
     @SuppressLint("NonConstantResourceId")
-    @Nullable
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle bundle) {
         View rootView = inflater.inflate(R.layout.reader_manage, container, false);
@@ -155,7 +153,6 @@ public class LReaderFragment extends Fragment implements CallbackToLReaderManage
             btnChecking.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.body_second));
             switch (checkedId){
                 case R.id.reader_manage_RadioGroup_all:
-                    //切换到管理员个人信息详情碎片
                     btnAll.setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.theme));
                     readerType = "all";
                     break;
@@ -183,7 +180,6 @@ public class LReaderFragment extends Fragment implements CallbackToLReaderManage
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 // i指的是点击的位置,通过i可以取到相应的数据源
                 String info = adapterView.getItemAtPosition(i).toString();
-                Toast.makeText(getActivity(),"你选择了："+info,Toast.LENGTH_SHORT).show();
                 if("学院".equals(info)){
                     orderBy = "department";
                 }else if("ID".equals(info)){
@@ -209,7 +205,6 @@ public class LReaderFragment extends Fragment implements CallbackToLReaderManage
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 //i指的是点击的位置,通过i可以取到相应的数据源
                 String info = adapterView.getItemAtPosition(i).toString();
-                Toast.makeText(getActivity(),"你选择了："+info,Toast.LENGTH_SHORT).show();
                 if("学院".equals(info)){
                     selectBy = "department";
                 }else if("ID".equals(info)){
@@ -266,13 +261,9 @@ public class LReaderFragment extends Fragment implements CallbackToLReaderManage
         if(!"null".equals(selectBy)&& "null".equals(queryString)){
             DialogUtil.showDialog(getActivity(),"当指定了检索方式时，检索内容不能为空。",false);
         }else {
-            // 获取token
-            UserManager userManager = UserManager.getInstance();
-            UserInfo userInfo = userManager.getUserInfo(getParentFragment().getActivity());
-            String token = userInfo.getToken();
             // 获取当前的查询方式，排序方式以及读者类别（全部，已审核，未审核，待审核）
             String url = HttpUtil.BASE_URL + "reader/librarian/integratedQuery";
-            HashMap<String, String> hashMap = new HashMap<>();
+            HashMap<String, String> hashMap = new HashMap<>(4);
             hashMap.put("queryString",queryString);
             hashMap.put("selectBy",selectBy);
             hashMap.put("orderBy",orderBy);
@@ -284,10 +275,9 @@ public class LReaderFragment extends Fragment implements CallbackToLReaderManage
 
     private void fill() {
         // 将服务器响应包装成Adapter
-        ReaderListAdapter adapter = new ReaderListAdapter(getActivity(), jsonArray, "id", "name", "age", "department", "classroom", this);
+        ReaderListAdapter adapter = new ReaderListAdapter(getActivity(), jsonArray, "id", "name", "age", "department", "classroom",this);
         recyclerViewReaderList.setAdapter(adapter);
     }
-
     /**
      * @Author: Wallace
      * @Description: 获取列表中第i个读者的id，返回给所在的activity
@@ -309,7 +299,7 @@ public class LReaderFragment extends Fragment implements CallbackToLReaderManage
             DialogUtil.showDialog(getActivity(),"LReaderManageFragment:读者id获取失败！",false);
         }else {
             // 返回id给activity
-            listClickedCallbackMain.clickToGetReaderDetail(id);
+            callbackToMainActivity.clickToGetReaderDetail(id);
         }
     }
 
@@ -317,7 +307,7 @@ public class LReaderFragment extends Fragment implements CallbackToLReaderManage
     public void onDetach() {
         super.onDetach();
         // 将接口赋值为null
-        listClickedCallbackMain = null;
+        callbackToMainActivity = null;
     }
 
     @Override

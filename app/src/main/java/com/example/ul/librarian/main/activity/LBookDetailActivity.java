@@ -6,9 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
+
 import android.view.View;
-import android.view.Window;
+
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,15 +24,16 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.example.ul.R;
+import com.example.ul.activity.ApplicationDetailActivity;
 import com.example.ul.activity.ShowPictureActivity;
 import com.example.ul.adapter.ImagesAdapter;
-import com.example.ul.adapter.ImagesOnlyReadAdapter;
+
 import com.example.ul.adapter.MySpinnerAdapter;
 import com.example.ul.adapter.MySpinnerBelongAdapter;
 import com.example.ul.callback.ImageAdapterItemListener;
 import com.example.ul.model.Book;
 import com.example.ul.model.Classification;
-import com.example.ul.model.ReaderPermission;
+
 import com.example.ul.model.UserInfo;
 import com.example.ul.util.ActivityManager;
 import com.example.ul.util.DialogUtil;
@@ -55,7 +56,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -70,7 +70,8 @@ import okhttp3.Response;
  * @Modified By:
  */
 @SuppressLint("NonConstantResourceId")
-public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback, ImageAdapterItemListener {
+public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback, DialogUtil.DialogActionCallback,
+        ImageAdapterItemListener {
 
     private static final String TAG = "LBookDetailActivity";
     /**未知请求*/
@@ -162,7 +163,7 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         UserManager userManager = UserManager.getInstance();
         UserInfo userInfo = userManager.getUserInfo(this);
         token = userInfo.getToken();
-        imagesAdapter = new ImagesAdapter(this,token,this);
+        imagesAdapter = new ImagesAdapter(this,token);
         recyclerView = findViewById(R.id.l_book_recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         recyclerView.setAdapter(imagesAdapter);
@@ -177,12 +178,9 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
             bDelete.setVisibility(View.VISIBLE);
             // 绑定删除请求
             bDelete.setOnClickListener(view -> {
-                // 使用Map封装请求参数
-                HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put("id", String.valueOf(this.id));
-                String url = HttpUtil.BASE_URL + "book/deleteBookById";
-                url = HttpUtil.newUrl(url,hashMap);
-                HttpUtil.deleteRequest(token,url,this,DELETE_BOOK);
+                HashMap<String, Object> hashMap = new HashMap<>(4);
+                hashMap.put("requestCode",DELETE_BOOK);
+                DialogUtil.showDialog(LBookDetailActivity.this,"删除图书","删除图书可能会造成严重后果，您确定要继续吗？",this,hashMap);
             });
         }else {
             tTitle.setText("添加新书");
@@ -191,36 +189,19 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         }
         // 提交按钮绑定请求
         btnSubmit.setOnClickListener(view -> {
-            // 使用Map封装请求参数
-            HashMap<String, String> hashMap = new HashMap<>();
-            hashMap.put("id",tId.getText().toString().trim());
-            hashMap.put("name",tName.getText().toString().trim());
-            hashMap.put("author",tAuthor.getText().toString().trim());
-            hashMap.put("isbn",tIsbn.getText().toString().trim());
-            hashMap.put("library",library);
-            hashMap.put("location",tLocation.getText().toString().trim());
-            hashMap.put("callNumber",tCallNumber.getText().toString().trim());
-            hashMap.put("theme",tTheme.getText().toString().trim());
-            hashMap.put("desc",tDesc.getText().toString().trim());
-            hashMap.put("first",first);
-            hashMap.put("third",third);
-            hashMap.put("typeName",type);
-            hashMap.put("house",tHouse.getText().toString().trim());
-            hashMap.put("date",tDate.getText().toString().trim());
-            hashMap.put("price",tPrice.getText().toString().trim());
-            hashMap.put("hot",tHot.getText().toString().trim());
-            hashMap.put("state",tState.getText().toString().trim());
-            // 获取要提交的图片的全路径
-            ArrayList<String> tempList = this.imagesAdapter.getImagesPath();
+            HashMap<String, Object> hashMap = new HashMap<>(4);
+            String title;
+            String message;
             if(id != -1){
-                // 绑定更新图书请求
-                String url = HttpUtil.BASE_URL + "book/updateBook";
-                HttpUtil.putRequest(token,url,hashMap,tempList,this,UPDATE_BOOK);
+                hashMap.put("requestCode",UPDATE_BOOK);
+                title = "更新图书";
+                message = "您确定继续吗？";
             }else {
-                // 绑定添加图书请求
-                String url = HttpUtil.BASE_URL + "book/addBook";
-                HttpUtil.postRequest(token,url,hashMap,tempList,this,ADD_BOOK);
+                hashMap.put("requestCode",ADD_BOOK);
+                title = "添加图书";
+                message = "您确定继续吗？";
             }
+            DialogUtil.showDialog(LBookDetailActivity.this,title,message,this,hashMap);
         });
     }
 
@@ -491,6 +472,70 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         ActivityManager.getInstance().removeActivity(this);
     }
 
+    @Override
+    public void positiveAction(HashMap<String, Object> requestParam) {
+        Integer requestCode = (Integer) requestParam.get("requestCode");
+        if (requestCode == null) {
+            Toast.makeText(this,"请求码为空",Toast.LENGTH_SHORT).show();
+        } else {
+            if(requestCode == ADD_BOOK || requestCode == UPDATE_BOOK){
+                // 使用Map封装请求参数
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put("id",tId.getText().toString().trim());
+                hashMap.put("name",tName.getText().toString().trim());
+                hashMap.put("author",tAuthor.getText().toString().trim());
+                hashMap.put("isbn",tIsbn.getText().toString().trim());
+                hashMap.put("library",library);
+                hashMap.put("location",tLocation.getText().toString().trim());
+                hashMap.put("callNumber",tCallNumber.getText().toString().trim());
+                hashMap.put("theme",tTheme.getText().toString().trim());
+                hashMap.put("desc",tDesc.getText().toString().trim());
+                hashMap.put("first",first);
+                hashMap.put("third",third);
+                hashMap.put("typeName",type);
+                hashMap.put("house",tHouse.getText().toString().trim());
+                hashMap.put("date",tDate.getText().toString().trim());
+                hashMap.put("price",tPrice.getText().toString().trim());
+                hashMap.put("hot",tHot.getText().toString().trim());
+                hashMap.put("state",tState.getText().toString().trim());
+                // 获取要提交的图片的全路径
+                ArrayList<String> tempList = this.imagesAdapter.getImagesPath();
+                if(requestCode == ADD_BOOK){
+                    // 绑定添加图书请求
+                    String url = HttpUtil.BASE_URL + "book/addBook";
+                    HttpUtil.postRequest(token,url,hashMap,tempList,this,ADD_BOOK);
+                }else {
+                    // 绑定更新图书请求
+                    String url = HttpUtil.BASE_URL + "book/updateBook";
+                    HttpUtil.putRequest(token,url,hashMap,tempList,this,UPDATE_BOOK);
+                }
+            }else if(requestCode == DELETE_BOOK){
+                // 使用Map封装请求参数
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put("id", String.valueOf(this.id));
+                String url = HttpUtil.BASE_URL + "book/deleteBookById";
+                url = HttpUtil.newUrl(url,hashMap);
+                HttpUtil.deleteRequest(token,url,this,DELETE_BOOK);
+            }else {
+                Toast.makeText(this,"未知操作",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    public void negativeAction(HashMap<String, Object> requestParam) {
+        Integer requestCode = (Integer) requestParam.get("requestCode");
+        if(requestCode == null){
+            Toast.makeText(this,"请求码为空",Toast.LENGTH_SHORT).show();
+        }else {
+            if(requestCode == ADD_BOOK || requestCode == UPDATE_BOOK || requestCode == DELETE_BOOK){
+                Toast.makeText(this,"您选择了取消",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this,"未知动作",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     static class MyHandler extends Handler {
         private WeakReference<LBookDetailActivity> lBookDetailActivity;
         public MyHandler(WeakReference<LBookDetailActivity> lBookDetailActivity){
@@ -532,6 +577,7 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
             }
         }
     }
+
     MyHandler myHandler = new MyHandler(new WeakReference(this));
 
     @Override

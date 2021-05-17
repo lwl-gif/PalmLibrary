@@ -25,6 +25,7 @@ import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.ul.R;
+import com.example.ul.callback.CallbackToBorrowBookActivity;
 import com.example.ul.callback.ImageAdapterItemListener;
 import com.example.ul.util.HttpUtil;
 import com.luck.picture.lib.entity.LocalMedia;
@@ -64,11 +65,11 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter {
      */
     private boolean firstDelete = true;
 
-    public ImagesAdapter(Context context,String token, ImageAdapterItemListener imageAdapterItemListener) {
-        super(context, token, imageAdapterItemListener);
+    public ImagesAdapter(Context context,String token) {
+        super(context, token);
+        init(context);
         this.context = context;
         this.token = token;
-        this.imageAdapterItemListener = imageAdapterItemListener;
         Resources resources = context.getResources();
         // "添加图片"按钮的文件路径
         String path = ContentResolver.SCHEME_ANDROID_RESOURCE + "://"

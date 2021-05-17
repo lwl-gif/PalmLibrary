@@ -15,6 +15,7 @@ import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.ul.R;
+import com.example.ul.callback.CallbackToApplicationFragment;
 import com.example.ul.callback.CallbackToBookFragment;
 import com.example.ul.model.Book;
 
@@ -43,7 +44,8 @@ public class BookListAdapter extends RecyclerView.Adapter<BookViewHolder> {
     String state2 = "预约";
     String state3 = "挂失";
 
-    public BookListAdapter(Context context, String baseUrl, String token, ArrayList<Book> books, CallbackToBookFragment callbackToBookFragment){
+    public BookListAdapter(Context context, String baseUrl, String token,
+                           ArrayList<Book> books, CallbackToBookFragment callbackToBookFragment){
         this.context = context;
         this.baseUrl = baseUrl;
         this.token = token;

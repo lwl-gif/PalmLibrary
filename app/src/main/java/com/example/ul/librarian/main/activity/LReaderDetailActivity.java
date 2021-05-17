@@ -17,11 +17,12 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.ul.R;
+
 import com.example.ul.activity.ShowPictureActivity;
 import com.example.ul.adapter.ImagesOnlyReadAdapter;
 import com.example.ul.callback.ImageAdapterItemListener;
@@ -57,7 +58,7 @@ import okhttp3.Response;
  * @Modified: by who yyyy-MM-dd
  */
 @SuppressLint("NonConstantResourceId")
-public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallback, ImageAdapterItemListener {
+public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallback, DialogUtil.DialogActionCallback, ImageAdapterItemListener {
 
     private static final String TAG = "LReaderDetailActivity";
     /**未知错误*/
@@ -185,7 +186,7 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
         UserManager userManager = UserManager.getInstance();
         UserInfo userInfo = userManager.getUserInfo(this);
         token = userInfo.getToken();
-        imagesOnlyReadAdapter = new ImagesOnlyReadAdapter(this,token,this);
+        imagesOnlyReadAdapter = new ImagesOnlyReadAdapter(this,token);
         recyclerView = findViewById(R.id.recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         recyclerView.setAdapter(imagesOnlyReadAdapter);
@@ -341,11 +342,9 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
     private void secondInit() {
         buttonDelete.setVisibility(View.VISIBLE);
         buttonDelete.setOnClickListener(view -> {
-            String url = HttpUtil.BASE_URL + "reader/deleteById";
-            HashMap<String, String> hashMap = new HashMap<>();
-            hashMap.put("id",readerId);
-            url = HttpUtil.newUrl(url,hashMap);
-            HttpUtil.deleteRequest(token,url,this,CLOSE_ACCOUNT);
+            HashMap<String, Object> hashMap = new HashMap<>(4);
+            hashMap.put("requestCode",CLOSE_ACCOUNT);
+            DialogUtil.showDialog(LReaderDetailActivity.this,"注销账户","注销账户可能会造成严重后果，您确定要继续吗？",this,hashMap);
         });
         // 读者正在审核的
         if(writingPermission){
@@ -353,21 +352,15 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
             // 显示“审核通过”和“审核不通过”两个按钮,绑定事件
             buttonNo.setVisibility(View.VISIBLE);
             buttonNo.setOnClickListener(view -> {
-                String url = HttpUtil.BASE_URL + "readerPermission/checkNo";
-                HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put("readerId",readerId);
-                HttpUtil.putRequest(token,url,hashMap,this,CHECK_NO);
+                HashMap<String, Object> hashMap = new HashMap<>(4);
+                hashMap.put("requestCode",CHECK_NO);
+                DialogUtil.showDialog(LReaderDetailActivity.this,"身份审核","确定不通过TA的身份核验吗？",this,hashMap);
             });
             buttonOk.setVisibility(View.VISIBLE);
             buttonOk.setOnClickListener(view -> {
-                String url = HttpUtil.BASE_URL + "readerPermission/checkOk";
-                HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put("readerId",readerId);
-                hashMap.put("credit",rdCredit.getText().toString().trim());
-                hashMap.put("permissionName",rdPermission.getText().toString().trim());
-                hashMap.put("amount",rdAmount.getText().toString().trim());
-                hashMap.put("term",rdTerm.getText().toString().trim());
-                HttpUtil.putRequest(token,url,hashMap,this,CHECK_OK);
+                HashMap<String, Object> hashMap = new HashMap<>(4);
+                hashMap.put("requestCode",CHECK_OK);
+                DialogUtil.showDialog(LReaderDetailActivity.this,"身份审核","确定通过TA的身份核验吗？",this,hashMap);
             });
         }
     }
@@ -465,6 +458,52 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
     }
 
     @Override
+    public void positiveAction(HashMap<String, Object> requestParam) {
+        Integer requestCode = (Integer) requestParam.get("requestCode");
+        if (requestCode == null) {
+            Toast.makeText(this,"请求码为空",Toast.LENGTH_SHORT).show();
+        } else {
+            if(requestCode == CLOSE_ACCOUNT){
+                String url = HttpUtil.BASE_URL + "reader/deleteById";
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put("id",readerId);
+                url = HttpUtil.newUrl(url,hashMap);
+                HttpUtil.deleteRequest(token,url,this,CLOSE_ACCOUNT);
+            }else if(requestCode == CHECK_OK){
+                String url = HttpUtil.BASE_URL + "readerPermission/checkOk";
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put("readerId",readerId);
+                hashMap.put("credit",rdCredit.getText().toString().trim());
+                hashMap.put("permissionName",rdPermission.getText().toString().trim());
+                hashMap.put("amount",rdAmount.getText().toString().trim());
+                hashMap.put("term",rdTerm.getText().toString().trim());
+                HttpUtil.putRequest(token,url,hashMap,this,CHECK_OK);
+            }else if(requestCode == CHECK_NO){
+                String url = HttpUtil.BASE_URL + "readerPermission/checkNo";
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put("readerId",readerId);
+                HttpUtil.putRequest(token,url,hashMap,this,CHECK_NO);
+            }else {
+                Toast.makeText(this,"未知操作",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    public void negativeAction(HashMap<String, Object> requestParam) {
+        Integer requestCode = (Integer) requestParam.get("requestCode");
+        if(requestCode == null){
+            Toast.makeText(this,"请求码为空",Toast.LENGTH_SHORT).show();
+        }else {
+            if(requestCode == CLOSE_ACCOUNT){
+                Toast.makeText(this,"您选择了取消",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this,"未知动作",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
     public void success(Response response, int code) throws IOException {
         //获取服务器响应字符串
         String result = response.body().string().trim();
@@ -473,7 +512,7 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 try {
                     JSONObject jsonObject = new JSONObject(result);
                     String message = jsonObject.getString("message");
-                    String tip = null;
+                    String tip;
                     if("查询成功！".equals(message)){
                         //查询成功，获取书籍数据，通知主线程渲染前端
                         this.jsonObject = jsonObject.getJSONObject("object");

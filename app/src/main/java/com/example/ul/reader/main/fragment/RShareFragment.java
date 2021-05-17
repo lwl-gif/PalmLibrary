@@ -1,9 +1,7 @@
 package com.example.ul.reader.main.fragment;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -11,48 +9,31 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.example.ul.R;
-import com.example.ul.activity.ApplicationDetailActivity;
 import com.example.ul.adapter.BookListAdapter;
 import com.example.ul.callback.CallbackToBookFragment;
 import com.example.ul.callback.CallbackToMainActivity;
 import com.example.ul.librarian.main.activity.LShareDetailActivity;
-import com.example.ul.model.Application;
 import com.example.ul.model.Book;
 import com.example.ul.model.UserInfo;
 import com.example.ul.util.DialogUtil;
 import com.example.ul.util.HttpUtil;
 import com.example.ul.util.UserManager;
-
 import org.jetbrains.annotations.NotNull;
-
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.math.BigDecimal;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Locale;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import okhttp3.Response;
 
 /**
@@ -74,25 +55,19 @@ public class RShareFragment extends Fragment implements HttpUtil.MyCallback, Cal
     /**获取我的书库列表*/
     private static final int GET_MY_BOOKS = 1502;
     /**回调接口*/
-    private CallbackToMainActivity listClickedCallbackMain;
+    private CallbackToMainActivity callbackToMainActivity;
     /**token*/
     private String token = null;
-    /**组件*/
-    private RecyclerView recyclerView;
     /**适配器*/
     private BookListAdapter adapter;
-    /**我的书库*/
-    private JSONArray jsonArray;
 
     @Override
     public void onAttach(@NotNull Context context) {
         super.onAttach(context);
-        // 如果Context没有实现CallbackToMainActivity接口，则抛出异常
         if (!(context instanceof CallbackToMainActivity)) {
             throw new IllegalStateException(TAG+"所在的Context必须实现CallbackTOMainActivity接口");
         }
-        // 把该Context当初CallbackToMainActivity对象
-        listClickedCallbackMain = (CallbackToMainActivity) context;
+        callbackToMainActivity = (CallbackToMainActivity) context;
     }
 
     @Override
@@ -104,15 +79,11 @@ public class RShareFragment extends Fragment implements HttpUtil.MyCallback, Cal
         token = userInfo.getToken();
     }
 
-    @Nullable
-    @org.jetbrains.annotations.Nullable
     @Override
-    public View onCreateView(@NonNull @NotNull LayoutInflater inflater, @Nullable @org.jetbrains.annotations.Nullable ViewGroup container, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
-        super.onCreateView(inflater, container, savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle bundle) {
         // 获取当前界面视图
         View rootView = inflater.inflate(R.layout.share_manage, container, false);
-        // 组件初始化
-        recyclerView = rootView.findViewById(R.id.shareBooks);
+        RecyclerView recyclerView = rootView.findViewById(R.id.shareBooks);
         Button btnAdd = rootView.findViewById(R.id.btn_add);
         btnAdd.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), LShareDetailActivity.class);
@@ -124,7 +95,6 @@ public class RShareFragment extends Fragment implements HttpUtil.MyCallback, Cal
         adapter = new BookListAdapter(getActivity(),baseUrl,token,new ArrayList<>(),this);
         recyclerView.setAdapter(adapter);
         return rootView;
-
     }
 
     @Override
@@ -158,7 +128,7 @@ public class RShareFragment extends Fragment implements HttpUtil.MyCallback, Cal
         int id = book.getId();
         String library = book.getLibrary();
         // 返回id给activity
-        listClickedCallbackMain.clickToGetBookDetail(id, library,true);
+        callbackToMainActivity.clickToGetBookDetail(id, library,true);
     }
 
     MyHandler myHandler = new MyHandler(new WeakReference(this));

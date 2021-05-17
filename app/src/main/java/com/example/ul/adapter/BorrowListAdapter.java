@@ -10,7 +10,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.fastjson.JSONArray;
 import com.example.ul.R;
+import com.example.ul.callback.CallbackToBorrowBookActivity;
 import com.example.ul.callback.CallbackToRBorrowFragment;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -70,7 +74,6 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
         this.callbackToRBorrowFragment = callbackToRBorrowFragment;
     }
 
-
     public JSONArray getJsonArray() {
         return jsonArray;
     }
@@ -80,6 +83,7 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
         notifyDataSetChanged();
     }
 
+    @NotNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
         View view;

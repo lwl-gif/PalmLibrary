@@ -3,21 +3,33 @@ package com.example.ul.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintSet;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.example.ul.R;
 import com.example.ul.model.Application;
-import com.example.ul.model.ReaderPermission;
 import com.example.ul.model.UserInfo;
 import com.example.ul.pay.PayDemoActivity;
 import com.example.ul.util.ActivityManager;
@@ -27,7 +39,6 @@ import com.example.ul.util.UserManager;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.math.BigDecimal;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -44,7 +55,7 @@ import okhttp3.Response;
  * @author luoweili
  */
 @SuppressLint("NonConstantResourceId")
-public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCallback{
+public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCallback,DialogUtil.DialogActionCallback{
 
     private static final String TAG = "ApplicationDetailActivity";
     /**未知错误*/
@@ -105,10 +116,10 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
     public EditText tvPay;
     @BindView(R.id.librarianId)
     public TextView tvLibrarianId;
-    @BindView(R.id.bottom_button)
-    public Button bottomButton;
-    @BindView(R.id.top_button)
-    public Button topButton;
+    @BindView(R.id.right_button)
+    public Button rightButton;
+    @BindView(R.id.left_button)
+    public Button leftButton;
     @BindView(R.id.imageView_back)
     public ImageView imageViewBack;
 
@@ -120,24 +131,25 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
         ButterKnife.bind(this);
         imageViewBack.setOnClickListener(v -> ApplicationDetailActivity.this.finish());
         // 两个按钮不可见
-        bottomButton.setVisibility(View.GONE);
-        topButton.setVisibility(View.GONE);
+        rightButton.setVisibility(View.GONE);
+        leftButton.setVisibility(View.GONE);
         // 哪个主页面打开的详情
         Intent intent = getIntent();
         from = intent.getStringExtra("TAG");
-        if(from == null){
+        id = intent.getIntExtra("id", -1);
+        if(from == null || id == -1){
             Toast.makeText(this,"打开错误！",Toast.LENGTH_SHORT).show();
+            finish();
         }else {
-            id = intent.getIntExtra("id", -1);
             // 获取token
             UserManager userManager = UserManager.getInstance();
             UserInfo userInfo = userManager.getUserInfo(this);
             token = userInfo.getToken();
             if(from.equals(ApplicationDetailActivity.FROM_1)){
-                bottomButton.setText(R.string.goPay);
+                rightButton.setText(R.string.goPay);
             }
             if(from.equals(ApplicationDetailActivity.FROM_2)){
-                bottomButton.setText(R.string.update);
+                rightButton.setText(R.string.update);
             }
         }
         init(false);
@@ -155,7 +167,7 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
     protected void onStart() {
         super.onStart();
         // 通过id查询记录详情
-        HashMap<String, String> hashMap  = new HashMap<>();
+        HashMap<String, String> hashMap  = new HashMap<>(4);
         hashMap.put("id", String.valueOf(id));
         String url = HttpUtil.BASE_URL + "application/selectById";
         url = HttpUtil.newUrl(url,hashMap);
@@ -165,91 +177,131 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        ActivityManager.getInstance().removeActivity(this);
         token = null;
         from = null;
         id = -1;
-        ActivityManager.getInstance().removeActivity(this);
     }
 
     @SuppressLint("SetTextI18n")
     private void fillData(Application application, boolean allowEdit) {
-        String payId = application.getPayId();
-        id = application.getId();
-        String name = application.getName();
-        String readerId = application.getReaderId();
-        String readerName = application.getReaderName();
+        String payId = application.getPayId() == null ? null : "No."+application.getPayId() ;
+        id = application.getId() == null ? -1 : application.getId();
+        String name = application.getName() == null ? null : application.getName();
+        String readerId = application.getReaderId() == null ? null : application.getReaderId();
+        String readerName = application.getReaderName() == null ? null : application.getReaderName();
         Date time = application.getTime();
         Date end = application.getEnd();
         Integer days = application.getDays();
-        BigDecimal money = application.getMoney();
+        String moneyString = application.getMoney() == null ? null : application.getMoney().toString();
         Date payTime = application.getPayTime();
-        String description = application.getDescription();
-        String librarianId = application.getLibrarianId();
-        payId = "No."+payId;
+        String description = application.getDescription() == null ? null : application.getDescription();
+        String librarianId = application.getLibrarianId() == null ? null : application.getLibrarianId();
         tvPayId.setText(payId);
         tvId.setText(String.valueOf(id));
         tvBookName.setText(name);
         tvReaderId.setText(readerId);
         tvReaderName.setText(readerName);
         SimpleDateFormat sf1 = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        tvEndTime.setText(sf1.format(end));
+        String endString = end == null ? null : sf1.format(end);
+        tvEndTime.setText(endString);
         SimpleDateFormat sf2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss",  Locale.getDefault());
-        tvCreateTime.setText(sf2.format(time));
-        tvPayTime.setText(sf2.format(payTime));
+        String timeString = time == null ? null : sf2.format(time);
+        tvCreateTime.setText(timeString);
+        String payTimeString = payTime == null ? null : sf2.format(payTime);
+        tvPayTime.setText(payTimeString);
         tvDays.setText(String.valueOf(days));
-        tvPay.setText(money.toString());
+        tvPay.setText(moneyString);
         tvBookDescription.setText(description);
         tvLibrarianId.setText(librarianId);
         // 底部按钮可见
-        bottomButton.setVisibility(View.VISIBLE);
+        rightButton.setVisibility(View.VISIBLE);
         // 按钮绑定方法
         if(from.equals(ApplicationDetailActivity.FROM_1)){
-            bottomButton.setOnClickListener(v -> {
-                // 发出缴费请求
-                HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put("id", String.valueOf(id));
-                String url = HttpUtil.BASE_URL + "application/toPay";
-                HttpUtil.postRequest(token,url,hashMap,this,REQUEST_TO_PAY);
+            rightButton.setOnClickListener(v -> {
+                HashMap<String, Object> hashMap = new HashMap<>(4);
+                hashMap.put("requestCode",REQUEST_TO_PAY);
+                DialogUtil.showDialog(ApplicationDetailActivity.this,"缴费","你确定要继续缴费吗？",this,hashMap);
             });
         }else {
-            topButton.setVisibility(View.VISIBLE);
+            leftButton.setVisibility(View.VISIBLE);
             // 该管理员能更新数据
             if(allowEdit){
                 init(true);
-                bottomButton.setOnClickListener(v -> {
-                    // 更新缴费信息
-                    HashMap<String, String> hashMap = new HashMap<>();
-                    hashMap.put("payId",tvPayId.getText().toString().trim());
-                    hashMap.put("id",tvId.getText().toString().trim());
-                    hashMap.put("name",tvBookName.getText().toString().trim());
-                    hashMap.put("readerId",tvReaderId.getText().toString().trim());
-                    hashMap.put("readerName",tvReaderName.getText().toString().trim());
-                    hashMap.put("time",tvCreateTime.getText().toString().trim());
-                    hashMap.put("end",tvEndTime.getText().toString().trim());
-                    hashMap.put("money",tvPay.getText().toString().trim());
-                    hashMap.put("payTime",tvPayTime.getText().toString().trim());
-                    hashMap.put("description",tvBookDescription.getText().toString().trim());
-                    hashMap.put("librarianId",tvLibrarianId.getText().toString().trim());
-                    String url = HttpUtil.BASE_URL + "application/updateById";
-                    HttpUtil.putRequest(token,url,hashMap,this,UPDATE_APPLICATION_DETAIL);
+                rightButton.setOnClickListener(v -> {
+                    HashMap<String, Object> hashMap = new HashMap<>(4);
+                    hashMap.put("requestCode",UPDATE_APPLICATION_DETAIL);
+                    DialogUtil.showDialog(ApplicationDetailActivity.this,"更新记录","修改记录可能会造成严重后果，你确定要修改吗？",this,hashMap);
                 });
-                topButton.setOnClickListener(v -> {
-                    // 删除缴费信息
-                    HashMap<String, String> hashMap = new HashMap<>();
-                    hashMap.put("id",tvId.getText().toString().trim());
-                    String url = HttpUtil.BASE_URL + "application/deleteById";
-                    url = HttpUtil.newUrl(url,hashMap);
-                    HttpUtil.deleteRequest(token,url,this,DELETE_APPLICATION_DETAIL);
+                leftButton.setOnClickListener(v -> {
+                    HashMap<String, Object> hashMap = new HashMap<>(4);
+                    hashMap.put("requestCode",DELETE_APPLICATION_DETAIL);
+                    DialogUtil.showDialog(ApplicationDetailActivity.this,"删除记录","删除记录可能会造成严重后果，你确定要删除吗？",this,hashMap);
                 });
             }else {
                 // 底部按钮不可点击
-                bottomButton.setClickable(false);
+                rightButton.setClickable(false);
             }
         }
     }
 
     MyHandler myHandler = new MyHandler(new WeakReference(this));
-    
+
+    @Override
+    public void positiveAction(HashMap<String, Object> requestParam) {
+        Integer requestCode = (Integer) requestParam.get("requestCode");
+        if (requestCode == null) {
+            Toast.makeText(this,"请求码为空",Toast.LENGTH_SHORT).show();
+        } else {
+            if(requestCode == UPDATE_APPLICATION_DETAIL){
+                // 更新缴费信息
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put("payId",tvPayId.getText().toString().trim());
+                hashMap.put("id",tvId.getText().toString().trim());
+                hashMap.put("name",tvBookName.getText().toString().trim());
+                hashMap.put("readerId",tvReaderId.getText().toString().trim());
+                hashMap.put("readerName",tvReaderName.getText().toString().trim());
+                hashMap.put("time",tvCreateTime.getText().toString().trim());
+                hashMap.put("end",tvEndTime.getText().toString().trim());
+                hashMap.put("money",tvPay.getText().toString().trim());
+                hashMap.put("payTime",tvPayTime.getText().toString().trim());
+                hashMap.put("description",tvBookDescription.getText().toString().trim());
+                hashMap.put("librarianId",tvLibrarianId.getText().toString().trim());
+                String url = HttpUtil.BASE_URL + "application/updateById";
+                HttpUtil.putRequest(token,url,hashMap,this,UPDATE_APPLICATION_DETAIL);
+            }else if(requestCode == DELETE_APPLICATION_DETAIL){
+                // 删除缴费信息
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put("id",tvId.getText().toString().trim());
+                String url = HttpUtil.BASE_URL + "application/deleteById";
+                url = HttpUtil.newUrl(url,hashMap);
+                HttpUtil.deleteRequest(token,url,this,DELETE_APPLICATION_DETAIL);
+            }else if(requestCode == REQUEST_TO_PAY){
+                // 发出缴费请求
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put("id", String.valueOf(id));
+                String url = HttpUtil.BASE_URL + "application/toPay";
+                HttpUtil.putRequest(token,url,hashMap,this,REQUEST_TO_PAY);
+            }else {
+                Toast.makeText(this,"未知操作",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    public void negativeAction(HashMap<String, Object> requestParam) {
+        Integer requestCode = (Integer) requestParam.get("requestCode");
+        if(requestCode == null){
+            Toast.makeText(this,"请求码为空",Toast.LENGTH_SHORT).show();
+        }else {
+            if(requestCode == UPDATE_APPLICATION_DETAIL || requestCode == DELETE_APPLICATION_DETAIL || requestCode == REQUEST_TO_PAY){
+                Toast.makeText(this,"您选择了取消",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this,"未知动作",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     static class MyHandler extends Handler {
         private final WeakReference<ApplicationDetailActivity> applicationDetailActivity;
 
