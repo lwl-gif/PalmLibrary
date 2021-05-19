@@ -238,8 +238,8 @@
     <string name="auth_with_alipay">支付宝授权 Demo</string>
     <string name="web_to_native">网页支付转 native 支付 Demo</string>
     <string name="check_sdk_version">支付宝 SDK 版本</string>
-    <string name="pay_success">支付成功:</string>
-    <string name="pay_failed">支付失败:</string>
+    <string name="pay_success">支付成功</string>
+    <string name="pay_failed">支付失败</string>
     <string name="auth_success">授权成功:</string>
     <string name="auth_failed">授权失败:</string>
     <string name="error_missing_appid_rsa_private">错误: 需要配置 PayDemoActivity 中的 APPID 和 RSA_PRIVATE</string>
@@ -257,6 +257,22 @@
     <!--              show_qrcode.xml                -->
     <string name="defaultTitle">标题</string>
     <string name="defaultTip">温馨提示</string>
-
+    <!--              pay_main.xml                -->
+    <string name="payTitle">收银台</string>
+    <string name="tvMoney">支付金额</string>
+    <string name="tvSymbol">¥</string>
+    <string name="tvPayWay">选择支付方式</string>
+    <string name="btnPay">支付¥0.00</string>
+    <string name="tvPayDesc">商品详情：</string>
+    <!--              pay_way.xml                -->
+    <string name="payWay_zhifubao">支付宝</string>
+    <string name="payWay_zhifubao_ad">10亿用户都在用，真安全，更放心</string>
+    <string name="payWay_zhifubao_suggest">推荐</string>
+    <string name="payWay_huabei">花呗</string>
+    <string name="payWay_huabei_ad">用花呗免息产长达40天</string>
+    <string name="payWay_huabei_suggest" />
+    <string name="payWay_huabeifenqi">花呗分期</string>
+    <string name="payWay_huabeifenqi_ad">分期还，更轻松</string>
+    <string name="payWay_huabeifenqi_suggest" />
 
 </resources>

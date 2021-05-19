@@ -36,21 +36,53 @@ public class DialogUtil {
         }
         builder.create().show();
     }
-
-    /**定义一个显示指定组件的对话框*/
-    public static void showDialog(Context context, View view ,boolean goLoginActivity){
+    /**
+     * @Author: Wallace
+     * @Description: 显示一个选择对话框
+     * @Date: Created 17:36 2021/5/19
+     * @Modified: by who yyyy-MM-dd
+     * @param context 上下文
+     * @param positive 是否有正选按钮
+     * @param negative 是否有反选按钮
+     * @param dialogActionCallback 回调接口
+     * @param hashMap 参数
+     * @return: void
+     */
+    public static void showDialog(Context context, boolean positive, boolean negative, String title, final DialogActionCallback dialogActionCallback, final HashMap<String, Object> hashMap){
+        View view = View.inflate(context, R.layout.dialog_view,null);
+        TextView tvFrom = view.findViewById(R.id.dialog_from);
+        String tAG = (String) hashMap.get("tAG");
+        tvFrom.setText(tAG);
+        TextView tvCode = view.findViewById(R.id.dialog_code);
+        String code = (String) hashMap.get("code");
+        tvCode.setText(code);
+        TextView tvMessage = view.findViewById(R.id.dialog_message);
+        String message = (String) hashMap.get("message");
+        tvMessage.setText(message);
+        TextView tvTip = view.findViewById(R.id.dialog_tip);
+        String tip = (String) hashMap.get("tip");
+        tvTip.setText(tip);
         // 创建一个AlertDialog.Builder对象
         AlertDialog.Builder builder = new AlertDialog.Builder(context).setView(view).setCancelable(false);
-        if (goLoginActivity) {
+        // 设置标题
+        builder.setTitle(title);
+        // 设置图标，图片id即可
+        builder.setIcon(R.drawable.main_background);
+        if(positive){
+            // 设置确定按钮
             builder.setPositiveButton("确定", (dialog, which) -> {
-                Intent intent = new Intent(context, LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                ActivityManager.getInstance().exit();
-                context.startActivity(intent);
+                dialogActionCallback.positiveAction(hashMap);
+                dialog.dismiss();
             });
-        } else {
-            builder.setPositiveButton("确定", null);
         }
+        if(negative){
+            // 设置取消按钮
+            builder.setNegativeButton("取消", (dialog, which) -> {
+                dialogActionCallback.negativeAction(hashMap);
+                dialog.dismiss();
+            });
+        }
+        // 参数都设置完成了，创建并显示出来
         builder.create().show();
     }
 
@@ -153,7 +185,7 @@ public class DialogUtil {
      * @Date: 2021/5/13 23:10
      * @Modified: By yyyy-MM-dd
      */
-    public static interface DialogActionCallback {
+    public interface DialogActionCallback {
 
         /**
          * @Author: Wallace

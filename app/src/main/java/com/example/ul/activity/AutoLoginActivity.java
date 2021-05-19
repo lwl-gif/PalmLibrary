@@ -77,19 +77,27 @@ public class AutoLoginActivity extends Activity implements HttpUtil.MyCallback {
                 }
                 UserManager.getInstance().saveUserInfo(this, username, password, role, token);
                 // 用handle发送消息，通知主线程可以登录
-                myHandler.sendEmptyMessage(AUTO_LOGIN_SUCCEED);
+                if(myHandler != null){
+                    myHandler.sendEmptyMessage(AUTO_LOGIN_SUCCEED);
+                }
             } else {
                 //登录失败
-                myHandler.sendEmptyMessage(AUTO_LOGIN_FAIL);
+                if(myHandler != null){
+                    myHandler.sendEmptyMessage(AUTO_LOGIN_FAIL);
+                }
             }
         } else {
-            myHandler.sendEmptyMessage(UNKNOWN_REQUEST);
+            if(myHandler != null){
+                myHandler.sendEmptyMessage(UNKNOWN_REQUEST);
+            }
         }
     }
 
     @Override
     public void failed(IOException e, int code) {
-        myHandler.sendEmptyMessage(REQUEST_FAIL);
+        if(myHandler != null){
+            myHandler.sendEmptyMessage(REQUEST_FAIL);
+        }
     }
     /**
      * 跳转判断
@@ -186,6 +194,8 @@ public class AutoLoginActivity extends Activity implements HttpUtil.MyCallback {
     protected void onDestroy() {
         super.onDestroy();
         ActivityManager.getInstance().removeActivity(this);
+        Toast.makeText(this,TAG+"结束自动登录",Toast.LENGTH_SHORT).show();
+        myHandler = null;
     }
 
     class CountDownTimerUtil extends CountDownTimer {
@@ -204,7 +214,9 @@ public class AutoLoginActivity extends Activity implements HttpUtil.MyCallback {
         /**计时完毕的方法*/
         @Override
         public void onFinish() {
-            AutoLoginActivity.this.myHandler.sendEmptyMessage(REQUEST_FAIL);
+            if(myHandler != null){
+                myHandler.sendEmptyMessage(REQUEST_FAIL);
+            }
         }
     }
 }

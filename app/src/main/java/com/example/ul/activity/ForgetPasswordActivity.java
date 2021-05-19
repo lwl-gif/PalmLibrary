@@ -205,19 +205,7 @@ public class ForgetPasswordActivity extends AppCompatActivity implements HttpUti
                 String m = bundle.getString("message");
                 DialogUtil.showDialog(myActivity,m,false);
             } else {
-                String message = bundle.getString("message");
-                String code = bundle.getString("code");
-                String tip = bundle.getString("tip");
-                View view = View.inflate(myActivity,R.layout.dialog_view,null);
-                TextView tvFrom = view.findViewById(R.id.dialog_from);
-                tvFrom.setText(TAG);
-                TextView tvCode = view.findViewById(R.id.dialog_code);
-                tvCode.setText(code);
-                TextView tvMessage = view.findViewById(R.id.dialog_message);
-                tvMessage.setText(message);
-                TextView tvTip = view.findViewById(R.id.dialog_tip);
-                tvTip.setText(tip);
-                DialogUtil.showDialog(myActivity,view,false);
+                DialogUtil.showDialog(myActivity,TAG,bundle,false);
             }
         }
     }

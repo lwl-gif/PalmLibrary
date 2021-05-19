@@ -184,7 +184,6 @@
                 android:layout_height="wrap_content"
                 android:background="#EDEACF"
                 android:gravity="center"
-                android:inputType="text"
                 android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"

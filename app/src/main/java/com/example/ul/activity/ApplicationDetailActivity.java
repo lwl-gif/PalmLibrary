@@ -3,31 +3,18 @@ package com.example.ul.activity;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintSet;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.model.GlideUrl;
-import com.bumptech.glide.load.model.LazyHeaders;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.example.ul.R;
 import com.example.ul.model.Application;
 import com.example.ul.model.UserInfo;
@@ -74,12 +61,8 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
     private static final int UPDATE_APPLICATION_DETAIL = 1402;
     /**删除详情*/
     private static final int DELETE_APPLICATION_DETAIL = 1403;
-    /**请求服务器发起付款订单*/
-    private static final int REQUEST_TO_PAY = 1404;
-    /**服务器生成支付订单，完成验签*/
-    private static final int REQUEST_TO_PAY_OK = 14041;
-    /**服务器验签失败*/
-    private static final int REQUEST_TO_PAY_ERROR = 14040;
+    /**去缴费*/
+    private static final int GO_TO_PAY = 1904;
     /**两个可能的来源*/
     private static final String FROM_1 = "RMainActivity";
     private static final String FROM_2 = "LMainActivity";
@@ -185,7 +168,7 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
 
     @SuppressLint("SetTextI18n")
     private void fillData(Application application, boolean allowEdit) {
-        String payId = application.getPayId() == null ? null : "No."+application.getPayId() ;
+        String payId = application.getPayId() == null ? null : "订单号:"+application.getPayId() ;
         id = application.getId() == null ? -1 : application.getId();
         String name = application.getName() == null ? null : application.getName();
         String readerId = application.getReaderId() == null ? null : application.getReaderId();
@@ -220,7 +203,7 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
         if(from.equals(ApplicationDetailActivity.FROM_1)){
             rightButton.setOnClickListener(v -> {
                 HashMap<String, Object> hashMap = new HashMap<>(4);
-                hashMap.put("requestCode",REQUEST_TO_PAY);
+                hashMap.put("requestCode", GO_TO_PAY);
                 DialogUtil.showDialog(ApplicationDetailActivity.this,"缴费","你确定要继续缴费吗？",this,hashMap);
             });
         }else {
@@ -255,7 +238,7 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
         } else {
             if(requestCode == UPDATE_APPLICATION_DETAIL){
                 // 更新缴费信息
-                HashMap<String, String> hashMap = new HashMap<>();
+                HashMap<String, String> hashMap = new HashMap<>(16);
                 hashMap.put("payId",tvPayId.getText().toString().trim());
                 hashMap.put("id",tvId.getText().toString().trim());
                 hashMap.put("name",tvBookName.getText().toString().trim());
@@ -271,17 +254,17 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
                 HttpUtil.putRequest(token,url,hashMap,this,UPDATE_APPLICATION_DETAIL);
             }else if(requestCode == DELETE_APPLICATION_DETAIL){
                 // 删除缴费信息
-                HashMap<String, String> hashMap = new HashMap<>();
+                HashMap<String, String> hashMap = new HashMap<>(4);
                 hashMap.put("id",tvId.getText().toString().trim());
                 String url = HttpUtil.BASE_URL + "application/deleteById";
                 url = HttpUtil.newUrl(url,hashMap);
                 HttpUtil.deleteRequest(token,url,this,DELETE_APPLICATION_DETAIL);
-            }else if(requestCode == REQUEST_TO_PAY){
-                // 发出缴费请求
-                HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put("id", String.valueOf(id));
-                String url = HttpUtil.BASE_URL + "application/toPay";
-                HttpUtil.putRequest(token,url,hashMap,this,REQUEST_TO_PAY);
+            }else if(requestCode == GO_TO_PAY){
+                // 进入缴费页面
+                Intent intent = new Intent(ApplicationDetailActivity.this,PayDemoActivity.class);
+                intent.putExtra("id",id);
+                startActivity(intent);
+                finish();
             }else {
                 Toast.makeText(this,"未知操作",Toast.LENGTH_SHORT).show();
             }
@@ -294,7 +277,7 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
         if(requestCode == null){
             Toast.makeText(this,"请求码为空",Toast.LENGTH_SHORT).show();
         }else {
-            if(requestCode == UPDATE_APPLICATION_DETAIL || requestCode == DELETE_APPLICATION_DETAIL || requestCode == REQUEST_TO_PAY){
+            if(requestCode == UPDATE_APPLICATION_DETAIL || requestCode == DELETE_APPLICATION_DETAIL || requestCode == GO_TO_PAY){
                 Toast.makeText(this,"您选择了取消",Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this,"未知动作",Toast.LENGTH_SHORT).show();
@@ -331,19 +314,7 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
                 if("删除成功！".equals(message)){
                     myActivity.finish();
                 }
-            } 	else if (what == REQUEST_TO_PAY_OK) {
-                // 取出订单信息
-                String orderStr = msg.getData().getString("orderStr");
-                // 进入到缴费页面
-                Intent intent = new Intent(myActivity, PayDemoActivity.class);
-                intent.putExtra("orderStr",orderStr);
-                myActivity.startActivity(intent);
-            }
-            else if (what == REQUEST_TO_PAY_ERROR) {
-                Bundle bundle = msg.getData();
-                DialogUtil.showDialog(myActivity,TAG,bundle,false);
-            }
-            else  {
+            } else  {
                 Bundle bundle = msg.getData();
                 Toast.makeText(myActivity,bundle.getString("reason"),Toast.LENGTH_SHORT).show();
             }
@@ -391,23 +362,7 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
                 msg.setData(bundle);
                 msg.what = DELETE_APPLICATION_DETAIL;
                 myHandler.sendMessage(msg);
-            } else  if (code == REQUEST_TO_PAY) {
-                if("申请成功！".equals(message) && "缴费订单已生成！".equals(tip)){
-                    // 获取订单信息传递给前端
-                    String orderStr = jsonObject.getString("object");
-                    bundle.putString("orderStr",orderStr);
-                    msg.setData(bundle);
-                    msg.what = REQUEST_TO_PAY_OK;
-                }else {
-                    // 显示错误信息
-                    bundle.putString("message",message);
-                    bundle.putString("code",c);
-                    bundle.putString("tip",tip);
-                    msg.setData(bundle);
-                    msg.what = REQUEST_TO_PAY_ERROR;
-                }
-                myHandler.sendMessage(msg);
-            }else {
+            } else {
                 String reason = "未知错误";
                 bundle.putString("reason",reason);
                 msg.setData(bundle);

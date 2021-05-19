@@ -90,16 +90,11 @@ public class LoginActivity extends AppCompatActivity implements HttpUtil.MyCallb
                         String message = myActivity.jsonObject.getString("message");
                         String code = myActivity.jsonObject.getString("code");
                         String tip = myActivity.jsonObject.getString("tip");
-                        View view = View.inflate(myActivity,R.layout.dialog_view,null);
-                        TextView tvFrom = view.findViewById(R.id.dialog_from);
-                        tvFrom.setText(TAG);
-                        TextView tvCode = view.findViewById(R.id.dialog_code);
-                        tvCode.setText(code);
-                        TextView tvMessage = view.findViewById(R.id.dialog_message);
-                        tvMessage.setText(message);
-                        TextView tvTip = view.findViewById(R.id.dialog_tip);
-                        tvTip.setText(tip);
-                        DialogUtil.showDialog(myActivity,view,false);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("message",message);
+                        bundle.putString("code",code);
+                        bundle.putString("tip",tip);
+                        DialogUtil.showDialog(myActivity,TAG,bundle,false);
                     } catch (JSONException e) {
                         Toast.makeText(myActivity,"主线程解析数据时异常！",Toast.LENGTH_LONG).show();
                     }

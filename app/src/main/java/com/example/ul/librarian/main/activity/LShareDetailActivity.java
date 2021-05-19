@@ -104,9 +104,9 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
     @BindView(R.id.bookAuthor)
     public EditText tAuthor;
     @BindView(R.id.bookLibrary)
-    public EditText tLibrary;
+    public TextView tLibrary;
     @BindView(R.id.bookContact)
-    public EditText tBookContact;
+    public TextView tBookContact;
     @BindView(R.id.bookTheme)
     public EditText tTheme;
     @BindView(R.id.bookDescription)
@@ -141,6 +141,10 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
         ActivityManager.getInstance().addActivity(this);
         setContentView(R.layout.activity_l_share_detail);
         ButterKnife.bind(this);
+        // 获取token
+        UserManager userManager = UserManager.getInstance();
+        UserInfo userInfo = userManager.getUserInfo(this);
+        token = userInfo.getToken();
         ImageView imageView = findViewById(R.id.iv_back);
         imageView.setOnClickListener(v -> LShareDetailActivity.this.finish());
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
@@ -191,10 +195,6 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
                 HttpUtil.postRequest(token,url,hashMap,tempList,this,ADD_BOOK);
             }
         });
-        // 获取token
-        UserManager userManager = UserManager.getInstance();
-        UserInfo userInfo = userManager.getUserInfo(this);
-        token = userInfo.getToken();
     }
 
     @Override
@@ -228,12 +228,10 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 type = (String) spinnerType.getItemAtPosition(i);
-                Toast.makeText(LShareDetailActivity.this,"您选择了"+type,Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-//                type = "null";
             }
         });
         // 根据spinnerFirst选的不同来动态渲染spinnerThird
@@ -241,38 +239,30 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 first = (String) spinnerFirst.getItemAtPosition(i);
-                Toast.makeText(LShareDetailActivity.this,"您选择了"+first,Toast.LENGTH_SHORT).show();
-                //给spinnerThird赋值
                 spinnerThird.setAdapter(new MySpinnerBelongAdapter(LShareDetailActivity.this,thirds.get(i)));
                 spinnerThird.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
                     @Override
                     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                         third = (String) spinnerThird.getItemAtPosition(i);
-                        Toast.makeText(LShareDetailActivity.this,"您选择了"+third,Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onNothingSelected(AdapterView<?> adapterView) {
-//                        third = "null";
+//
                     }
                 });
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
-//                first = "null";
+//
             }
         });
-        //各列表第一项为默认选择值
+        // 各列表第一项为默认选择值
         spinnerType.setSelection(0,true);
         spinnerFirst.setSelection(0,true);
         spinnerThird.setSelection(0,true);
         if(id != 0){
             // 发送查询书籍详情的请求
-            // 获取token
-            UserManager userManager = UserManager.getInstance();
-            UserInfo userInfo = userManager.getUserInfo(this);
-            String token = userInfo.getToken();
-            // 使用Map封装请求参数
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put("id", String.valueOf(id));
             String url = HttpUtil.BASE_URL + "book/selectAllById";
@@ -345,7 +335,6 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
                 arrayList.add(url);
             }
         }
-        Log.e(TAG, "fillBookDetail: arrayList = " + arrayList.toString());
         imagesAdapter.setImageNameUrlList(arrayList);
     }
 
@@ -466,7 +455,7 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
                     myActivity.finish();
                 }
                 else {
-                    DialogUtil.showDialog(myActivity,TAG,data,false);
+                    DialogUtil.showDialog(myActivity,TAG,data,what == REQUEST_INTERCEPTED);
                 }
             }
         }
@@ -510,7 +499,6 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
                         firsts.add(first);
                         thirds.add(list);
                     }
-                    //发消息通知主线程进行UI更新
                     myHandler.sendEmptyMessage(GET_TYPE);
                     break;
                 case GET_BOOK_DETAIL:
@@ -518,7 +506,7 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
                     if ("查询成功！".equals(message)) {
                         tip = jsonObject.getString("tip");
                         if ("".equals(tip)) {
-                            //查询成功，获取书籍数据，通知主线程渲染前端
+                            // 查询成功，获取书籍数据，通知主线程渲染前端
                             jsonObjectBookDetail = jsonObject.getJSONObject("object");
                             myHandler.sendEmptyMessage(GET_BOOK_DETAIL_FILL);
                             break;

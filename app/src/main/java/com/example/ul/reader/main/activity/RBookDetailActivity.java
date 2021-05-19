@@ -257,16 +257,11 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
                 if (what == RESERVE_BOOK_SUCCESS) {
                     Toast.makeText(myActivity, message + tip, Toast.LENGTH_LONG).show();
                 }else {
-                    View view = View.inflate(myActivity,R.layout.dialog_view,null);
-                    TextView tvFrom = view.findViewById(R.id.dialog_from);
-                    tvFrom.setText(RBookDetailActivity.TAG);
-                    TextView tvCode = view.findViewById(R.id.dialog_code);
-                    tvCode.setText(code);
-                    TextView tvMessage = view.findViewById(R.id.dialog_message);
-                    tvMessage.setText(message);
-                    TextView tvTip = view.findViewById(R.id.dialog_tip);
-                    tvTip.setText(tip);
-                    DialogUtil.showDialog(myActivity,view,false);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("message",message);
+                    bundle.putString("code",code);
+                    bundle.putString("tip",tip);
+                    DialogUtil.showDialog(myActivity,TAG,bundle,false);
                 }
             }
         }

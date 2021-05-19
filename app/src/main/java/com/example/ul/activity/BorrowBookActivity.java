@@ -150,6 +150,8 @@ public class BorrowBookActivity extends Activity implements HttpUtil.MyCallback,
      * 当前读者权限
      */
     private ReaderPermission readerPermission = null;
+    /**是否允许借书*/
+    private boolean allowBorrow = false;
     /**
      * token
      */
@@ -250,21 +252,23 @@ public class BorrowBookActivity extends Activity implements HttpUtil.MyCallback,
 
     private void fillReaderPermissionData() {
         String permissionLevel = readerPermission.getPermissionName();
+        rdId.setText(readerPermission.getId());
+        rdCredit.setText(String.valueOf(readerPermission.getCredit()));
+        int amount = readerPermission.getAmount();
+        adapter.setMaxAmount(amount);
+        rdPermission.setText(permissionLevel);
+        Date date = readerPermission.getTerm();
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        String tvDate = format.format(date);
+        rdTerm.setText(tvDate);
+        rdType.setText(readerPermission.getTypeName());
         // 无权限
         if (permissionLevel.equals(NOT_ALLOW_BORROW)) {
-            // 提示，直接退出借书程序
-            DialogUtil.showDialog(this, "检测到您无借阅权限，您无法借阅图书，请退出！", true);
+            // 提示
+            DialogUtil.showDialog(this, "检测到您无借阅权限，可能无法借阅图书！", false);
+            allowBorrow = false;
         } else {
-            rdId.setText(readerPermission.getId());
-            rdCredit.setText(String.valueOf(readerPermission.getCredit()));
-            int amount = readerPermission.getAmount();
-            adapter.setMaxAmount(amount);
-            rdPermission.setText(permissionLevel);
-            Date date = readerPermission.getTerm();
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            String tvDate = format.format(date);
-            rdTerm.setText(tvDate);
-            rdType.setText(readerPermission.getTypeName());
+            allowBorrow = true;
         }
     }
 
@@ -286,7 +290,11 @@ public class BorrowBookActivity extends Activity implements HttpUtil.MyCallback,
                 if (readerPermission == null) {
                     Toast.makeText(this, "请耐心等待一下，现在点我也没有用哦！", Toast.LENGTH_SHORT).show();
                 } else {
-                    startCaptureActivity(SCAN_BORROW);
+                    if(allowBorrow){
+                        startCaptureActivity(SCAN_BORROW);
+                    }else {
+                        Toast.makeText(this, "非常抱歉，您没有权限借书哦！", Toast.LENGTH_SHORT).show();
+                    }
                 }
                 break;
             // 返回按钮
@@ -563,16 +571,15 @@ public class BorrowBookActivity extends Activity implements HttpUtil.MyCallback,
                         BorrowBookActivity.this.adapter.addItem(book);
                         BorrowBookActivity.this.testBookStatus(book.getId());
                     }
-                    Log.e(TAG, "onActivityResult: SCAN_BORROW = " + requestCode);
                     break;
                 case SCAN_RETURN:
                     // 扫码的结果
                     content = data.getStringExtra(Constant.CODED_CONTENT);
+                    Log.e(TAG, "onActivityResult: content = "+content);
                     book = JSON.parseObject(content, Book.class);
                     if(book != null){
                         BorrowBookActivity.this.returnBook(book.getId());
                     }
-                    Log.e(TAG, "onActivityResult: SCAN_RETURN = " + requestCode);
                     break;
                 default:
                     Log.e(TAG, "onActivityResult: requestCode = " + requestCode);
