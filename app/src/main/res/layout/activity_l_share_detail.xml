@@ -36,16 +36,30 @@
         app:layout_constraintTop_toTopOf="@+id/bookDetail_title" />
 
     <TextView
-        android:id="@+id/bookId"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="center"
+        android:id="@+id/tv_bookId"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:gravity="center_vertical|end"
         android:padding="5dp"
         android:text="@string/bookId"
+        app:layout_constraintBottom_toBottomOf="@+id/bookId"
+        app:layout_constraintEnd_toStartOf="@+id/bookId"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/bookId"
+        app:layout_constraintVertical_bias="0.5" />
+
+    <TextView
+        android:id="@+id/bookId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="start|center_vertical"
+        android:hint="@string/auto_fill_l_bookId"
+        android:padding="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_bookId"
         app:layout_constraintTop_toBottomOf="@+id/bookDetail_title"
         app:layout_constraintVertical_bias="0.0" />
 
@@ -67,7 +81,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintGuide_percent="0.5" />
+                app:layout_constraintGuide_begin="206dp" />
 
             <TextView
                 android:id="@+id/textView28"
@@ -178,12 +192,14 @@
                 app:layout_constraintTop_toBottomOf="@+id/bookLibrary"
                 app:layout_constraintVertical_bias="0.0" />
 
-            <TextView
+            <EditText
                 android:id="@+id/bookContact"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:background="#EDEACF"
                 android:gravity="center"
+                android:hint="@string/defaultBookContact"
+                android:inputType="textEmailAddress"
                 android:padding="5dp"
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="parent"

@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -28,11 +27,15 @@ import com.example.ul.adapter.ImagesAdapter;
 import com.example.ul.adapter.MySpinnerAdapter;
 import com.example.ul.adapter.MySpinnerBelongAdapter;
 import com.example.ul.callback.ImageAdapterItemListener;
+import com.example.ul.model.Book;
+import com.example.ul.model.Classification;
 import com.example.ul.model.UserInfo;
 import com.example.ul.util.ActivityManager;
 import com.example.ul.util.DialogUtil;
 import com.example.ul.util.HttpUtil;
 import com.example.ul.util.UserManager;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -40,15 +43,18 @@ import com.luck.picture.lib.entity.LocalMedia;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.math.BigDecimal;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -58,8 +64,8 @@ import okhttp3.Response;
  * @author luoweili
  */
 @SuppressLint("NonConstantResourceId")
-public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.MyCallback, ImageAdapterItemListener {
-    
+public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.MyCallback, ImageAdapterItemListener,
+        DialogUtil.DialogActionCallback{
     private static final String TAG = "LShareDetailActivity";
     /**未知请求错误*/
     private static final int UNKNOWN_REQUEST_ERROR = 1800;
@@ -96,7 +102,7 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
     private List<String> firsts = new ArrayList<>();
     private List<List<String>> thirds = new ArrayList<>();
     /**当前图书馆/图书类别/文献类型*/
-    private String first = "null", third = "null", type = "null";
+    private String first = null, third = null, typeName = null;
     @BindView(R.id.bookId)
     public TextView tId;
     @BindView(R.id.bookName)
@@ -106,7 +112,7 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
     @BindView(R.id.bookLibrary)
     public TextView tLibrary;
     @BindView(R.id.bookContact)
-    public TextView tBookContact;
+    public EditText tBookContact;
     @BindView(R.id.bookTheme)
     public EditText tTheme;
     @BindView(R.id.bookDescription)
@@ -131,7 +137,7 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
     public Button bDelete;
     private ImagesAdapter imagesAdapter;
     /**当前书本id*/
-    private int id = 0;
+    private int id = -1;
     /**token*/
     private String token;
     
@@ -153,47 +159,31 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
         imagesAdapter = new ImagesAdapter(this,token);
         recyclerView.setAdapter(imagesAdapter);
         // 传进来的id是否为0，若为0，则说明是添加新书，若不为空则说明是查看书本详情
-        id = this.getIntent().getIntExtra("id",0);
-        if(id == 0){
+        id = this.getIntent().getIntExtra("id",-1);
+        if(id == -1){
             bDelete.setVisibility(View.GONE);
         }else {
             // 删除书籍请求
             bDelete.setOnClickListener(v ->{
-                // 使用Map封装请求参数
-                HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put("id", String.valueOf(id));
-                String url = HttpUtil.BASE_URL + "book/deleteBookById";
-                url = HttpUtil.newUrl(url,hashMap);
-                HttpUtil.deleteRequest(token,url,this,DELETE_BOOK);
+                HashMap<String, Object> hashMap = new HashMap<>(4);
+                hashMap.put("requestCode",DELETE_BOOK);
+                DialogUtil.showDialog(LShareDetailActivity.this,"删除图书","删除图书可能会造成严重后果，您确定要继续吗？",this,hashMap);
             });
         }
         // 提交按钮绑定请求
         bSubmit.setOnClickListener(view -> {
-            // 使用Map封装请求参数
-            HashMap<String, String> hashMap = new HashMap<>();
-            hashMap.put("id",tId.getText().toString().trim());
-            hashMap.put("name",tName.getText().toString().trim());
-            hashMap.put("author",tAuthor.getText().toString().trim());
-            hashMap.put("library",tLibrary.getText().toString().trim());
-            hashMap.put("callNumber",tBookContact.getText().toString().trim());
-            hashMap.put("theme",tTheme.getText().toString().trim());
-            hashMap.put("desc",tDesc.getText().toString().trim());
-            hashMap.put("first",first);
-            hashMap.put("third",third);
-            hashMap.put("typeName",type);
-            hashMap.put("date",tShareDate.getText().toString().trim());
-            hashMap.put("price",tPrice.getText().toString().trim());
-            hashMap.put("hot",tHot.getText().toString().trim());
-            hashMap.put("state",tState.getText().toString().trim());
-            // 获取要提交的图片的全路径
-            ArrayList<String> tempList = this.imagesAdapter.getImagesPath();
-            if(id != 0){     // 绑定更新图书请求
-                String url = HttpUtil.BASE_URL + "book/updateBook";
-                HttpUtil.putRequest(token,url,hashMap,tempList,this,UPDATE_BOOK);
-            }else {             // 绑定添加图书请求
-                String url = HttpUtil.BASE_URL + "book/addBook";
-                HttpUtil.postRequest(token,url,hashMap,tempList,this,ADD_BOOK);
+            HashMap<String, Object> hashMap = new HashMap<>(4);
+            String title;
+            String message;
+            if(id != -1){
+                hashMap.put("requestCode",UPDATE_BOOK);
+                title = "更新图书";
+            }else {
+                hashMap.put("requestCode",ADD_BOOK);
+                title = "添加图书";
             }
+            message = "您确定继续吗？";
+            DialogUtil.showDialog(LShareDetailActivity.this,title,message,this,hashMap);
         });
     }
 
@@ -220,14 +210,14 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
     }
 
     private void fillSpinnerData() {
-        MySpinnerAdapter sAType = new MySpinnerAdapter(this,jsonArrayType);
-        spinnerType.setAdapter(sAType);
+        MySpinnerAdapter mySpinnerAdapter = new MySpinnerAdapter(this,jsonArrayType);
+        spinnerType.setAdapter(mySpinnerAdapter);
         MySpinnerBelongAdapter mySpinnerBelongAdapter = new MySpinnerBelongAdapter(this,firsts);
         spinnerFirst.setAdapter(mySpinnerBelongAdapter);
         spinnerType.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                type = (String) spinnerType.getItemAtPosition(i);
+                typeName = (String) spinnerType.getItemAtPosition(i);
             }
 
             @Override
@@ -261,7 +251,7 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
         spinnerType.setSelection(0,true);
         spinnerFirst.setSelection(0,true);
         spinnerThird.setSelection(0,true);
-        if(id != 0){
+        if(id != -1){
             // 发送查询书籍详情的请求
             HashMap<String, String> hashMap = new HashMap<>();
             hashMap.put("id", String.valueOf(id));
@@ -274,7 +264,7 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
 
     private void fillBookDetail() {
         this.id = this.jsonObjectBookDetail.getInteger("id");
-        String sId = "NO."+id;
+        String sId = String.valueOf(id);
         this.tId.setText(sId);
         this.tName.setText(this.jsonObjectBookDetail.getString("name"));
         this.tAuthor.setText(this.jsonObjectBookDetail.getString("author"));
@@ -341,7 +331,7 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        id = 0;
+        id = -1;
         ActivityManager.getInstance().removeActivity(this);
     }
 
@@ -422,6 +412,91 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
                 DialogUtil.showDialog(this,this.imagesAdapter,position);
             }else {
                 imagesAdapter.removeItem(position);
+            }
+        }
+    }
+
+    @Override
+    public void positiveAction(HashMap<String, Object> requestParam) {
+        Integer requestCode = (Integer) requestParam.get("requestCode");
+        if (requestCode == null) {
+            Toast.makeText(this,"请求码为空",Toast.LENGTH_SHORT).show();
+        } else {
+            if(requestCode == ADD_BOOK || requestCode == UPDATE_BOOK){
+                Book book = new Book();
+                book.setName(tName.getText().toString().trim());
+                book.setAuthor(tAuthor.getText().toString().trim());
+                book.setLibrary(tLibrary.getText().toString().trim());
+                book.setCallNumber(tBookContact.getText().toString().trim());
+                book.setTheme(tTheme.getText().toString().trim());
+                book.setDescription(tDesc.getText().toString().trim());
+                Classification classification = new Classification();
+                classification.setFirst(first);
+                classification.setThird(third);
+                book.setClassification(classification);
+                String dateString = tShareDate.getText().toString().trim();
+                SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                Date date;
+                try {
+                    date = sd.parse(dateString);
+                    book.setDate(date);
+                    String priceString = tPrice.getText().toString().trim();
+                    BigDecimal price = new BigDecimal(priceString);
+                    book.setPrice(price);
+                    book.setHot(Integer.valueOf(tHot.getText().toString().trim()));
+                    book.setState(tState.getText().toString().trim());
+                    if(requestCode == UPDATE_BOOK){
+                        book.setId(Integer.valueOf(tId.getText().toString().trim()));
+                    }
+                    // 使用Map封装请求参数
+                    HashMap<String, String> hashMap = new HashMap<>(2);
+                    ObjectMapper mapper = new ObjectMapper();
+                    String bookString;
+                    try {
+                        bookString = mapper.writeValueAsString(book);
+                        hashMap.put("bookString", bookString);
+                        hashMap.put("typeName", typeName);
+                        // 获取要提交的图片的全路径
+                        ArrayList<String> tempList = imagesAdapter.getImagesPath();
+                        if(requestCode == ADD_BOOK){
+                            // 绑定添加图书请求
+                            String url = HttpUtil.BASE_URL + "book/addBook";
+                            HttpUtil.postRequest(token,url,hashMap,tempList,this,ADD_BOOK);
+                        }else {
+                            // 绑定更新图书请求
+                            String url = HttpUtil.BASE_URL + "book/updateBook";
+                            HttpUtil.putRequest(token,url,hashMap,tempList,this,UPDATE_BOOK);
+                        }
+                    } catch (JsonProcessingException e) {
+                        Toast.makeText(this,"转化成Json字符串时异常",Toast.LENGTH_SHORT).show();
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    Toast.makeText(this,"时间格式不对",Toast.LENGTH_SHORT).show();
+                }
+            }else if(requestCode == DELETE_BOOK){
+                // 使用Map封装请求参数
+                HashMap<String, String> hashMap = new HashMap<>();
+                hashMap.put("id", String.valueOf(this.id));
+                String url = HttpUtil.BASE_URL + "book/deleteBookById";
+                url = HttpUtil.newUrl(url,hashMap);
+                HttpUtil.deleteRequest(token,url,this,DELETE_BOOK);
+            }else {
+                Toast.makeText(this,"未知操作",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    public void negativeAction(HashMap<String, Object> requestParam) {
+        Integer requestCode = (Integer) requestParam.get("requestCode");
+        if(requestCode == null){
+            Toast.makeText(this,"请求码为空",Toast.LENGTH_SHORT).show();
+        }else {
+            if(requestCode == ADD_BOOK || requestCode == UPDATE_BOOK || requestCode == DELETE_BOOK){
+                Toast.makeText(this,"您选择了取消",Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this,"未知动作",Toast.LENGTH_SHORT).show();
             }
         }
     }

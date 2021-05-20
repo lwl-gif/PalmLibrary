@@ -31,10 +31,10 @@ import java.util.ArrayList;
  */
 public class BookListAdapter extends RecyclerView.Adapter<BookViewHolder> {
     private final String TAG = "BookListAdapter";
-    private Context context;
+    private final Context context;
     /**访问服务器需携带的token*/
-    private String token;
-    private String baseUrl;
+    private final String token;
+    private final String baseUrl;
     /**数据源*/
     private ArrayList<Book> books;
     /**列表项单击事件回调接口*/

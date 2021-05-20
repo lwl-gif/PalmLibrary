@@ -60,13 +60,14 @@
     <string name="clickToSelect">点击检索</string>
 
     <!--                                          -->
-    <string name="auto_fill_l_bookId">书本号（id）系统自动生成</string>
+    <string name="auto_fill_l_bookId">系统生成</string>
     <string name="bookTitle">书本详情</string>
     <string name="bookHot">热度:</string>
     <string name="bookState">状态:</string>
     <string name="bookState1">状态</string>
     <string name="bookStateAutoFill">在馆</string>
     <string name="bookId">No.</string>
+    <string name="bookId_1">书本号</string>
     <string name="bookName">名称:</string>
     <string name="bookAuthor">作者:</string>
     <string name="bookIsbn">Isbn:</string>
@@ -81,7 +82,7 @@
     <string name="bookHouse">出版社:</string>
     <string name="bookDate">出版日期:</string>
     <string name="bookDateStandard">yyyy-MM-dd</string>
-    <string name="bookDateAutoFill">1970–01–01</string>
+    <string name="bookDateAutoFill">2021-01-01</string>
     <string name="bookPrice">定价(元):</string>
     <string name="chooseLibrary">请选择图书所属的书馆</string>
     <string name="chooseFirst">请选择图书的一级分类</string>
@@ -101,6 +102,7 @@
     <string name="endTime">预计还书:</string>
     <string name="days">逾期天数:</string>
     <string name="applicationLibrarianId">工号:</string>
+    <string name="defaultBookContact">默认为注册邮箱</string>
 
     <!--                                          -->
     <string name="basic_information">基本信息</string>
@@ -211,7 +213,7 @@
     <string name="readerAmountHint">请给他设置一个初始借阅量</string>
     <string name="readerCreditAutoFill">100</string>
     <string name="readerCreditHint">请给他设置一个初始信誉分</string>
-    <string name="readerTermHint">格式：1970–01–01</string>
+    <string name="readerTermHint">格式：2021-01-01</string>
     <string name="checkOk">审核通过</string>
     <string name="checkNo">审核不通过</string>
     <string name="whichLibrary">指定书馆：</string>
@@ -274,5 +276,6 @@
     <string name="payWay_huabeifenqi">花呗分期</string>
     <string name="payWay_huabeifenqi_ad">分期还，更轻松</string>
     <string name="payWay_huabeifenqi_suggest" />
+
 
 </resources>

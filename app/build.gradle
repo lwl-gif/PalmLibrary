@@ -30,6 +30,7 @@ android {
 
 dependencies {
     implementation 'com.jakewharton:butterknife:10.0.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
     implementation files('E:/Android/gradle/gradle_repository/caches/modules-2/files-2.1/com.alibaba/fastjson/1.2.75/81ea48dc54d150554983063f6a602ccce5d53e31/fastjson-1.2.75.jar')
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.0.0'
     // 图片选择器架包

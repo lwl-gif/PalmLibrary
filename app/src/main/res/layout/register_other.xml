@@ -3,6 +3,7 @@
     android:id="@+id/registerScrollViewOfOther"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:alpha="0.8"
     android:orientation="vertical">
     <!--身份证号-->
     <LinearLayout

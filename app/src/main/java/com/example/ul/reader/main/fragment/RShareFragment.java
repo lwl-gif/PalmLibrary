@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -84,10 +85,12 @@ public class RShareFragment extends Fragment implements HttpUtil.MyCallback, Cal
         // 获取当前界面视图
         View rootView = inflater.inflate(R.layout.share_manage, container, false);
         RecyclerView recyclerView = rootView.findViewById(R.id.shareBooks);
+        // 为RecyclerView设置布局管理器
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),LinearLayoutManager.VERTICAL,false));
         Button btnAdd = rootView.findViewById(R.id.btn_add);
         btnAdd.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), LShareDetailActivity.class);
-            intent.putExtra("id",0);
+            intent.putExtra("id",-1);
             startActivity(intent);
         });
         // 获取图片的基本url
@@ -110,7 +113,7 @@ public class RShareFragment extends Fragment implements HttpUtil.MyCallback, Cal
 
     private void fill(ArrayList<Book> books) {
         if(books == null || books.size() <= 0){
-            Toast.makeText(getActivity(),"无数据",Toast.LENGTH_SHORT).show();
+
         }else {
             adapter.setBooks(books);
         }
@@ -124,7 +127,7 @@ public class RShareFragment extends Fragment implements HttpUtil.MyCallback, Cal
 
     @Override
     public void bookListClickPosition(int position) {
-        Book book = (Book) adapter.getBooks().get(position);
+        Book book = adapter.getBooks().get(position);
         int id = book.getId();
         String library = book.getLibrary();
         // 返回id给activity

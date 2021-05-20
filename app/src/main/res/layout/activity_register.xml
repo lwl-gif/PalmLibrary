@@ -102,6 +102,7 @@
             android:layout_gravity="center"
             android:layout_margin="5dp"
             android:layout_weight="1"
+            android:alpha="0.8"
             android:background="@android:drawable/edit_text"
             android:gravity="center"
             android:inputType="number"

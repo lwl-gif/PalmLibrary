@@ -24,7 +24,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.example.ul.R;
-import com.example.ul.activity.ApplicationDetailActivity;
 import com.example.ul.activity.ShowPictureActivity;
 import com.example.ul.adapter.ImagesAdapter;
 
@@ -39,6 +38,8 @@ import com.example.ul.util.ActivityManager;
 import com.example.ul.util.DialogUtil;
 import com.example.ul.util.HttpUtil;
 import com.example.ul.util.UserManager;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luck.picture.lib.PictureSelector;
 import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -46,9 +47,11 @@ import com.luck.picture.lib.entity.LocalMedia;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.math.BigDecimal;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,7 +108,7 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
     private List<String> firsts = new ArrayList<>();
     private List<List<String>> thirds = new ArrayList<>();
     /**当前图书馆/图书类别/文献类型*/
-    private String library = "null", first = "null", third = "null", type = "null";
+    private String library = "null", first = "null", third = "null", typeName = "null";
     @BindView(R.id.l_bookDetail_title)
     public TextView tTitle;
     @BindView(R.id.l_bookId)
@@ -147,7 +150,6 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
     @BindView(R.id.l_bookDetail_submit)
     public Button btnSubmit;
 
-    private RecyclerView recyclerView;
     private ImagesAdapter imagesAdapter;
     private String token;
     /**当前书本id*/
@@ -164,7 +166,7 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         UserInfo userInfo = userManager.getUserInfo(this);
         token = userInfo.getToken();
         imagesAdapter = new ImagesAdapter(this,token);
-        recyclerView = findViewById(R.id.l_book_recyclerView);
+        RecyclerView recyclerView = findViewById(R.id.l_book_recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         recyclerView.setAdapter(imagesAdapter);
         recyclerView.setLayoutManager(gridLayoutManager);
@@ -195,12 +197,11 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
             if(id != -1){
                 hashMap.put("requestCode",UPDATE_BOOK);
                 title = "更新图书";
-                message = "您确定继续吗？";
             }else {
                 hashMap.put("requestCode",ADD_BOOK);
                 title = "添加图书";
-                message = "您确定继续吗？";
             }
+            message = "您确定继续吗？";
             DialogUtil.showDialog(LBookDetailActivity.this,title,message,this,hashMap);
         });
     }
@@ -214,6 +215,7 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
     }
 
     private void clear() {
+        id = -1;
         tName.setText(null);
         tAuthor.setText(null);
         tIsbn.setText(null);
@@ -258,7 +260,7 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         spinnerType.setOnItemSelectedListener(new Spinner.OnItemSelectedListener(){
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                type = (String) spinnerType.getItemAtPosition(i);
+                typeName = (String) spinnerType.getItemAtPosition(i);
             }
 
             @Override
@@ -469,6 +471,7 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
     protected void onDestroy() {
         super.onDestroy();
         id = -1;
+        token = null;
         ActivityManager.getInstance().removeActivity(this);
     }
 
@@ -479,35 +482,59 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
             Toast.makeText(this,"请求码为空",Toast.LENGTH_SHORT).show();
         } else {
             if(requestCode == ADD_BOOK || requestCode == UPDATE_BOOK){
-                // 使用Map封装请求参数
-                HashMap<String, String> hashMap = new HashMap<>();
-                hashMap.put("id",tId.getText().toString().trim());
-                hashMap.put("name",tName.getText().toString().trim());
-                hashMap.put("author",tAuthor.getText().toString().trim());
-                hashMap.put("isbn",tIsbn.getText().toString().trim());
-                hashMap.put("library",library);
-                hashMap.put("location",tLocation.getText().toString().trim());
-                hashMap.put("callNumber",tCallNumber.getText().toString().trim());
-                hashMap.put("theme",tTheme.getText().toString().trim());
-                hashMap.put("desc",tDesc.getText().toString().trim());
-                hashMap.put("first",first);
-                hashMap.put("third",third);
-                hashMap.put("typeName",type);
-                hashMap.put("house",tHouse.getText().toString().trim());
-                hashMap.put("date",tDate.getText().toString().trim());
-                hashMap.put("price",tPrice.getText().toString().trim());
-                hashMap.put("hot",tHot.getText().toString().trim());
-                hashMap.put("state",tState.getText().toString().trim());
-                // 获取要提交的图片的全路径
-                ArrayList<String> tempList = this.imagesAdapter.getImagesPath();
-                if(requestCode == ADD_BOOK){
-                    // 绑定添加图书请求
-                    String url = HttpUtil.BASE_URL + "book/addBook";
-                    HttpUtil.postRequest(token,url,hashMap,tempList,this,ADD_BOOK);
-                }else {
-                    // 绑定更新图书请求
-                    String url = HttpUtil.BASE_URL + "book/updateBook";
-                    HttpUtil.putRequest(token,url,hashMap,tempList,this,UPDATE_BOOK);
+                Book book = new Book();
+                book.setName(tName.getText().toString().trim());
+                book.setAuthor(tAuthor.getText().toString().trim());
+                book.setIsbn(tIsbn.getText().toString().trim());
+                book.setLibrary(library);
+                book.setLocation(tLocation.getText().toString().trim());
+                book.setCallNumber(tCallNumber.getText().toString().trim());
+                book.setTheme(tTheme.getText().toString().trim());
+                book.setDescription(tDesc.getText().toString().trim());
+                Classification classification = new Classification();
+                classification.setFirst(first);
+                classification.setThird(third);
+                book.setClassification(classification);
+                book.setHouse(tHouse.getText().toString().trim());
+                String dateString = tDate.getText().toString().trim();
+                SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd",Locale.getDefault());
+                Date date;
+                try {
+                    date = sd.parse(dateString);
+                    book.setDate(date);
+                    String priceString = tPrice.getText().toString().trim();
+                    BigDecimal price = new BigDecimal(priceString);
+                    book.setPrice(price);
+                    book.setHot(Integer.valueOf(tHot.getText().toString().trim()));
+                    book.setState(tState.getText().toString().trim());
+                    if(requestCode == UPDATE_BOOK){
+                        book.setId(Integer.valueOf(tId.getText().toString().trim()));
+                    }
+                    // 使用Map封装请求参数
+                    HashMap<String, String> hashMap = new HashMap<>(2);
+                    ObjectMapper mapper = new ObjectMapper();
+                    String bookString;
+                    try {
+                        bookString = mapper.writeValueAsString(book);
+                        hashMap.put("bookString", bookString);
+                        hashMap.put("typeName", typeName);
+                        // 获取要提交的图片的全路径
+                        ArrayList<String> tempList = this.imagesAdapter.getImagesPath();
+                        if(requestCode == ADD_BOOK){
+                            // 绑定添加图书请求
+                            String url = HttpUtil.BASE_URL + "book/addBook";
+                            HttpUtil.postRequest(token,url,hashMap,tempList,this,ADD_BOOK);
+                        }else {
+                            // 绑定更新图书请求
+                            book.setId(Integer.valueOf(tId.getText().toString().trim()));
+                            String url = HttpUtil.BASE_URL + "book/updateBook";
+                            HttpUtil.putRequest(token,url,hashMap,tempList,this,UPDATE_BOOK);
+                        }
+                    } catch (JsonProcessingException e) {
+                        Toast.makeText(this,"转化成Json字符串时异常",Toast.LENGTH_SHORT).show();
+                    }
+                } catch (ParseException e) {
+                    Toast.makeText(this,"时间格式不对",Toast.LENGTH_SHORT).show();
                 }
             }else if(requestCode == DELETE_BOOK){
                 // 使用Map封装请求参数

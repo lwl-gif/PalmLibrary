@@ -22,6 +22,7 @@ import com.example.ul.adapter.ImagesOnlyReadAdapter;
 import com.example.ul.callback.ImageAdapterItemListener;
 import com.example.ul.model.UserInfo;
 import com.example.ul.util.ActivityManager;
+import com.example.ul.util.DialogUtil;
 import com.example.ul.util.HttpUtil;
 import com.example.ul.util.UserManager;
 
@@ -106,7 +107,7 @@ public class RShareDetailActivity extends Activity implements HttpUtil.MyCallbac
         setContentView(R.layout.activity_r_share_detail);
         ButterKnife.bind(this);
         // 判断传进来的id是否为空
-        int id = this.getIntent().getIntExtra("id",0);
+        id = this.getIntent().getIntExtra("id",0);
         if(id == 0){
             Toast.makeText(this,"无法获取书本详情！",Toast.LENGTH_SHORT).show();
             ActivityManager.getInstance().removeActivity(this);
@@ -115,15 +116,15 @@ public class RShareDetailActivity extends Activity implements HttpUtil.MyCallbac
         bBack.setOnClickListener(v -> {
             RShareDetailActivity.this.finish();
         });
+        // 获取token
+        UserManager userManager = UserManager.getInstance();
+        UserInfo userInfo = userManager.getUserInfo(this);
+        token = userInfo.getToken();
         imagesOnlyReadAdapter = new ImagesOnlyReadAdapter(this,token);
         recyclerView = findViewById(R.id.recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         recyclerView.setAdapter(imagesOnlyReadAdapter);
         recyclerView.setLayoutManager(gridLayoutManager);
-        // 获取token
-        UserManager userManager = UserManager.getInstance();
-        UserInfo userInfo = userManager.getUserInfo(this);
-        token = userInfo.getToken();
     }
 
     @Override
@@ -139,10 +140,9 @@ public class RShareDetailActivity extends Activity implements HttpUtil.MyCallbac
 
     private void fillData() {
         id = jsonObjectBookDetail.getInteger("id");
-        String s = "No." + id;
-        tId.setText(s);
+        tId.setText(String.valueOf(id));
         tName.setText(jsonObjectBookDetail.getString("name"));
-        tAuthor.setText(jsonObjectBookDetail.getString("isbn"));
+        tAuthor.setText(jsonObjectBookDetail.getString("author"));
         tLibrary.setText(jsonObjectBookDetail.getString("library"));
         tBookContact.setText(jsonObjectBookDetail.getString("callNumber"));
         tTheme.setText(jsonObjectBookDetail.getString("theme"));
@@ -195,8 +195,9 @@ public class RShareDetailActivity extends Activity implements HttpUtil.MyCallbac
 
     @Override
     protected void onDestroy() {
-        ActivityManager.getInstance().removeActivity(this);
         super.onDestroy();
+        ActivityManager.getInstance().removeActivity(this);
+        id = -1;
     }
 
     static class MyHandler extends Handler {
@@ -207,12 +208,14 @@ public class RShareDetailActivity extends Activity implements HttpUtil.MyCallbac
         @Override
         public void handleMessage(Message msg){
             int what = msg.what;
+            Bundle bundle = msg.getData();
             RShareDetailActivity myActivity = rShareDetailActivity.get();
             if (what == UNKNOWN_REQUEST_ERROR || what == REQUEST_FAIL) {
-                Bundle bundle = msg.getData();
                 Toast.makeText(myActivity, bundle.getString("reason"), Toast.LENGTH_SHORT).show();
-            } else if (what == GET_BOOK_DETAIL) {
+            } else if (what == GET_BOOK_DETAIL_FILL) {
                 myActivity.fillData();
+            } else {
+                DialogUtil.showDialog(myActivity,TAG,bundle,what == REQUEST_INTERCEPTED);
             }
         }
     }

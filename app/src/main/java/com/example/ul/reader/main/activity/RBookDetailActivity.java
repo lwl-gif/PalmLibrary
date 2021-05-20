@@ -24,21 +24,28 @@ import com.example.ul.R;
 import com.example.ul.activity.ShowPictureActivity;
 import com.example.ul.adapter.ImagesOnlyReadAdapter;
 import com.example.ul.callback.ImageAdapterItemListener;
+import com.example.ul.model.Book;
+import com.example.ul.model.Classification;
 import com.example.ul.model.UserInfo;
 import com.example.ul.util.ActivityManager;
 import com.example.ul.util.DialogUtil;
 import com.example.ul.util.HttpUtil;
 import com.example.ul.util.UserManager;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.math.BigDecimal;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -50,7 +57,7 @@ import okhttp3.Response;
  * @Modified By:
  */
 @SuppressLint("NonConstantResourceId")
-public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback, ImageAdapterItemListener {
+public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback, ImageAdapterItemListener{
 
     private static final String TAG = "RBookDetailActivity";
     /**未知请求*/
