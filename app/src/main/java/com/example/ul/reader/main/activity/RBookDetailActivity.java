@@ -20,10 +20,12 @@ import android.widget.Toast;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.bumptech.glide.Glide;
 import com.example.ul.R;
 import com.example.ul.activity.ShowPictureActivity;
 import com.example.ul.adapter.ImagesOnlyReadAdapter;
 import com.example.ul.callback.ImageAdapterItemListener;
+import com.example.ul.librarian.main.activity.LReaderDetailActivity;
 import com.example.ul.model.Book;
 import com.example.ul.model.Classification;
 import com.example.ul.model.UserInfo;
@@ -240,6 +242,10 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
         super.onDestroy();
         id = -1;
         ActivityManager.getInstance().removeActivity(this);
+        new Thread(() -> {
+            Glide.get(RBookDetailActivity.this).clearDiskCache();
+        }).start();
+        Glide.get(RBookDetailActivity.this).clearMemory();
     }
 
     static class MyHandler extends Handler {

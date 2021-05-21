@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.ul.R;
 
 import com.example.ul.activity.ShowPictureActivity;
@@ -435,6 +436,10 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
         super.onDestroy();
         ActivityManager.getInstance().removeActivity(this);
         readerId = null;
+        new Thread(() -> {
+            Glide.get(LReaderDetailActivity.this).clearDiskCache();
+        }).start();
+        Glide.get(LReaderDetailActivity.this).clearMemory();
     }
     /**
      * @Author:Wallace

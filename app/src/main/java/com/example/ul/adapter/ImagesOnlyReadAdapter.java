@@ -130,37 +130,44 @@ public class ImagesOnlyReadAdapter extends RecyclerView.Adapter<ImageViewHolder>
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, final int position) {
-        String url = this.imageNameUrlList.get(position);
-        final GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
-                .addHeader("Authorization", this.token)
-                .build());
-        Glide.with(context)
-                .applyDefaultRequestOptions(requestOptions)
-                .load(glideUrl)
-                .listener(new RequestListener<Drawable>() {
-                    @Override
-                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                        if (ImagesOnlyReadAdapter.this.imagesPath.get(holder.getLayoutPosition()) == null) {
-                            FutureTask<String> task = new FutureTask<>(() ->
-                                    HttpUtil.getImgCachePath(context, glideUrl));
-                            //提交任务
-                            HttpUtil.threadPool.submit(task);
-                            try {
-                                String imagePath = task.get(10, TimeUnit.SECONDS);
-                                ImagesOnlyReadAdapter.this.imagesPath.set(holder.getLayoutPosition(), imagePath);
-                            } catch (ExecutionException | InterruptedException | TimeoutException e) {
-                                ImagesOnlyReadAdapter.this.imagesPath.set(holder.getLayoutPosition(), null);
-                            }
+        String p = this.imagesPath.get(position);
+        if(p == null){
+            String url = this.imageNameUrlList.get(position);
+            final GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
+                    .addHeader("Authorization", this.token)
+                    .build());
+            Glide.with(context)
+                    .applyDefaultRequestOptions(requestOptions)
+                    .load(glideUrl)
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                            return false;
                         }
-                        return false;
-                    }
-                })
-                .into(holder.imageBtn);
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                            if (ImagesOnlyReadAdapter.this.imagesPath.get(holder.getLayoutPosition()) == null) {
+                                FutureTask<String> task = new FutureTask<>(() ->
+                                        HttpUtil.getImgCachePath(context, glideUrl));
+                                //提交任务
+                                HttpUtil.threadPool.submit(task);
+                                try {
+                                    String imagePath = task.get(2, TimeUnit.SECONDS);
+                                    ImagesOnlyReadAdapter.this.imagesPath.set(holder.getLayoutPosition(), imagePath);
+                                } catch (ExecutionException | InterruptedException | TimeoutException e) {
+                                    ImagesOnlyReadAdapter.this.imagesPath.set(holder.getLayoutPosition(), null);
+                                }
+                            }
+                            return false;
+                        }
+                    })
+                    .into(holder.imageBtn);
+        }else {
+            Glide.with(context)
+                    .load(p)
+                    .into(holder.imageBtn);
+        }
         //因为是只读，因此只显示图片（imageButton）,只绑定单击事件
         holder.imageDel.setVisibility(View.GONE);
         holder.imageBtn.setOnClickListener(view -> {

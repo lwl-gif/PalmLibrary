@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.bumptech.glide.Glide;
 import com.example.ul.R;
 import com.example.ul.activity.ShowPictureActivity;
 import com.example.ul.adapter.ImagesAdapter;
@@ -34,6 +35,7 @@ import com.example.ul.model.Book;
 import com.example.ul.model.Classification;
 
 import com.example.ul.model.UserInfo;
+import com.example.ul.reader.main.activity.RReaderDetailActivity;
 import com.example.ul.util.ActivityManager;
 import com.example.ul.util.DialogUtil;
 import com.example.ul.util.HttpUtil;
@@ -150,6 +152,7 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
     @BindView(R.id.l_bookDetail_submit)
     public Button btnSubmit;
 
+    private RecyclerView recyclerView;
     private ImagesAdapter imagesAdapter;
     private String token;
     /**当前书本id*/
@@ -166,10 +169,10 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         UserInfo userInfo = userManager.getUserInfo(this);
         token = userInfo.getToken();
         imagesAdapter = new ImagesAdapter(this,token);
-        RecyclerView recyclerView = findViewById(R.id.l_book_recyclerView);
+        recyclerView = findViewById(R.id.l_book_recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
-        recyclerView.setAdapter(imagesAdapter);
         recyclerView.setLayoutManager(gridLayoutManager);
+        recyclerView.setAdapter(imagesAdapter);
         ivBack.setOnClickListener(view -> LBookDetailActivity.this.finish());
         // 判断传进来的id是否为空，若为空，则说明是添加新书，若不为空则说明是查看书本详情
         id = this.getIntent().getIntExtra("id",-1);
@@ -204,11 +207,6 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
             message = "您确定继续吗？";
             DialogUtil.showDialog(LBookDetailActivity.this,title,message,this,hashMap);
         });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         // 先发送获取分类的请求
         String url = HttpUtil.BASE_URL + "book/getDetailType";
         HttpUtil.getRequest(token,url,this,GET_TYPE);
@@ -450,6 +448,8 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         if (resultCode == RESULT_OK) {
             if (requestCode == PictureConfig.CHOOSE_REQUEST) {
                 imagesAdapter.setSelectList((ArrayList<LocalMedia>) PictureSelector.obtainMultipleResult(data));
+            } else {
+                imagesAdapter.setSelectList(new ArrayList<>());
             }
         }
     }
@@ -473,6 +473,10 @@ public class LBookDetailActivity extends Activity implements HttpUtil.MyCallback
         id = -1;
         token = null;
         ActivityManager.getInstance().removeActivity(this);
+        new Thread(() -> {
+            Glide.get(LBookDetailActivity.this).clearDiskCache();
+        }).start();
+        Glide.get(LBookDetailActivity.this).clearMemory();
     }
 
     @Override

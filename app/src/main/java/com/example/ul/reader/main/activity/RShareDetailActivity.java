@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.bumptech.glide.Glide;
 import com.example.ul.R;
 import com.example.ul.activity.ShowPictureActivity;
 import com.example.ul.adapter.ImagesOnlyReadAdapter;
@@ -123,8 +124,8 @@ public class RShareDetailActivity extends Activity implements HttpUtil.MyCallbac
         imagesOnlyReadAdapter = new ImagesOnlyReadAdapter(this,token);
         recyclerView = findViewById(R.id.recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
-        recyclerView.setAdapter(imagesOnlyReadAdapter);
         recyclerView.setLayoutManager(gridLayoutManager);
+        recyclerView.setAdapter(imagesOnlyReadAdapter);
     }
 
     @Override
@@ -198,6 +199,10 @@ public class RShareDetailActivity extends Activity implements HttpUtil.MyCallbac
         super.onDestroy();
         ActivityManager.getInstance().removeActivity(this);
         id = -1;
+        new Thread(() -> {
+            Glide.get(RShareDetailActivity.this).clearDiskCache();
+        }).start();
+        Glide.get(RShareDetailActivity.this).clearMemory();
     }
 
     static class MyHandler extends Handler {

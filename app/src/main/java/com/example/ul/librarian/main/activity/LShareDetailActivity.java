@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.bumptech.glide.Glide;
 import com.example.ul.R;
 import com.example.ul.activity.ShowPictureActivity;
 import com.example.ul.adapter.ImagesAdapter;
@@ -140,7 +141,8 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
     private int id = -1;
     /**token*/
     private String token;
-    
+    private RecyclerView recyclerView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,7 +155,7 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
         token = userInfo.getToken();
         ImageView imageView = findViewById(R.id.iv_back);
         imageView.setOnClickListener(v -> LShareDetailActivity.this.finish());
-        RecyclerView recyclerView = findViewById(R.id.recyclerView);
+        recyclerView = findViewById(R.id.recyclerView);
         GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3);
         recyclerView.setLayoutManager(gridLayoutManager);
         imagesAdapter = new ImagesAdapter(this,token);
@@ -185,11 +187,6 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
             message = "您确定继续吗？";
             DialogUtil.showDialog(LShareDetailActivity.this,title,message,this,hashMap);
         });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         // 先发送获取分类的请求
         String getTypeUrl = HttpUtil.BASE_URL + "book/getDetailType";
         HttpUtil.getRequest(token,getTypeUrl,this,GET_TYPE);
@@ -333,6 +330,10 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
         super.onDestroy();
         id = -1;
         ActivityManager.getInstance().removeActivity(this);
+        new Thread(() -> {
+            Glide.get(LShareDetailActivity.this).clearDiskCache();
+        }).start();
+        Glide.get(LShareDetailActivity.this).clearMemory();
     }
 
     @Override
@@ -399,6 +400,8 @@ public class LShareDetailActivity extends AppCompatActivity implements HttpUtil.
             // 结果回调
             if (requestCode == PictureConfig.CHOOSE_REQUEST) {
                 imagesAdapter.setSelectList((ArrayList<LocalMedia>) PictureSelector.obtainMultipleResult(data));
+            } else {
+                imagesAdapter.setSelectList(new ArrayList<>());
             }
         }
     }

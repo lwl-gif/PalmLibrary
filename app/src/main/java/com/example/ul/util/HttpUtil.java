@@ -474,9 +474,10 @@ public class HttpUtil {
                     .downloadOnly()
                     .load(glideUrl)
                     .submit();
-            File file = target.get(8, TimeUnit.SECONDS);
+            File file = target.get(2, TimeUnit.SECONDS);
             return file.getAbsolutePath();
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
+            e.printStackTrace();
             return null;
         }
     }

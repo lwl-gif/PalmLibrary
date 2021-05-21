@@ -21,10 +21,12 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.ul.R;
 import com.example.ul.activity.ShowPictureActivity;
 import com.example.ul.adapter.ImagesAdapter;
 import com.example.ul.callback.ImageAdapterItemListener;
+import com.example.ul.librarian.main.activity.LShareDetailActivity;
 import com.example.ul.model.UserInfo;
 import com.example.ul.util.ActivityManager;
 import com.example.ul.util.DialogUtil;
@@ -49,6 +51,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -374,7 +377,7 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 rdPermission.setText(permissionName);
                 long l = Long.parseLong(t);
                 Date date = new Date(l);
-                @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 String term = format.format(date);
                 rdTerm.setText(term);
                 // 改变列表的值
@@ -571,6 +574,10 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
     protected void onDestroy() {
         super.onDestroy();
         ActivityManager.getInstance().removeActivity(this);
+        new Thread(() -> {
+            Glide.get(RReaderDetailActivity.this).clearDiskCache();
+        }).start();
+        Glide.get(RReaderDetailActivity.this).clearMemory();
     }
     /**
      * @Author: Wallace
@@ -643,13 +650,10 @@ public class RReaderDetailActivity extends Activity implements HttpUtil.MyCallba
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            switch (requestCode) {
-                case PictureConfig.CHOOSE_REQUEST:
-                    // 结果回调
-                    imagesAdapter.setSelectList((ArrayList<LocalMedia>) PictureSelector.obtainMultipleResult(data));
-                    break;
-                default:
-                    imagesAdapter.setSelectList(new ArrayList<>());
+            if (requestCode == PictureConfig.CHOOSE_REQUEST) {
+                imagesAdapter.setSelectList((ArrayList<LocalMedia>) PictureSelector.obtainMultipleResult(data));
+            } else {
+                imagesAdapter.setSelectList(new ArrayList<>());
             }
         }
     }

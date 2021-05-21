@@ -193,35 +193,43 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter {
         RequestBuilder<Drawable> requestBuilder;
         // 加载网络图片
         if(position < this.imageNameUrlList.size()) {
-            final GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
-                    .addHeader("Authorization", this.token)
-                    .build());
-            requestBuilder = requestManager.load(glideUrl);
-            requestBuilder.listener(new RequestListener<Drawable>() {
-                @Override
-                public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
-                    return false;
-                }
-
-                @Override
-                public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
-                    if (ImagesAdapter.this.imagesPath.get(holder.getLayoutPosition()) == null) {
-                        FutureTask<String> task = new FutureTask<>(() ->
-                                HttpUtil.getImgCachePath(context, glideUrl));
-                        // 提交任务
-                        HttpUtil.threadPool.submit(task);
-                        try {
-                            String imagePath = task.get(10, TimeUnit.SECONDS);
-                            ImagesAdapter.this.imagesPath.set(holder.getLayoutPosition(), imagePath);
-                        } catch (ExecutionException | InterruptedException | TimeoutException e) {
-                            e.printStackTrace();
-                            ImagesAdapter.this.imagesPath.set(holder.getLayoutPosition(), null);
-                        }
+            String p = this.imagesPath.get(position);
+            if(p == null){
+                final GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
+                        .addHeader("Authorization", this.token)
+                        .build());
+                requestBuilder = requestManager.load(glideUrl);
+                requestBuilder.listener(new RequestListener<Drawable>() {
+                    @Override
+                    public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                        return false;
                     }
-                    return false;
-                }
-            })
-                    .into(holder.imageBtn);
+
+                    @Override
+                    public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                        if (ImagesAdapter.this.imagesPath.get(holder.getLayoutPosition()) == null) {
+                            FutureTask<String> task = new FutureTask<>(() ->
+                                    HttpUtil.getImgCachePath(context, glideUrl));
+                            // 提交任务
+                            HttpUtil.threadPool.submit(task);
+
+                            try {
+                                String imagePath = task.get(2, TimeUnit.SECONDS);
+                                ImagesAdapter.this.imagesPath.set(holder.getLayoutPosition(), imagePath);
+                            } catch (ExecutionException | InterruptedException | TimeoutException e) {
+                                e.printStackTrace();
+                                ImagesAdapter.this.imagesPath.set(holder.getLayoutPosition(), null);
+                            }
+                        }
+                        return false;
+                    }
+                })
+                        .into(holder.imageBtn);
+            }else {
+                requestBuilder = requestManager.load(p);
+                requestBuilder.into(holder.imageBtn);
+            }
+
         }
         // 加载本地图片
         else {

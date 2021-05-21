@@ -37,7 +37,7 @@
 
     <ScrollView
         android:id="@+id/scrollView"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/l_bookDetail_submit"
         app:layout_constraintEnd_toEndOf="parent"
@@ -582,15 +582,23 @@
                 app:layout_constraintStart_toEndOf="@+id/textView52"
                 app:layout_constraintTop_toTopOf="@+id/textView52" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/l_book_recyclerView"
+            <ScrollView
+                android:id="@+id/scrollView2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/border_body_all"
+                android:scrollbars="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/l_bookHot" />
+                app:layout_constraintTop_toBottomOf="@+id/l_bookHot"
+                app:layout_constraintVertical_bias="0.0">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/l_book_recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </ScrollView>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
