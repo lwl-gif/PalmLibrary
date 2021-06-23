@@ -138,9 +138,7 @@ public class RBorrowFragment extends Fragment implements CompoundButton.OnChecke
         MySearchView mySearchView = rootView.findViewById(R.id.mySearchView);
         mySearchView.setSearchCallback(this);
         TextView textView = rootView.findViewById(R.id.textSelect);
-        textView.setOnClickListener(view -> {
-            query();
-        });
+        textView.setOnClickListener(view -> query());
         // 复选框——当前借阅\当前预约\过期记录
         CheckBox checkBox1 = rootView.findViewById(R.id.checkBox1);
         checkBox1.setOnCheckedChangeListener(this);
@@ -214,7 +212,7 @@ public class RBorrowFragment extends Fragment implements CompoundButton.OnChecke
 
     private void fillData() {
         if((jsonArray == null)||(jsonArray.size() <= 0)){
-            Toast.makeText(getActivity(),"未获取到数据！",Toast.LENGTH_LONG).show();
+//            Toast.makeText(getActivity(),"无数据！",Toast.LENGTH_LONG).show();
         }else{
             if(box1){
                 recyclerViewBorrow.setVisibility(View.VISIBLE);
@@ -283,7 +281,7 @@ public class RBorrowFragment extends Fragment implements CompoundButton.OnChecke
     @Override
     public void borrowListToAbandon(int i) {
         // 要挂失的记录id
-        JSONArray temp = adapterBorrow.getJsonArray();
+        JSONArray temp = adapterReserve.getJsonArray();
         Integer bookId = temp.getJSONObject(i).getInteger("id");
         String bookName = temp.getJSONObject(i).getString("name");
         String msg = "确定放弃本次预约？（id:"+bookId+",书名:"+bookName+"）";

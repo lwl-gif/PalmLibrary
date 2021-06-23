@@ -143,39 +143,6 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
     private String token;
     MyHandler myHandler = new MyHandler(new WeakReference(this));
 
-    static class MyHandler extends Handler {
-        private WeakReference<LReaderDetailActivity> lReaderDetailActivity;
-
-        public MyHandler(WeakReference<LReaderDetailActivity> lReaderDetailActivity) {
-            this.lReaderDetailActivity = lReaderDetailActivity;
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            int what = msg.what;
-            LReaderDetailActivity myActivity = lReaderDetailActivity.get();
-            if (what == UNKNOWN_REQUEST_ERROR || what == REQUEST_FAIL) {
-                Bundle bundle = msg.getData();
-                Toast.makeText(myActivity, bundle.getString("reason"), Toast.LENGTH_SHORT).show();
-            }else if (what == REQUEST_BUT_FAIL_READ_DATA) {
-                Toast.makeText(myActivity, "子线程解析数据异常！", Toast.LENGTH_SHORT).show();
-            }else if (what == GET_READER_DETAIL_SUCCEED){
-                myActivity.fillData();
-            }else if(what == PERMISSION_LEVEL) {
-                Toast.makeText(myActivity, "权限级别查询成功！", Toast.LENGTH_SHORT).show();
-                myActivity.binding();
-            }else if(what == CHECK_OK || what == CHECK_NO){
-                Bundle bundle = msg.getData();
-                String message = bundle.getString("message");
-                if("处理成功！".equals(message)){
-                    Toast.makeText(myActivity, message, Toast.LENGTH_SHORT).show();
-                }else {
-                    DialogUtil.showDialog(myActivity,TAG,bundle,false);
-                }
-            }
-        }
-    }
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -504,6 +471,44 @@ public class LReaderDetailActivity extends Activity implements HttpUtil.MyCallba
                 Toast.makeText(this,"您选择了取消",Toast.LENGTH_SHORT).show();
             } else {
                 Toast.makeText(this,"未知动作",Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    static class MyHandler extends Handler {
+        private WeakReference<LReaderDetailActivity> lReaderDetailActivity;
+
+        public MyHandler(WeakReference<LReaderDetailActivity> lReaderDetailActivity) {
+            this.lReaderDetailActivity = lReaderDetailActivity;
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            int what = msg.what;
+            LReaderDetailActivity myActivity = lReaderDetailActivity.get();
+            if (what == UNKNOWN_REQUEST_ERROR || what == REQUEST_FAIL) {
+                Bundle bundle = msg.getData();
+                Toast.makeText(myActivity, bundle.getString("reason"), Toast.LENGTH_SHORT).show();
+            }else if (what == REQUEST_BUT_FAIL_READ_DATA) {
+                Toast.makeText(myActivity, "子线程解析数据异常！", Toast.LENGTH_SHORT).show();
+            }else if (what == GET_READER_DETAIL_SUCCEED){
+                myActivity.fillData();
+            }else if(what == PERMISSION_LEVEL) {
+                Toast.makeText(myActivity, "权限级别查询成功！", Toast.LENGTH_SHORT).show();
+                myActivity.binding();
+            }else if(what == CHECK_OK || what == CHECK_NO){
+                Bundle bundle = msg.getData();
+                String message = bundle.getString("message");
+                if("处理成功！".equals(message)){
+                    Toast.makeText(myActivity, message, Toast.LENGTH_SHORT).show();
+                }else {
+                    DialogUtil.showDialog(myActivity,TAG,bundle,false);
+                }
+            }else if(what == CLOSE_ACCOUNT){
+                Bundle bundle = msg.getData();
+                DialogUtil.showDialog(myActivity,TAG,bundle,false);
+            }else {
+                Toast.makeText(myActivity, "未知操作", Toast.LENGTH_SHORT).show();
             }
         }
     }

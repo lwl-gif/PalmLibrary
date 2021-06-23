@@ -3,7 +3,6 @@ package com.example.ul.model;
 /**
  * 用户信息model
  */
-
 public class UserInfo {
 
     private String userName;
@@ -47,4 +46,3 @@ public class UserInfo {
     }
 
 }
-

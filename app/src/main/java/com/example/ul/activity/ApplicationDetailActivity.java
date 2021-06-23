@@ -18,7 +18,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.example.ul.R;
 import com.example.ul.model.Application;
 import com.example.ul.model.UserInfo;
-import com.example.ul.pay.PayDemoActivity;
+import com.example.ul.pay.PayActivity;
 import com.example.ul.util.ActivityManager;
 import com.example.ul.util.DialogUtil;
 import com.example.ul.util.HttpUtil;
@@ -261,7 +261,7 @@ public class ApplicationDetailActivity extends Activity implements HttpUtil.MyCa
                 HttpUtil.deleteRequest(token,url,this,DELETE_APPLICATION_DETAIL);
             }else if(requestCode == GO_TO_PAY){
                 // 进入缴费页面
-                Intent intent = new Intent(ApplicationDetailActivity.this,PayDemoActivity.class);
+                Intent intent = new Intent(ApplicationDetailActivity.this, PayActivity.class);
                 intent.putExtra("id",id);
                 startActivity(intent);
                 finish();

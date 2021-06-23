@@ -56,7 +56,7 @@ public class ImagesOnlyReadAdapter extends RecyclerView.Adapter<ImageViewHolder>
      */
     protected ArrayList<String> imagesPath;
     protected ImageAdapterItemListener imageAdapterItemListener;
-    protected final RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.placeholder0).centerCrop().error(R.mipmap.error0);
+    protected final RequestOptions requestOptions = new RequestOptions().placeholder(R.drawable.progress01).centerCrop().error(R.mipmap.error0);
 
     public ImagesOnlyReadAdapter(Context context, String token) {
         init(context);
@@ -132,6 +132,7 @@ public class ImagesOnlyReadAdapter extends RecyclerView.Adapter<ImageViewHolder>
     public void onBindViewHolder(@NonNull ImageViewHolder holder, final int position) {
         String p = this.imagesPath.get(position);
         if(p == null){
+            //开始加载图片
             String url = this.imageNameUrlList.get(position);
             final GlideUrl glideUrl = new GlideUrl(url, new LazyHeaders.Builder()
                     .addHeader("Authorization", this.token)
@@ -173,7 +174,6 @@ public class ImagesOnlyReadAdapter extends RecyclerView.Adapter<ImageViewHolder>
         holder.imageBtn.setOnClickListener(view -> {
             imageAdapterItemListener.onClickToShow(holder.getLayoutPosition());
         });
-
     }
 
     @Override

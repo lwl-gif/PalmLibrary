@@ -1,6 +1,5 @@
 package com.example.ul.adapter;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
@@ -21,7 +20,6 @@ import com.example.ul.R;
 import com.example.ul.callback.CallbackToBorrowBookActivity;
 import com.example.ul.model.Book;
 import com.example.ul.util.DialogUtil;
-import com.example.ul.view.ItemSlideHelper;
 
 import org.jetbrains.annotations.NotNull;
 

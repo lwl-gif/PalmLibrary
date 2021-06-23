@@ -2,6 +2,7 @@ package com.example.ul.adapter;
 
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -14,8 +15,6 @@ import com.example.ul.R;
  * @Modified: By yyyy-MM-dd
  */
 public class ImageViewHolder extends RecyclerView.ViewHolder {
-
-    private static final String TAG = "ImageViewHolder";
 
     public ImageButton imageBtn;
     public ImageButton imageDel;

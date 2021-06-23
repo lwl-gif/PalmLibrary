@@ -229,7 +229,6 @@ public class ImagesAdapter extends ImagesOnlyReadAdapter {
                 requestBuilder = requestManager.load(p);
                 requestBuilder.into(holder.imageBtn);
             }
-
         }
         // 加载本地图片
         else {

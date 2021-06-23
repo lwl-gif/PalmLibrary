@@ -40,7 +40,7 @@ public class MySearchView extends LinearLayout{
     private RecordSQLiteOpenHelper helper ;
     private SQLiteDatabase db;
     /**ListView列表 & 适配器*/
-    private Search_ListView listView;
+    private SearchListView listView;
     private BaseAdapter adapter;
     /**上下文*/
     private Context context;
@@ -82,20 +82,20 @@ public class MySearchView extends LinearLayout{
         LayoutInflater inflater=(LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rootView = inflater.inflate(R.layout.search_layout,this,true);
         // 2. 绑定搜索框EditText
-        et_search = (SearchView)rootView.findViewById(R.id.et_search);
+        et_search = rootView.findViewById(R.id.et_search);
         et_search.setQueryHint("输入关键字搜索");
         //历史搜索记录
-        listView = (Search_ListView) rootView.findViewById(R.id.listView);
+        listView = rootView.findViewById(R.id.listView);
          // 搜索记录列表（ListView）监听,即当用户点击搜索历史里的字段后,会直接将结果当作搜索字段进行搜索
         listView.setOnItemClickListener((AdapterView.OnItemClickListener) (parent, view, position, id) -> {
             // 获取用户点击列表里的文字,并自动填充到搜索框内
-            TextView textView = (TextView) view.findViewById(android.R.id.text1);
+            TextView textView = view.findViewById(android.R.id.text1);
             String name = textView.getText().toString();
             et_search.setQuery(name,true);
             Toast.makeText(context, name, Toast.LENGTH_SHORT).show();
         });
         // 5. 删除历史搜索记录 按钮
-        btn_clear = (Button) rootView.findViewById(R.id.tv_clear);
+        btn_clear = rootView.findViewById(R.id.tv_clear);
         // 初始状态 = 隐藏
         btn_clear.setVisibility(GONE);
         btn_clear.setOnClickListener(view -> {

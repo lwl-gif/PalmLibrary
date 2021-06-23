@@ -62,7 +62,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".myscan.android.CaptureActivity" />
-        <activity android:name=".pay.PayDemoActivity" />
+        <activity android:name=".pay.PayActivity" />
         <activity
             android:name=".pay.H5PayDemoActivity"
             android:configChanges="orientation|keyboardHidden|navigation"

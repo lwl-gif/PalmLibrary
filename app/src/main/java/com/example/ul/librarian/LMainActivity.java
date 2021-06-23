@@ -88,6 +88,11 @@ public class LMainActivity extends AppCompatActivity implements CallbackToMainAc
                 intent = new Intent(this, LBookDetailActivity.class);
                 startActivity(intent);
                 return true;
+            case R.id.menu_AddApplication:
+                // 打开罚单详情活动
+                intent = new Intent(this, ApplicationDetailActivity.class);
+                startActivity(intent);
+                return true;
             case R.id.menu_Scan:
                 // 打开扫码活动
                 if (!initPermission()) {

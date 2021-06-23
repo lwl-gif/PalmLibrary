@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import android.os.Handler;
+import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -43,6 +45,7 @@ import androidx.core.content.PermissionChecker;
 import androidx.viewpager.widget.ViewPager;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -57,8 +60,18 @@ public class RMainActivity extends AppCompatActivity implements CallbackToMainAc
     private static final String TAG = "RMainActivity";
     /**扫码请求码*/
     private final int REQUEST_CODE_SCAN = 1001;
+    /**未知请求*/
+    private static final int UNKNOWN_REQUEST_ERROR = 2100;
+    /**请求失败*/
+    private static final int REQUEST_FAIL = 21000;
+    /**请求被服务器拦截，请求失败*/
+    private static final int REQUEST_INTERCEPTED = 21001;
     /**转借(入)*/
     private static final int LENT_BOOK = 2101;
+    private static final int LENT_BOOK_OK = 21011;
+    private static final int LENT_BOOK_FAIL = 21010;
+
+    RMainActivityPagerAdapter rMainActivityPagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +80,7 @@ public class RMainActivity extends AppCompatActivity implements CallbackToMainAc
         setContentView(R.layout.activity_r_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        RMainActivityPagerAdapter rMainActivityPagerAdapter = new RMainActivityPagerAdapter(this, getSupportFragmentManager());
+        rMainActivityPagerAdapter = new RMainActivityPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.r_main_activity_view_pager);
         viewPager.setAdapter(rMainActivityPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
@@ -143,7 +156,7 @@ public class RMainActivity extends AppCompatActivity implements CallbackToMainAc
         // 需要在Android里面找到你要开的权限
         String permissions = Manifest.permission.CAMERA;
         boolean ret = false;
-        // Android 6.0以上才有动态权限
+        // Android 21.0以上才有动态权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // permission granted 说明权限开了
             ret = PermissionChecker.checkSelfPermission(RMainActivity.this, permissions) == PermissionChecker.PERMISSION_GRANTED;
@@ -197,8 +210,8 @@ public class RMainActivity extends AppCompatActivity implements CallbackToMainAc
 
     @Override
     protected void onDestroy() {
-        ActivityManager.getInstance().removeActivity(this);
         super.onDestroy();
+        ActivityManager.getInstance().removeActivity(this);
     }
 
     @Override
@@ -235,54 +248,97 @@ public class RMainActivity extends AppCompatActivity implements CallbackToMainAc
         startActivity(intent);
     }
 
+    private void lentIn() {
+        // 切换至借阅记录界面
+        rMainActivityPagerAdapter.getItem(0);
+    }
+
+    static class MyHandler extends Handler {
+        private WeakReference<RMainActivity> rMainActivityWeakReference;
+        public MyHandler(WeakReference<RMainActivity> rMainActivity){
+            this.rMainActivityWeakReference = rMainActivity;
+        }
+        @Override
+        public void handleMessage(Message msg){
+            int what = msg.what;
+            RMainActivity myActivity = rMainActivityWeakReference.get();
+            if(what == UNKNOWN_REQUEST_ERROR || what == REQUEST_FAIL) {
+                Bundle data = msg.getData();
+                Toast.makeText(myActivity,data.getString("reason"), Toast.LENGTH_SHORT).show();
+            } else if (what == LENT_BOOK_OK) {
+                myActivity.lentIn();
+            } else {
+                Bundle bundle = msg.getData();
+                DialogUtil.showDialog(myActivity, TAG, bundle, what == REQUEST_INTERCEPTED);
+            }
+        }
+    }
+
+    MyHandler myHandler = new MyHandler(new WeakReference(this));
+    
     @Override
     public void success(Response response, int code) throws IOException {
         // 获取服务器响应字符串
         String result = response.body().string().trim();
         JSONObject jsonObject = JSON.parseObject(result);
+        Message msg = new Message();
+        Bundle bundle = new Bundle();
         // 返回值为true,说明请求被拦截
         if (HttpUtil.requestIsIntercepted(jsonObject)) {
-            Bundle bundle = new Bundle();
             String message = jsonObject.getString("message");
             String c = jsonObject.getString("code");
             String tip = jsonObject.getString("tip");
             bundle.putString("message",message);
             bundle.putString("code",c);
             bundle.putString("tip",tip);
-            DialogUtil.showDialog(this,TAG,bundle,true);
+            msg.setData(bundle);
+            msg.what = REQUEST_INTERCEPTED;
+            myHandler.sendMessage(msg);
         } else {
             if(code == LENT_BOOK){
                 String message = jsonObject.getString("message");
                 if("借入成功！".equals(message)){
-                    Intent intent = new Intent(RMainActivity.this, RBorrowFragment.class);
-                    startActivity(intent);
+                    msg.what = LENT_BOOK_OK;
                 }else {
-                    Bundle bundle = new Bundle();
                     String c = jsonObject.getString("code");
                     String tip = jsonObject.getString("tip");
                     bundle.putString("message",message);
                     bundle.putString("code",c);
                     bundle.putString("tip",tip);
-                    DialogUtil.showDialog(this,TAG,bundle,false);
+                    msg.setData(bundle);
+                    msg.what = LENT_BOOK_FAIL;
+                    myHandler.sendMessage(msg);
                 }
             }else {
-                Toast.makeText(this,"未知请求，无法处理",Toast.LENGTH_SHORT).show();
+                bundle.putString("reason","未知错误");
+                msg.setData(bundle);
+                msg.what = UNKNOWN_REQUEST_ERROR;
+                myHandler.sendMessage(msg);
+                myHandler.sendEmptyMessage(UNKNOWN_REQUEST_ERROR);
             }
         }
     }
 
     @Override
     public void failed(IOException e, int code) {
+        Message message = new Message();
+        Bundle bundle = new Bundle();
         String reason;
         if (e instanceof SocketTimeoutException) {
             reason = "连接超时";
+            message.what = REQUEST_FAIL;
         } else if (e instanceof ConnectException) {
             reason = "连接服务器失败";
+            message.what = REQUEST_FAIL;
         } else if (e instanceof UnknownHostException) {
             reason = "网络异常";
+            message.what = REQUEST_FAIL;
         } else {
             reason = "未知错误";
+            message.what = UNKNOWN_REQUEST_ERROR;
         }
-        Toast.makeText(this,reason,Toast.LENGTH_SHORT).show();
+        bundle.putString("reason",reason);
+        message.setData(bundle);
+        myHandler.sendMessage(message);
     }
 }

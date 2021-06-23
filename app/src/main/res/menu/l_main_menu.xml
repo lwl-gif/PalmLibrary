@@ -8,18 +8,23 @@
         android:title="@string/add_book"
         app:showAsAction="never" />
     <item
+        android:id="@+id/menu_AddApplication"
+        android:orderInCategory="30"
+        android:title="@string/add_application"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/menu_Scan"
         app:showAsAction="never"
-        android:orderInCategory="30"
+        android:orderInCategory="40"
         android:title="@string/scan"/>
     <item
         android:id="@+id/menu_Feedback"
         app:showAsAction="never"
-        android:orderInCategory="40"
+        android:orderInCategory="50"
         android:title="@string/feedback"/>
     <item
         android:id="@+id/menu_AboutUs"
         app:showAsAction="never"
-        android:orderInCategory="50"
+        android:orderInCategory="60"
         android:title="@string/aboutUs"/>
 </menu>

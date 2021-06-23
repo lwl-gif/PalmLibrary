@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.fastjson.JSONArray;
 import com.example.ul.R;
-import com.example.ul.callback.CallbackToBorrowBookActivity;
 import com.example.ul.callback.CallbackToRBorrowFragment;
 
 import org.jetbrains.annotations.NotNull;
@@ -26,8 +25,6 @@ import java.util.Locale;
  * @Modified By:
  */
 public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.ViewHolder>{
-
-    private final String TAG = "BorrowListAdapter";
 
     private Context context;
     /**定义需要包装的JSONArray对象*/
@@ -111,11 +108,11 @@ public class BorrowListAdapter extends RecyclerView.Adapter<BorrowListAdapter.Vi
         String itemReaderId = jsonArray.getJSONObject(position).getString(readerId);
         String itemReaderName = jsonArray.getJSONObject(position).getString(readerName);
         String itemState = jsonArray.getJSONObject(position).getString(state);
-        Long Start = jsonArray.getJSONObject(position).getLong(start);
-        Long End = jsonArray.getJSONObject(position).getLong(end);
-        Date date = new Date(Start);
+        long startTime = jsonArray.getJSONObject(position).getLong(start);
+        long endTime = jsonArray.getJSONObject(position).getLong(end);
+        Date date = new Date(startTime);
         String itemStart = format.format(date);
-        Date date0 = new Date(End);
+        Date date0 = new Date(endTime);
         String itemEnd = format.format(date0);
         // 给列表项组件赋值
         holder.id.setText(itemId);

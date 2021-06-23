@@ -203,7 +203,7 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
         } else {
             long l = Long.parseLong(d);
             Date date = new Date(l);
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd",Locale.getDefault());
             String tvDate = format.format(date);
             tDate.setText(tvDate);
         }
@@ -327,7 +327,10 @@ public class RBookDetailActivity extends Activity implements HttpUtil.MyCallback
                 }
                 myHandler.sendMessage(msg);
             } else {
-                myHandler.sendEmptyMessage(UNKNOWN_REQUEST_ERROR);
+                bundle.putString("reason","未知错误");
+                msg.setData(bundle);
+                msg.what = UNKNOWN_REQUEST_ERROR;
+                myHandler.sendMessage(msg);
             }
         }
     }

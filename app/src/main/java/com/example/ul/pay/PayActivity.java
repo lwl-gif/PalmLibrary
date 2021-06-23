@@ -17,7 +17,6 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,9 +60,9 @@ import okhttp3.Response;
  * @author luoweili
  */
 @SuppressLint("NonConstantResourceId")
-public class PayDemoActivity extends Activity implements HttpUtil.MyCallback, PayWayAdapter.AfterSelectedChange, DialogUtil.DialogActionCallback{
+public class PayActivity extends Activity implements HttpUtil.MyCallback, PayWayAdapter.AfterSelectedChange, DialogUtil.DialogActionCallback{
 
-	private static final String TAG = "PayDemoActivity";
+	private static final String TAG = "PayActivity";
 	/**未知错误*/
 	private static final int UNKNOWN_REQUEST_ERROR = 1900;
 	/**请求失败*/
@@ -120,29 +119,29 @@ public class PayDemoActivity extends Activity implements HttpUtil.MyCallback, Pa
 	}
 
 	void init(int id) {
-		ivBack.setOnClickListener(v -> PayDemoActivity.this.finish());
+		ivBack.setOnClickListener(v -> PayActivity.this.finish());
 		payWayAdapter = new PayWayAdapter(this);
 		payWayRecyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.VERTICAL,false));
 		btnPay.setOnClickListener(v -> {
 			// 支付宝支付
 			if(position == 0){
 				if(orderInfo == null){
-					Toast.makeText(PayDemoActivity.this,"无订单信息，无法发起支付！",Toast.LENGTH_LONG).show();
+					Toast.makeText(PayActivity.this,"无订单信息，无法发起支付！",Toast.LENGTH_LONG).show();
 				}else {
 					payV2(orderInfo);
 				}
 			}
 			// 花呗支付
 			else if(position == 1){
-				Toast.makeText(PayDemoActivity.this,"花呗支付功能尚未开发，请使用支付宝支付",Toast.LENGTH_LONG).show();
+				Toast.makeText(PayActivity.this,"花呗支付功能尚未开发，请使用支付宝支付",Toast.LENGTH_LONG).show();
 			}
 			// 花呗分期
 			else if(position == 2){
-				Toast.makeText(PayDemoActivity.this,"花呗分期支付功能尚未开发，请使用支付宝支付",Toast.LENGTH_LONG).show();
+				Toast.makeText(PayActivity.this,"花呗分期支付功能尚未开发，请使用支付宝支付",Toast.LENGTH_LONG).show();
 			}
 			// 未选择
 			else {
-				Toast.makeText(PayDemoActivity.this,"请先选择一种支付方式",Toast.LENGTH_LONG).show();
+				Toast.makeText(PayActivity.this,"请先选择一种支付方式",Toast.LENGTH_LONG).show();
 			}
 		});
 		// 发出缴费请求
@@ -204,7 +203,7 @@ public class PayDemoActivity extends Activity implements HttpUtil.MyCallback, Pa
 		final Runnable payRunnable = new Runnable() {
 			@Override
 			public void run() {
-				PayTask alipay = new PayTask(PayDemoActivity.this);
+				PayTask alipay = new PayTask(PayActivity.this);
 				Map<String, String> result = alipay.payV2(orderInfo, true);
 				Log.i("msp", result.toString());
 				Message msg = new Message();
@@ -227,7 +226,7 @@ public class PayDemoActivity extends Activity implements HttpUtil.MyCallback, Pa
 			@Override
 			public void run() {
 				// 构造AuthTask 对象
-				AuthTask authTask = new AuthTask(PayDemoActivity.this);
+				AuthTask authTask = new AuthTask(PayActivity.this);
 				// 调用授权接口，获取授权结果
 				Map<String, String> result = authTask.authV2(authInfo, true);
 				Message msg = new Message();
@@ -333,16 +332,16 @@ public class PayDemoActivity extends Activity implements HttpUtil.MyCallback, Pa
 
 	@SuppressLint("HandlerLeak")
 	class MyHandler extends Handler {
-		private WeakReference<PayDemoActivity> payDemoActivityWeakReference;
+		private WeakReference<PayActivity> payDemoActivityWeakReference;
 
-		public MyHandler(WeakReference<PayDemoActivity> payDemoActivityWeakReference) {
+		public MyHandler(WeakReference<PayActivity> payDemoActivityWeakReference) {
 			this.payDemoActivityWeakReference = payDemoActivityWeakReference;
 		}
 
 		@Override
 		// 对于支付结果，请商户依赖服务端的异步通知结果。同步通知结果，仅作为支付结束的通知
 		public void handleMessage(Message msg) {
-			PayDemoActivity myActivity = payDemoActivityWeakReference.get();
+			PayActivity myActivity = payDemoActivityWeakReference.get();
 			int what = msg.what;
 			// 跳转支付结果
 			if (what == SDK_PAY_FLAG) {
@@ -363,7 +362,7 @@ public class PayDemoActivity extends Activity implements HttpUtil.MyCallback, Pa
 					hashMap.put("message",getString(R.string.pay_failed));
 					hashMap.put("tip","若有疑问，请联系管理员！");
 				}
-				DialogUtil.showDialog(PayDemoActivity.this,true,false,"支付结果通知",PayDemoActivity.this,hashMap);
+				DialogUtil.showDialog(PayActivity.this,true,false,"支付结果通知", PayActivity.this,hashMap);
 			}
 			// 授权支付结果
 			else if (what == SDK_AUTH_FLAG) {
